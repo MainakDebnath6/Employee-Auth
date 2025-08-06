@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard – Engineer Attendance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <style>
+    body, html { margin: 0; background: #f6f7fa; font-family: 'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; min-height: 100vh; overflow-x: hidden;}
+    .container { max-width: 1080px; margin: 2.2rem auto; background: #fff; border-radius: 18px; padding: 2.8rem 3.2rem 2.5rem; min-height: 90vh; box-shadow: 0 7px 36px #e2e2e842, 0 1.5px 5px #b8b8b81f; display: flex; flex-direction: column;}
+    header { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-bottom: 2rem; justify-content: space-between;}
+    .logo-small { width: 105px; max-width: 18vw; filter: grayscale(12%) drop-shadow(0 1.4px 4px #aaa);}
+    #user-name { font-weight: 800; color: #26312a; font-size: 1.38rem; flex-grow: 1;}
+    #logout { background: #e0e1e2; color: #444; font-weight: 700; border-radius: 20px; min-width: 100px; height: 42px; border: none; font-size: 1rem; transition: background 0.2s, color 0.2s;}
+    #logout:hover { background: #bbb; color: #111; }
+    #attendance-cards { flex-grow: 1; max-height: 540px; overflow-y: auto; margin-bottom: 2.2rem; scroll-behavior: smooth;}
+    .attendance-card { background: #f4f5f7; border-radius: 13px; box-shadow: 0 2px 10px #e2e7f0aa; padding: 1.25rem 2.0rem; margin-bottom: 1.5rem; display: flex; gap: 2.5rem; justify-content: flex-start; align-items: center; font-size: 1.09rem; flex-wrap: wrap;}
+    .photo-row { display: flex; flex-direction: column; align-items: center; width: 125px; font-weight: 700; color: #444; font-size: 1.04rem;}
+    .photo-row img { border-radius: 13px; width: 120px; height: 120px; object-fit: cover; margin-bottom: 0.62rem; border: 1.4px solid #bebec8; box-shadow: 0 2px 5px #d2dbe7; background: #fff;}
+    .job-place { flex-grow: 1; font-size: 1.12rem; font-weight: 700; color: #757b8a; text-align: center; min-width: 240px;}
+    #map-wrapper { position: relative; width: 100%; height: 325px; margin-bottom: 1.5rem; border-radius: 14px; background: #f7fafe;}
+    #pac-input { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 480px; background: #f8f8fa; border-radius: 8px; border: 1.3px solid #c2c4cc; padding: 0.6rem 1.25rem; font-size: 1.09rem; z-index: 99; box-shadow: 0 3px 15px #d6dae3a2; transition: box-shadow 0.18s;}
+    #pac-input:focus { border-color: #8898c9; box-shadow: 0 0 22px #b7c5e9da;}
+    #map { width: 100%; height: 100%; border-radius: 14px; user-select:none;}
+    .btn, #checkin-btn, #checkout-btn { border-radius: 23px; font-weight: 700; min-width: 140px; height: 48px; color: #fff; font-size: 1.08rem; margin: 0.20rem 0.38rem; border: none; transition: background .20s; user-select: none;}
+    #checkin-btn { background: #57606f;}
+    #checkin-btn:hover { background: #353b48;}
+    #checkout-btn { background: #8ca3df;}
+    #checkout-btn:hover { background: #4a6dab;}
+    #action-alert { margin-top: 1rem; font-weight: 600; min-height: 38px; border-radius: 12px; opacity: 0; transition: opacity 0.45s ease; color: #344354; background: #e3e5eb; border: none; max-width: 98vw;}
+    #action-alert.show { opacity: 1;}
+    #camera-section { display: none; text-align: center; margin-top: 18px;}
+    #video, #photo-preview { width: 100%; max-height: 260px; border-radius: 11px; box-shadow: 0 3px 16px #2f59b060; margin-top: 14px; object-fit: cover;}
+    #snap-btn { margin-top: 18px; border-radius: 24px; font-size: 1.06rem; font-weight: 700; background: #8ca3df; color: white; border: none; padding: 0.45rem 1.6rem; transition: background-color 0.3s; user-select: none; cursor: pointer;}
+    #snap-btn:hover { background-color: #5672a1; }
+    @media (max-width: 1050px) { .container { max-width: 99vw; padding: 1.6rem 0.4rem; } }
+    @media (max-width: 650px) { .attendance-card { flex-direction: column; gap: 1rem; padding: 1.1rem 1vw;} .photo-row { width: 95px; font-size: 0.98rem; } .photo-row img { width: 92px; height: 92px;} .job-place { min-width: unset; font-size:1rem;} }
+    @media (max-width: 450px) { #pac-input { font-size: 0.97rem; padding: 0.5rem 0.89rem; width: 98%; } }
+  </style>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <div class="container" role="main" aria-label="Engineer Attendance Dashboard">
+    <header>
+      <img src="./Bureau_Veritas.svg.png" alt="Bureau Veritas logo" class="logo-small" draggable="false" />
+      <span id="user-name" aria-live="polite" aria-atomic="true">Welcome, User</span>
+      <button id="logout" aria-label="Logout button">Logout</button>
+    </header>
+    <div id="attendance-cards" aria-live="polite" aria-atomic="true"></div>
+    <hr />
+    <div id="job-details" aria-label="Attendance site selection">
+      <label for="pac-input" class="form-label fw-bold" style="color:#26312a; font-weight:800;">Search Site Address or Place</label>
+      <div id="map-wrapper">
+        <input id="pac-input" type="text" autocomplete="off" placeholder="Search site address or place" aria-label="Search map site address or place" />
+        <div id="map" role="region" aria-label="Google Map showing selected site"></div>
+      </div>
+      <div class="d-flex gap-3 flex-wrap justify-content-center mt-3 mb-3">
+        <button class="btn" id="checkin-btn" aria-label="Mark entry">Mark Entry</button>
+        <button class="btn" id="checkout-btn" aria-label="Mark exit">Mark Exit</button>
+      </div>
+      <div id="action-alert" class="alert d-none" role="alert"></div>
+    </div>
+    <div id="camera-section" aria-live="polite" style="margin-top: 18px;">
+      <video id="video" autoplay playsinline aria-label="Camera preview"></video>
+      <button id="snap-btn" aria-label="Capture Photo">Capture Photo</button>
+      <canvas id="canvas" style="display: none;"></canvas>
+      <img id="photo-preview" alt="Captured photo preview" />
+    </div>
+  </div>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA97qnWyZu_Id_BCQhWvwOhm6qxn0TPty8&libraries=places"></script>
+  <script>
+    if (!sessionStorage.getItem("googleEmail")) window.location.href = "login.html";
+    document.getElementById("user-name").textContent = `Welcome, ${sessionStorage.getItem("googleName") || "User"}`;
+    document.getElementById("logout").addEventListener("click", () => {
+      sessionStorage.clear();
+      window.location.href = "login.html";
+    });
+
+    let jobs = [], selectedPlace = null, map, marker;
+    let entryPhoto = "", exitPhoto = "", entryTime = "", exitTime = "";
+    let userLat = null, userLng = null, userLiveMarker = null, userAccuracyCircle = null;
+    let hasCenteredToUser = false;
+
+    gsap.from("header", {duration: 1, y: -30, opacity: 0, ease: "power3.out"});
+    gsap.from("#job-details", {duration: 1, delay: 0.4, y: 22, opacity: 0, ease: "power3.out"});
+
+    function escapeHtml(text) {
+      if (!text) return "";
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    function showAlert(msg, isError = false) {
+      const alertBox = document.getElementById("action-alert");
+      alertBox.classList.remove("d-none", "alert-info", "alert-danger");
+      alertBox.classList.add(isError ? "alert-danger" : "alert-info");
+      alertBox.textContent = msg;
+      gsap.to(alertBox, { opacity: 1, duration: 0.45 });
+      alertBox.classList.add("show");
+      clearTimeout(showAlert.timeout);
+      showAlert.timeout = setTimeout(() => {
+        gsap.to(alertBox, { opacity: 0, duration: 0.6, onComplete: () => alertBox.classList.add("d-none") });
+      }, msg ? 4000 : 1200);
+    }
+
+    function renderAttendanceCards() {
+      const container = document.getElementById("attendance-cards");
+      if (jobs.length === 0) {
+        container.innerHTML = `<p style="color:#445577; text-align:center; font-weight:600; margin-top:1rem;">No job records found.</p>`;
+        return;
+      }
+      container.innerHTML = jobs.map(job => `
+        <div class="attendance-card" tabindex="0" aria-label="Attendance entry for ${escapeHtml(job.place)}">
+          <div class="photo-row">
+            <img src="${job.entryPhoto}" alt="Entry photo for ${escapeHtml(job.place)}" />
+            <div>Entry<br>${job.entryTime}</div>
+          </div>
+          ${job.exitPhoto ? `
+          <div class="photo-row">
+            <img src="${job.exitPhoto}" alt="Exit photo for ${escapeHtml(job.place)}" />
+            <div>Exit<br>${job.exitTime}</div>
+          </div>` : ""}
+          <div class="job-place">${escapeHtml(job.place)}</div>
+        </div>`).join("");
+    }
+
+    function showLiveUserOnMap(lat, lng, accuracy) {
+      userLat = lat; userLng = lng;
+      if (!map) return;
+      if (!userLiveMarker) {
+        userLiveMarker = new google.maps.Marker({
+          map: map,
+          position: { lat, lng },
+          title: "Your Location",
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 9,
+            fillColor: "#2196F3",
+            fillOpacity: 0.9,
+            strokeWeight: 2,
+            strokeColor: "#fff"
+          }
+        });
+      } else userLiveMarker.setPosition({ lat, lng });
+      if (!userAccuracyCircle) {
+        userAccuracyCircle = new google.maps.Circle({
+          map: map,
+          strokeColor: "#2196F3",
+          strokeOpacity: 0.10,
+          strokeWeight: 2,
+          fillColor: "#2196F3",
+          fillOpacity: 0.13,
+          center: { lat, lng },
+          radius: accuracy || 30
+        });
+      } else {
+        userAccuracyCircle.setCenter({ lat, lng });
+        userAccuracyCircle.setRadius(accuracy || 30);
+      }
+      if (!hasCenteredToUser) {
+        map.setCenter({ lat, lng });
+        map.setZoom(Math.max(map.getZoom(), 16));
+        hasCenteredToUser = true;
+      }
+    }
+
+    function initMap() {
+      const defaultCenter = { lat: 28.61, lng: 77.23 };
+      const mapElement = document.getElementById("map");
+      if (!mapElement) return;
+      map = new google.maps.Map(mapElement, {
+        center: defaultCenter,
+        zoom: 12,
+        streetViewControl: false,
+        fullscreenControl: true,
+      });
+      const input = document.getElementById("pac-input");
+      const searchBox = new google.maps.places.SearchBox(input);
+      map.addListener("bounds_changed", () => searchBox.setBounds(map.getBounds()));
+      searchBox.addListener("places_changed", () => {
+        const places = searchBox.getPlaces();
+        if (!places || places.length === 0) {
+          selectedPlace = null;
+          if (marker) marker.setMap(null);
+          marker = null;
+          return;
+        }
+        selectedPlace = places[0];
+        if (marker) marker.setMap(null);
+        marker = new google.maps.Marker({
+          map: map,
+          position: selectedPlace.geometry.location,
+          title: selectedPlace.name,
+          animation: google.maps.Animation.BOUNCE
+        });
+        map.panTo(selectedPlace.geometry.location);
+        map.setZoom(Math.max(16, map.getZoom()));
+        setTimeout(() => marker.setAnimation(null), 1200);
+        showAlert("", false);
+      });
+      // Request live geolocation immediately
+      if (navigator.geolocation)
+        navigator.geolocation.watchPosition(
+          pos => showLiveUserOnMap(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
+          err => showAlert("Enable location access for live map features.", true),
+          { enableHighAccuracy: true }
+        );
+      setTimeout(() => { input.blur(); input.focus(); }, 500);
+    }
+
+    function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const toRad = deg => (deg * Math.PI) / 180;
+      const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2)
+        + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function openCamera(type) {
+      $("#job-details").hide(); $("#camera-section").show();
+      $("#photo-preview").attr("src", "");
+      const video = document.getElementById("video");
+      if (video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
+      video.srcObject = null;
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then(stream => {
+          video.srcObject = stream; video.play();
+          $("#snap-btn").off("click").on("click", () => {
+            const canvas = document.getElementById("canvas");
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imgData = canvas.toDataURL("image/png");
+            $("#photo-preview").attr("src", imgData);
+            stream.getTracks().forEach(t => t.stop());
+            gsap.fromTo("#photo-preview", { opacity: 0 }, { opacity: 1, duration: 1, ease: "power1.out" });
+            if (type === "entry") entryPhoto = imgData; else exitPhoto = imgData;
+            setTimeout(() => finishAttendance(type), 550);
+          });
+        }).catch(() => {
+          showAlert("Camera access denied! Cannot capture photo.", true);
+          $("#camera-section").hide(); $("#job-details").show();
+        });
+    }
+
+    function finishAttendance(type) {
+      $("#camera-section").hide(); $("#job-details").show();
+      if (type === "entry") {
+        entryTime = new Date().toLocaleString();
+        showAlert("Entry marked and photo captured.");
+      }
+      if (type === "exit") {
+        exitTime = new Date().toLocaleString();
+        showAlert("Exit marked and photo captured.");
+        jobs.push({
+          place: selectedPlace?.name || "Unknown Place",
+          entryTime: entryTime,
+          exitTime: exitTime,
+          entryPhoto: entryPhoto,
+          exitPhoto: exitPhoto
+        });
+        renderAttendanceCards();
+        entryTime = exitTime = entryPhoto = exitPhoto = "";
+        selectedPlace = null; $("#pac-input").val(""); if (marker) marker.setMap(null); marker = null;
+      }
+    }
+
+    $("#checkin-btn").click(() => {
+      if (!selectedPlace) { showAlert("Please select a place from the map.", true); return; }
+      if (userLat == null || userLng == null) { showAlert("Obtaining your location... Please wait.", true); return; }
+      const plat = selectedPlace.geometry.location.lat(), plng = selectedPlace.geometry.location.lng();
+      const dist = getDistanceFromLatLonInMeters(userLat, userLng, plat, plng);
+      if (dist <= 400) { openCamera("entry"); }
+      else {
+        showAlert(`You are NOT within 400 meters of "${selectedPlace.name}". Detected: ${Math.round(dist)}m away. Move closer to check in.`, true);
+      }
+    });
+
+    $("#checkout-btn").click(() => {
+      if (!selectedPlace) { showAlert("Please select a place from the map.", true); return; }
+      if (!entryPhoto) { showAlert("You must mark entry before marking exit!", true); return; }
+      if (userLat == null || userLng == null) { showAlert("Obtaining your location... Please wait.", true); return; }
+      const plat = selectedPlace.geometry.location.lat(), plng = selectedPlace.geometry.location.lng();
+      const dist = getDistanceFromLatLonInMeters(userLat, userLng, plat, plng);
+      if (dist <= 400) { openCamera("exit"); }
+      else {
+        showAlert(`Not within 400 meters of "${selectedPlace.name}". You are ${Math.round(dist)}m away. Move closer to check out.`, true);
+      }
+    });
+
+    window.onload = () => { initMap(); renderAttendanceCards(); };
+  </script>
+</body>
+</html>
