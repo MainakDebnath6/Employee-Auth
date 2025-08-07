@@ -4,126 +4,271 @@
   <meta charset="UTF-8" />
   <title>Dashboard – Engineer Attendance</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+  
+  <!-- Vanilla Calendar CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-calendar-pro/build/vanilla-calendar.min.css"/>
+  
+  <!-- jQuery and GSAP -->
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  
+  <!-- Vanilla Calendar JS -->
+  <script src="https://cdn.jsdelivr.net/npm/vanilla-calendar-pro/build/vanilla-calendar.min.js"></script>
+  
   <style>
-    body, html { margin: 0; background: #f6f7fa; font-family: 'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; min-height: 100vh; }
-    .container { max-width: 1160px; margin: 2.2rem auto; background: #fff; border-radius: 18px; padding: 2.5rem 2.2rem 2.1rem; min-height: 95vh; box-shadow: 0 7px 36px #e2e2e842, 0 1.5px 5px #b8b8b81f; display: flex; flex-direction: column;}
-    header { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-bottom: 2rem; justify-content: space-between;}
-    .logo-small { width: 120px; max-width: 19vw; filter: grayscale(12%) drop-shadow(0 1.4px 4px #aaa);}
-    #user-name { font-weight: 800; color: #26312a; font-size: 1.38rem; flex-grow: 1;}
-    #logout { background: #e0e1e2; color: #444; font-weight: 700; border-radius: 20px; min-width: 115px; height: 46px; border: none; font-size: 1rem; transition: background 0.2s, color 0.2s;}
-    #logout:hover { background: #bbb; color: #111; }
-    #attendance-cards { flex-grow: 1; max-height: 540px; overflow-y: auto; margin-bottom: 2.1rem; scroll-behavior: smooth;}
-    .attendance-card {
-      background: linear-gradient(135deg,#f4f5f7 80%,#e3e8ef 100%);
-      border-radius: 15px;
-      box-shadow: 0 3px 26px #e2e6ef55;
-      padding: 1.4rem 2.6rem;
-      margin-bottom: 1.7rem;
+    body, html {
+      background: #f6f7fa;
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .container {
+      max-width: 1160px;
+      margin: 2.2rem auto;
+      background: #fff;
+      border-radius: 18px;
+      padding: 2.5rem 2.2rem 2.4rem;
+      box-shadow: 0 7px 36px #e2e2e842, 0 2px 7px #b8b8b81f;
       display: flex;
-      gap: 2.5rem;
+      flex-direction: column;
+    }
+    header {
+      display: flex;
       align-items: center;
-      font-size: 1.17rem;
+      gap: 18px;
       flex-wrap: wrap;
+      margin-bottom: 1.9rem;
+      justify-content: space-between;
+    }
+    .logo-small {
+      width: 92px;
+      filter: grayscale(15%);
+    }
+    #user-name {
+      font-weight: 800;
+      color: #26312a;
+      font-size: 1.32rem;
+      flex-grow: 1;
+    }
+    #logout {
+      background: #e0e1e2;
+      color: #444;
+      font-weight: 700;
+      border-radius: 20px;
+      min-width: 105px;
+      height: 45px;
+      border: none;
+      font-size: 1rem;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+    #logout:hover {
+      background: #bbb;
+      color: #111;
+    }
+
+    /* Calendar popup toggle button */
+    .calendar-popup-toggle {
+      text-align: center;
+      margin-bottom: 1.8rem;
+    }
+    #open-calendar-btn {
+      font-weight: 600;
+      font-size: 1.14rem;
+      cursor: pointer;
+    }
+
+    /* Calendar modal overlay */
+    #calendar-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(60,70,95,0.12);
+      z-index: 9999;
+    }
+    /* Calendar modal window */
+    #calendar-modal-window {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 1.2em 1.2em 0.8em 1.2em;
+      border-radius: 18px;
+      box-shadow: 0 12px 44px #0003;
+      min-width: 260px;
+      min-height: 140px;
+      max-width: 98vw;
+      max-height: 98vh;
+      z-index: 20000;
+      overflow: auto;
+    }
+    /* Close button */
+    #close-calendar-btn {
+      border: none;
+      background: transparent;
+      font-size: 1.4rem;
+      color: #888;
+      cursor: pointer;
+      font-weight: 700;
+      float: right;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    /* Calendar container */
+    #my-calendar {
+      width: 100%;
+      max-width: 360px;
+      min-width: 220px;
+      border-radius: 18px;
+      margin: auto;
+    }
+    /* Highlight calendar days with entries */
+    .vanilla-calendar-day__btn.has-entry {
+      background: #96b6ff !important;
+      color: #fff !important;
+      border-radius: 50% !important;
+    }
+
+    #attendance-cards {
+      flex-grow: 1;
+      overflow-y: auto;
+      margin-bottom: 2.1rem;
+    }
+    .attendance-card {
+      background: linear-gradient(135deg,#f4f5fa 85%,#e3e8ef 100%);
+      border-radius: 17px;
+      box-shadow: 0 3px 24px #dde2f555;
+      padding: 1.25rem 2.2rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 2.1rem;
+      align-items: center;
+      font-size: 1.14rem;
       border: 2px solid #f0f3fa;
       position: relative;
-      min-height: 180px;
-      transition: box-shadow .2s, border-color .2s;
+      min-height: 185px;
+      transition: box-shadow .18s;
     }
-    .attendance-card.pending-exit { border-color: #fec362; box-shadow: 0 0 0 3px #ffecc5b9; }
-    .attendance-card.completed { border-color: #9ad9aa; box-shadow: 0 0 0 3px #e7f5e9c5; }
+    .attendance-card.selected {
+      border-color: #96b6ff;
+      background: linear-gradient(135deg,#e7f2ff 80%,#ffffff 100%);
+    }
+    .attendance-card.pending-exit {
+      border-color: #ffd987;
+      box-shadow: 0 0 0 3px #ffecc5b9;
+    }
+    .attendance-card.completed {
+      border-color: #9ad9aa;
+      box-shadow: 0 0 0 3px #e7f5e9c5;
+    }
     .attendance-card:after {
-      content: attr(data-status);
-      position: absolute; top: 15px; right: 30px; font-size: 1.02rem;
-      padding: 2.5px 12px; border-radius: 12px;
-      background: #f6f9fe;
-      color: #48494b;
+      position: absolute;
+      top: 12px;
+      right: 32px;
+      font-size: 1.01rem;
+      padding: 2px 12px;
+      border-radius: 13px;
+      background: #f4f7fb;
+      color: #5d5e60;
       font-weight: 700;
-      opacity: 0.67;
-      letter-spacing: 1.5px;
-      pointer-events: none;
+      opacity: 0.62;
     }
-    .attendance-card.pending-exit:after { content: "Entry Open"; background: #ffe7b2; color: #8a7333; opacity: 0.95;}
-    .attendance-card.completed:after { content: "Completed"; background: #d8ffe1; color: #347055; opacity: 0.90;}
-    .photo-row { display: flex; flex-direction: column; align-items: center; width: 180px; font-weight: 700; color: #444; font-size: 1.07rem; }
-    .photo-row img { border-radius: 17px; width: 175px; height: 175px; object-fit: cover; margin-bottom: 0.66rem; border: 2px solid #ececec; box-shadow: 0 5px 15px #dadddfb3; background: #fbfbfb; transition: box-shadow 0.25s;}
-    .attendance-card.pending-exit .photo-row img { border-color: #fec36255; box-shadow: 0 0 20px #ffecc5ba; }
-    .attendance-card.completed .photo-row img { border-color: #9ad9aa; box-shadow: 0 2px 12px #e0f6e8e2; }
-    .job-place { flex-grow: 1; font-size: 1.25rem; font-weight: 900; color: #356; text-align: center; letter-spacing: 0.5px; margin-bottom: 0; }
-    @media (max-width: 1100px) {
-      .container { max-width:99vw; padding:1.2rem 0.5rem; }
-      .attendance-card { flex-direction: column; align-items: stretch; gap: 1.2rem; padding: 1.2rem 1vw;}
-      .photo-row { width: 98vw; max-width:370px; align-items:center;}
-      .photo-row img { width:98vw; max-width:360px; height:165px; }
+    .attendance-card.pending-exit:after {
+      content: "Entry Open";
+      background: #ffe7b2;
+      color: #8a7333;
+      opacity: 0.98;
+    }
+    .attendance-card.completed:after {
+      content: "Completed";
+      background: #d8ffe1;
+      color: #347055;
+      opacity: 0.95;
+    }
+    .photo-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 175px;
+    }
+    .photo-row img {
+      border-radius: 15px;
+      width: 170px;
+      height: 170px;
+      object-fit: cover;
+      margin-bottom: 0.66rem;
+      border: 2px solid #ececec;
+      box-shadow: 0 4px 15px #dadddfb3;
+      background: #fbfbfb;
+    }
+    .job-place {
+      flex-grow: 1;
+      font-size: 1.22rem;
+      font-weight: 800;
+      color: #356;
+      text-align: center;
+      letter-spacing: 0.5px;
     }
     #map-wrapper {
-      position:relative;
+      position: relative;
       width: 100%;
-      height: 430px;
-      margin-bottom: 2.1rem;
-      border-radius: 16px;
+      height: 440px;
+      margin-bottom: 2.2rem;
+      border-radius: 17px;
       background: #f7fafe;
-      box-shadow: 0 2px 16px #e5effb59;
+      box-shadow: 0 2px 18px #e5effb48;
     }
     #pac-input {
       position: absolute;
-      top:30px;
+      top: 30px;
       left: 50%;
       transform: translateX(-50%);
-      width: 92%;
-      max-width: 480px;
+      width: 95%;
+      max-width: 520px;
       background: #f8f8fa;
       border-radius: 10px;
       border: 1.8px solid #c2c4cc;
       padding: 0.7rem 1.5rem;
-      font-size: 1.14rem;
+      font-size: 1.15rem;
       z-index: 99;
-      box-shadow: 0 6px 28px #d6dae3b5;
-      transition: box-shadow 0.18s;
-    }
-    #pac-input:focus {
-      border-color: #7490c9;
-      box-shadow: 0 0 30px #b7d1e9cc;
     }
     #map {
       width: 100%;
       height: 100%;
-      border-radius: 16px;
-      user-select:none;
+      border-radius: 17px;
+      user-select: none;
     }
     .btn, #checkin-btn, #checkout-btn {
-      border-radius: 24px;
+      border-radius: 25px;
       font-weight: 700;
-      min-width: 150px;
-      height: 50px;
+      min-width: 140px;
+      height: 48px;
       color: #fff;
       font-size: 1.1rem;
-      margin: 0.20rem 0.38rem;
-      border: none;
-      transition: background 0.20s, letter-spacing 0.04s;
-      user-select: none;
+      margin: 0.22rem 0.35rem;
     }
     #checkin-btn {
       background: #57606f;
     }
     #checkin-btn:hover {
       background: #434952;
-      letter-spacing: 1.2px;
     }
     #checkout-btn {
       background: #8ca3df;
     }
     #checkout-btn:hover {
       background: #4a6dab;
-      letter-spacing: 1.2px;
     }
     #action-alert {
       margin-top: 1rem;
       font-weight: 600;
       min-height: 38px;
-      border-radius: 12px;
+      border-radius: 13px;
       opacity: 0;
       transition: opacity 0.45s;
       color: #344354;
@@ -141,10 +286,10 @@
     }
     #video, #photo-preview {
       width: 99vw;
-      max-width: 425px;
-      max-height: 260px;
-      border-radius: 18px;
-      box-shadow: 0 3px 16px #2f59b064;
+      max-width: 435px;
+      max-height: 265px;
+      border-radius: 19px;
+      box-shadow: 0 3px 16px #a3bce4;
       margin-top: 14px;
       object-fit: cover;
     }
@@ -156,9 +301,7 @@
       background: #8ca3df;
       color: white;
       border: none;
-      padding: 0.52rem 2.1rem;
-      transition: background-color 0.28s;
-      user-select: none;
+      padding: 0.55rem 2.2rem;
       cursor: pointer;
     }
     #snap-btn:hover {
@@ -166,14 +309,18 @@
     }
     @media (max-width: 700px) {
       .logo-small {
-        width: 88px;
+        width: 77px;
       }
-      .photo-row img, #video, #photo-preview {
-        width: 95vw;
+      .photo-row img,
+      #video,
+      #photo-preview {
+        width: 97vw;
         max-width: 99vw;
       }
       .attendance-card {
-        padding: 1.1rem 1vw;
+        flex-direction: column;
+        gap: 1.1rem;
+        padding: 1.2rem 1vw;
       }
     }
     @media (max-width: 430px) {
@@ -184,7 +331,9 @@
       }
     }
   </style>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  
+  <!-- Google Maps + Places API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA97qnWyZu_Id_BCQhWvwOhm6qxn0TPty8&libraries=places"></script>
 </head>
 <body>
   <div class="container" role="main" aria-label="Engineer Attendance Dashboard">
@@ -193,6 +342,21 @@
       <span id="user-name" aria-live="polite" aria-atomic="true">Welcome, User</span>
       <button id="logout" aria-label="Logout button">Logout</button>
     </header>
+
+    <!-- Calendar Button & Pop-up Modal -->
+    <div class="calendar-popup-toggle">
+      <button id="open-calendar-btn" class="btn btn-outline-primary" type="button" aria-haspopup="dialog" aria-controls="calendar-modal-window" aria-expanded="false" style="font-weight:600; font-size:1.14rem;">
+        &#128197; Show Calendar
+      </button>
+    </div>
+    <div id="calendar-modal-overlay" tabindex="-1" aria-modal="true" role="dialog" aria-label="Attendance calendar" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(60,70,95,0.12); z-index:9999;">
+      <div id="calendar-modal-window" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:#fff; padding:1.2em 1.2em 0.8em 1.2em; border-radius:18px; box-shadow:0 12px 44px #0003; min-width:260px; min-height:140px; max-width:98vw; max-height:98vh; z-index:20000;">
+        <div style="text-align:right; margin-bottom:8px;">
+          <button id="close-calendar-btn" aria-label="Close calendar" style="border:none; background:transparent; font-size:1.6rem; color:#888;cursor:pointer; font-weight:700; line-height:1;">&times;</button>
+        </div>
+        <div id="my-calendar"></div>
+      </div>
+    </div>
 
     <div id="attendance-cards" aria-live="polite" aria-atomic="true"></div>
 
@@ -221,41 +385,46 @@
     </div>
   </div>
 
-  <!-- Google Maps + Places API -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA97qnWyZu_Id_BCQhWvwOhm6qxn0TPty8&libraries=places"></script>
   <script>
+    // Redirect to login if not authenticated
     if (!sessionStorage.getItem("googleEmail")) window.location.href = "login.html";
 
+    const userEmail = sessionStorage.getItem("googleEmail") || '';
     document.getElementById("user-name").textContent = `Welcome, ${sessionStorage.getItem("googleName") || "User"}`;
     document.getElementById("logout").addEventListener("click", () => {
       sessionStorage.clear();
+      localStorage.removeItem("attendance_jobs__" + userEmail);
       window.location.href = "login.html";
     });
 
-    // Variables
-    let jobs = [];
-    let selectedPlace = null;
-    let map, marker;
-    let entryPhoto = "", exitPhoto = "", entryTime = "", exitTime = "";
-    let userLat = null, userLng = null;
-    let userLiveMarker = null, userAccuracyCircle = null;
-    let hasCenteredToUser = false;
+    // Persistent storage of attendance jobs per user
+    function getJobs() {
+      try {
+        let val = localStorage.getItem("attendance_jobs__" + userEmail);
+        if (!val) return [];
+        return JSON.parse(val);
+      } catch { return []; }
+    }
+    function setJobs(jobs) {
+      localStorage.setItem("attendance_jobs__" + userEmail, JSON.stringify(jobs));
+    }
 
-    // GSAP Animations
+    let jobs = getJobs();
+    let selectedPlace = null, map, marker;
+    let entryPhoto = "", exitPhoto = "", entryTime = "", exitTime = "";
+    let userLat = null, userLng = null, userLiveMarker = null, userAccuracyCircle = null, hasCenteredToUser = false;
+    let selectedDateISO = null;
+
+    // GSAP animations
     gsap.from("header", { duration: 1, y: -30, opacity: 0, ease: "power3.out" });
     gsap.from("#job-details", { duration: 1, delay: 0.4, y: 22, opacity: 0, ease: "power3.out" });
 
-    // Utility to escape HTML
     function escapeHtml(text) {
       if (!text) return "";
-      return text.replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
-    // Show alert with fade
+    // Alerts
     function showAlert(msg, isError = false) {
       const alertBox = document.getElementById("action-alert");
       alertBox.classList.remove("d-none", "alert-info", "alert-danger");
@@ -269,14 +438,23 @@
       }, msg ? 3800 : 1100);
     }
 
-    // Render attendance cards
+    // Fetch unique dates for entries
+    function jobDates() {
+      return [...new Set(jobs.map(j => new Date(j.entryTime).toISOString().slice(0,10)))];
+    }
+
+    // Render entries filtered by selected date
     function renderAttendanceCards() {
+      let filteredJobs = jobs;
+      if (selectedDateISO) {
+        filteredJobs = jobs.filter(j => new Date(j.entryTime).toISOString().slice(0,10) === selectedDateISO);
+      }
       const container = document.getElementById("attendance-cards");
-      if (jobs.length === 0) {
+      if (filteredJobs.length === 0) {
         container.innerHTML = `<p style="color:#445577; text-align:center; font-weight:600; margin-top:1rem;">No job records found.</p>`;
         return;
       }
-      container.innerHTML = jobs.map((job) => {
+      container.innerHTML = filteredJobs.map((job) => {
         const statusClass = job.exitPhoto ? "completed" : "pending-exit";
         return `
           <div class="attendance-card ${statusClass}" data-status="">
@@ -288,18 +466,72 @@
             ? `<div class="photo-row">
                  <img src="${job.exitPhoto}" alt="Exit photo for ${escapeHtml(job.place)}" />
                  <div>Exit<br>${job.exitTime || "--"}</div>
-               </div>`
-            : ""}
+               </div>` : ""}
             <div class="job-place">${escapeHtml(job.place)}</div>
-          </div>`;
+          </div>
+        `;
       }).join("");
-      gsap.from(".attendance-card", { opacity: 0, y: 36, duration: 0.75, stagger: 0.09, ease: "power3.out" });
+      gsap.from(".attendance-card", { opacity: 0, y: 36, duration: 0.7, stagger: 0.09, ease: "power3.out" });
     }
 
-    // Live user location on map
+    // Calendar popup open/close
+    document.getElementById("open-calendar-btn").onclick = function() {
+      document.getElementById("calendar-modal-overlay").style.display = "block";
+      gsap.fromTo("#calendar-modal-window", {scale: 0.85, opacity: 0}, {scale: 1, opacity: 1, duration: 0.28, ease: "power2.out"});
+      this.setAttribute("aria-expanded", "true");
+    };
+    document.getElementById("close-calendar-btn").onclick = function() {
+      closeCalModal();
+    };
+    document.getElementById("calendar-modal-overlay").onclick = function(e) {
+      if (e.target === this) closeCalModal();
+    };
+    window.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") closeCalModal();
+    });
+    function closeCalModal() {
+      const btn = document.getElementById("open-calendar-btn");
+      gsap.to("#calendar-modal-window", {scale: 0.88, opacity: 0, duration: 0.15, onComplete: () => {
+        document.getElementById("calendar-modal-overlay").style.display = "none";
+        btn.setAttribute("aria-expanded", "false");
+        btn.focus();
+      }});
+    }
+
+    // Initialize and configure calendar
+    function updateCalendarHighlights() {
+      if (!window.myCalendar) return;
+      window.myCalendar.setOptions({
+        datesFilter: jobDates().map(date => ({ date, selectable: true, class: 'has-entry' })),
+      });
+    }
+    function initCalendar() {
+      window.myCalendar = new VanillaCalendar('#my-calendar', {
+        settings: { lang: 'en', iso8601: true },
+        selected: { dates: [] },
+        datesFilter: jobDates().map(date => ({ date, selectable: true, class: 'has-entry' })),
+        onSelect: (dates) => {
+          selectedDateISO = dates[0];
+          renderAttendanceCards();
+          closeCalModal();
+        },
+        onReset: () => {
+          selectedDateISO = null;
+          renderAttendanceCards();
+          closeCalModal();
+        },
+      });
+      window.myCalendar.init();
+
+      // Add highlight style
+      const styleNode = document.createElement("style");
+      styleNode.textContent = `.vanilla-calendar-day__btn.has-entry { background: #96b6ff !important; color: #fff !important; border-radius: 50% !important;}`;
+      document.body.appendChild(styleNode);
+    }
+
+    // Live location marker and circle on map
     function showLiveUserOnMap(lat, lng, accuracy) {
-      userLat = lat;
-      userLng = lng;
+      userLat = lat; userLng = lng;
       if (!map) return;
       if (!userLiveMarker) {
         userLiveMarker = new google.maps.Marker({
@@ -312,8 +544,8 @@
             fillColor: "#2196F3",
             fillOpacity: 0.97,
             strokeWeight: 2.7,
-            strokeColor: "#fff",
-          },
+            strokeColor: "#fff"
+          }
         });
       } else userLiveMarker.setPosition({ lat, lng });
       if (!userAccuracyCircle) {
@@ -325,7 +557,7 @@
           fillColor: "#2196F3",
           fillOpacity: 0.12,
           center: { lat, lng },
-          radius: accuracy || 30,
+          radius: accuracy || 30
         });
       } else {
         userAccuracyCircle.setCenter({ lat, lng });
@@ -338,7 +570,7 @@
       }
     }
 
-    // Initialize Google Map and SearchBox
+    // Initialize map and Places SearchBox
     function initMap() {
       const defaultCenter = { lat: 28.61, lng: 77.23 };
       const mapElement = document.getElementById("map");
@@ -366,7 +598,7 @@
           map: map,
           position: selectedPlace.geometry.location,
           title: selectedPlace.name,
-          animation: google.maps.Animation.BOUNCE,
+          animation: google.maps.Animation.BOUNCE
         });
         map.panTo(selectedPlace.geometry.location);
         map.setZoom(Math.max(16, map.getZoom()));
@@ -375,40 +607,34 @@
       });
       if (navigator.geolocation)
         navigator.geolocation.watchPosition(
-          (pos) => showLiveUserOnMap(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
-          () => showAlert("Enable location access for live map features.", true),
+          pos => showLiveUserOnMap(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
+          err => showAlert("Enable location access for live map features.", true),
           { enableHighAccuracy: true }
         );
-      setTimeout(() => {
-        input.blur();
-        input.focus();
-      }, 500);
+      setTimeout(() => { input.blur(); input.focus(); }, 500);
     }
 
-    // Calculate distance (meters)
+    // Calculate distance between lat/lng points in meters
     function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
       const R = 6371e3;
-      const toRad = (deg) => (deg * Math.PI) / 180;
-      const dLat = toRad(lat2 - lat1),
-        dLon = toRad(lon2 - lon1);
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const toRad = deg => (deg * Math.PI) / 180;
+      const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+        + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       return R * c;
     }
 
-    // Open camera and capture photo
+    // Photo capture & camera logic
     function openCamera(type) {
       $("#job-details").hide();
       $("#camera-section").show();
       $("#photo-preview").attr("src", "");
       const video = document.getElementById("video");
-      if (video.srcObject) video.srcObject.getTracks().forEach((t) => t.stop());
+      if (video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
       video.srcObject = null;
       navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-        .then((stream) => {
+        .then(stream => {
           video.srcObject = stream;
           video.play();
           gsap.fromTo("#video", { scale: 1.03, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "expo.out" });
@@ -419,8 +645,8 @@
             canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
             const imgData = canvas.toDataURL("image/png");
             $("#photo-preview").attr("src", imgData);
-            stream.getTracks().forEach((t) => t.stop());
-            gsap.fromTo("#photo-preview", { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 1, ease: "elastic.out(1,0.75)" });
+            stream.getTracks().forEach(t => t.stop());
+            gsap.fromTo("#photo-preview", { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 1, ease: "elastic.out(1,0.77)" });
             if (type === "entry") entryPhoto = imgData; else exitPhoto = imgData;
             setTimeout(() => finishAttendance(type), 700);
           });
@@ -431,7 +657,7 @@
         });
     }
 
-    // Finish attendance with immediate UI update
+    // Finish attendance (instant entry card update & completion on exit)
     function finishAttendance(type) {
       $("#camera-section").hide();
       $("#job-details").show();
@@ -445,14 +671,14 @@
           exitPhoto: "",
           status: "pending-exit"
         });
+        setJobs(jobs);
         renderAttendanceCards();
         showAlert("Entry marked and photo captured.");
-        gsap.fromTo(".attendance-card", { scale: 0.97, boxShadow: '0 0 0 #fff' }, { scale: 1, duration: 0.7, ease: "elastic.out(1,0.75)" });
-        // reset temp and selection
+        updateCalendarHighlights();
+        gsap.fromTo(".attendance-card", { scale: 0.97 }, { scale: 1, duration: 0.7, ease: "elastic.out(1,0.75)" });
         entryPhoto = "";
         entryTime = "";
-        selectedPlace = null;
-        $("#pac-input").val("");
+        selectedPlace = null; $("#pac-input").val("");
         if (marker) marker.setMap(null);
         marker = null;
       } else if (type === "exit") {
@@ -465,10 +691,11 @@
             break;
           }
         }
+        setJobs(jobs);
         renderAttendanceCards();
         showAlert("Exit marked and photo captured.");
-        gsap.fromTo(".attendance-card.completed", { scale: 1.01, boxShadow: "0 0 0 #fff" }, { scale: 1, duration: 0.6, ease: "power3.out" });
-        // reset temp and selection
+        updateCalendarHighlights();
+        gsap.fromTo(".attendance-card.completed", { scale: 1.01 }, { scale: 1, duration: 0.6, ease: "power3.out" });
         exitPhoto = "";
         exitTime = "";
         selectedPlace = null;
@@ -478,7 +705,7 @@
       }
     }
 
-    // Button handlers with 400 meter geofence
+    // Button click handlers and geofencing at 400m
     $("#checkin-btn").click(() => {
       if (!selectedPlace) {
         showAlert("Please select a place from the map.", true);
@@ -521,9 +748,73 @@
       }
     });
 
+    // Initialize calendar on load
+    function updateCalendarHighlights() {
+      if (!window.myCalendar) return;
+      window.myCalendar.setOptions({
+        datesFilter: jobDates().map(date => ({ date, selectable: true, class: 'has-entry' })),
+      });
+    }
+
+    function initCalendar() {
+      window.myCalendar = new VanillaCalendar('#my-calendar', {
+        settings: { lang: 'en', iso8601: true },
+        selected: { dates: [] },
+        datesFilter: jobDates().map(date => ({ date, selectable: true, class: 'has-entry' })),
+        onSelect: (dates) => {
+          selectedDateISO = dates[0];
+          renderAttendanceCards();
+          closeCalModal();
+        },
+        onReset: () => {
+          selectedDateISO = null;
+          renderAttendanceCards();
+          closeCalModal();
+        },
+      });
+      window.myCalendar.init();
+
+      // Add highlight style
+      const styleNode = document.createElement("style");
+      styleNode.textContent = `.vanilla-calendar-day__btn.has-entry { background: #96b6ff !important; color: #fff !important; border-radius: 50% !important;}`;
+      document.body.appendChild(styleNode);
+    }
+
+    // Calendar modal toggle handlers
+    document.getElementById("open-calendar-btn").onclick = function () {
+      document.getElementById("calendar-modal-overlay").style.display = "block";
+      gsap.fromTo("#calendar-modal-window", { scale: 0.85, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.28, ease: "power2.out" });
+      this.setAttribute("aria-expanded", "true");
+    };
+
+    document.getElementById("close-calendar-btn").onclick = closeCalModal;
+    document.getElementById("calendar-modal-overlay").onclick = function (e) {
+      if (e.target === this) closeCalModal();
+    };
+
+    window.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeCalModal();
+    });
+
+    function closeCalModal() {
+      const btn = document.getElementById("open-calendar-btn");
+      gsap.to("#calendar-modal-window", {
+        scale: 0.88,
+        opacity: 0,
+        duration: 0.15,
+        onComplete: () => {
+          document.getElementById("calendar-modal-overlay").style.display = "none";
+          btn.setAttribute("aria-expanded", "false");
+          btn.focus();
+        },
+      });
+    }
+
     window.onload = () => {
       initMap();
       renderAttendanceCards();
+      initCalendar();
+      updateCalendarHighlights();
     };
   </script>
 </body>
