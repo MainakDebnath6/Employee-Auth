@@ -630,45 +630,120 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const allowedAdminEmail = "mainakdebnath13@gmail.com";
+// 🔹 Multiple allowed admin emails
+const allowedAdminEmails = [
+  "mainakdebnath13@gmail.com",
+  "mainakdebnatha@gmail.com"
+];
+
 const userEmail = sessionStorage.getItem("googleEmail");
 const userName = sessionStorage.getItem("googleName") || "User";
+
+// Redirect if no email in session
 if (!userEmail) location.href = "login.html";
+
+// Set username in navbar
 $("#user-name").text(userName);
-if (userEmail !== allowedAdminEmail) $('.admin-only').hide();
 
+// Hide admin-only sections if not in allowed list
+if (!allowedAdminEmails.includes(userEmail)) {
+  $('.admin-only').hide();
+}
+
+// =============================
 // Utility functions
-function getJobs(u = userEmail) { return JSON.parse(localStorage.getItem("attendance_jobs__" + u) || "[]"); }
-function setJobs(data, u = userEmail) { localStorage.setItem("attendance_jobs__" + u, JSON.stringify(data)); }
-function getProfile(u = userEmail) { return JSON.parse(localStorage.getItem("prof__" + u) || "{}"); }
-function setProfile(data, u = userEmail) { localStorage.setItem("prof__" + u, JSON.stringify(data)); }
-function escape(t) { return t ? t.replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m])) : ""; }
+// =============================
+function getJobs(u = userEmail) {
+  return JSON.parse(localStorage.getItem("attendance_jobs__" + u) || "[]");
+}
+function setJobs(data, u = userEmail) {
+  localStorage.setItem("attendance_jobs__" + u, JSON.stringify(data));
+}
+function getProfile(u = userEmail) {
+  return JSON.parse(localStorage.getItem("prof__" + u) || "{}");
+}
+function setProfile(data, u = userEmail) {
+  localStorage.setItem("prof__" + u, JSON.stringify(data));
+}
+function escape(t) {
+  return t ? t.replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m])) : "";
+}
 
+// =============================
 // Navigation
+// =============================
 $('.nav-link').click(function () {
-  $('.nav-link').removeClass('active'); $(this).addClass('active');
+  $('.nav-link').removeClass('active');
+  $(this).addClass('active');
   let sec = $(this).data('sec');
   $('.section').removeClass('active').css({ opacity: 0 });
-  $('#' + sec).addClass('active'); gsap.to('#' + sec, { opacity: 1, duration: 0.5 });
+  $('#' + sec).addClass('active');
+  gsap.to('#' + sec, { opacity: 1, duration: 0.5 });
 });
 
-// Attendance render
-function sameDay(d1, d2) { return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate(); }
+// =============================
+// Attendance rendering
+// =============================
+function sameDay(d1, d2) {
+  return d1.getFullYear() === d2.getFullYear() &&
+         d1.getMonth() === d2.getMonth() &&
+         d1.getDate() === d2.getDate();
+}
+
 function filterArray() {
-  let arr = [...getJobs()], f = $("#filter-select").val(), td = new Date(); td.setHours(0, 0, 0, 0);
-  if (f === "yesterday") { let yd = new Date(td); yd.setDate(td.getDate() - 1); return arr.filter(r => sameDay(new Date(r.entryTime), yd)); }
-  if (f === "last7") { let wk = new Date(td); wk.setDate(td.getDate() - 6); return arr.filter(r => { let d = new Date(r.entryTime); d.setHours(0, 0, 0, 0); return d >= wk && d <= td; }); }
-  if (f === "last30") { let mk = new Date(td); mk.setDate(td.getDate() - 29); return arr.filter(r => { let d = new Date(r.entryTime); d.setHours(0, 0, 0, 0); return d >= mk && d <= td; }); }
+  let arr = [...getJobs()],
+      f = $("#filter-select").val(),
+      td = new Date();
+  td.setHours(0, 0, 0, 0);
+
+  if (f === "yesterday") {
+    let yd = new Date(td);
+    yd.setDate(td.getDate() - 1);
+    return arr.filter(r => sameDay(new Date(r.entryTime), yd));
+  }
+
+  if (f === "last7") {
+    let wk = new Date(td);
+    wk.setDate(td.getDate() - 6);
+    return arr.filter(r => {
+      let d = new Date(r.entryTime);
+      d.setHours(0, 0, 0, 0);
+      return d >= wk && d <= td;
+    });
+  }
+
+  if (f === "last30") {
+    let mk = new Date(td);
+    mk.setDate(td.getDate() - 29);
+    return arr.filter(r => {
+      let d = new Date(r.entryTime);
+      d.setHours(0, 0, 0, 0);
+      return d >= mk && d <= td;
+    });
+  }
+
   if (f === "custom") {
-    let sd = $("#start-date").val(), ed = $("#end-date").val(); if (!sd || !ed) return [];
-    let sdt = new Date(sd), edt = new Date(ed); sdt.setHours(0, 0, 0, 0); edt.setHours(0, 0, 0, 0);
-    return arr.filter(r => { let d = new Date(r.entryTime); d.setHours(0, 0, 0, 0); return d >= sdt && d <= edt; });
+    let sd = $("#start-date").val(),
+        ed = $("#end-date").val();
+    if (!sd || !ed) return [];
+    let sdt = new Date(sd),
+        edt = new Date(ed);
+    sdt.setHours(0, 0, 0, 0);
+    edt.setHours(0, 0, 0, 0);
+    return arr.filter(r => {
+      let d = new Date(r.entryTime);
+      d.setHours(0, 0, 0, 0);
+      return d >= sdt && d <= edt;
+    });
   }
   return arr;
 }
+
 function renderAttendanceCards() {
-  let arr = filterArray(), c = $("#attendance-cards").empty();
+  let arr = filterArray(),
+      c = $("#attendance-cards").empty();
   if (!arr.length) return c.html(`<p class='text-center text-muted'>No records.</p>`);
+
   arr.forEach((job) => {
     let zipStr = job.zipcode ? `, ${escape(job.zipcode)}` : "";
     let details = `<div class="record-details" style="display:none">
@@ -699,26 +774,52 @@ function renderAttendanceCards() {
     card.find(".delete-record-btn").click(function (e) {
       e.stopPropagation();
       let jobs = getJobs();
-      jobs.splice(jobs.indexOf(job), 1); setJobs(jobs);
-      renderAttendanceCards(); renderStatisticsTable();
+      jobs.splice(jobs.indexOf(job), 1);
+      setJobs(jobs);
+      renderAttendanceCards();
+      renderStatisticsTable();
     });
     c.append(card);
   });
 }
 
-// Map initialization
+// =============================
+// Map
+// =============================
 let selectedPlace = null, userLat = null, userLng = null, map, marker, userLiveMarker;
+
 function initMap() {
-  map = new google.maps.Map(document.getElementById('map'), { center: { lat: 28.61, lng: 77.23 }, zoom: 12 });
-  const searchBox = new google.maps.places.SearchBox(document.getElementById('pac-input'), { componentRestrictions: { country: ["in"] } });
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: { lat: 28.61, lng: 77.23 },
+    zoom: 12
+  });
+  const searchBox = new google.maps.places.SearchBox(
+    document.getElementById('pac-input'),
+    { componentRestrictions: { country: ["in"] } }
+  );
   if (navigator.geolocation) {
     navigator.geolocation.watchPosition(function (position) {
-      userLat = position.coords.latitude; userLng = position.coords.longitude;
+      userLat = position.coords.latitude;
+      userLng = position.coords.longitude;
       if (!userLiveMarker) {
         let pos = { lat: userLat, lng: userLng };
-        userLiveMarker = new google.maps.Marker({ position: pos, map, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#2977FF", fillOpacity: .8, strokeColor: "#fff", strokeWeight: 2 } });
-        map.setCenter(pos); map.setZoom(16);
-      } else userLiveMarker.setPosition({ lat: userLat, lng: userLng });
+        userLiveMarker = new google.maps.Marker({
+          position: pos,
+          map,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: "#2977FF",
+            fillOpacity: .8,
+            strokeColor: "#fff",
+            strokeWeight: 2
+          }
+        });
+        map.setCenter(pos);
+        map.setZoom(16);
+      } else {
+        userLiveMarker.setPosition({ lat: userLat, lng: userLng });
+      }
     });
   }
   searchBox.addListener('places_changed', () => {
@@ -727,38 +828,62 @@ function initMap() {
     selectedPlace = places[0];
     if (marker) marker.setMap(null);
     marker = new google.maps.Marker({ map, position: selectedPlace.geometry.location });
-    map.panTo(selectedPlace.geometry.location); map.setZoom(16);
+    map.panTo(selectedPlace.geometry.location);
+    map.setZoom(16);
   });
 }
 
+// =============================
 // Camera
+// =============================
 let usingFront = false, globalStream, entryPhoto = "", exitPhoto = "";
+
 function openCamera(type) {
   $("#camera-overlay").css("display", "flex");
-  function startCam() { if (globalStream) globalStream.getTracks().forEach(t => t.stop());
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: usingFront ? 'user' : 'environment' } }).then(stream => { $("#video")[0].srcObject = stream; globalStream = stream; });
+  function startCam() {
+    if (globalStream) globalStream.getTracks().forEach(t => t.stop());
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: usingFront ? 'user' : 'environment' }
+    }).then(stream => {
+      $("#video")[0].srcObject = stream;
+      globalStream = stream;
+    });
   }
   startCam();
   $("#snap-btn").off().click(() => {
     const v = $("#video")[0], c = $("#canvas")[0];
-    c.width = v.videoWidth; c.height = v.videoHeight;
+    c.width = v.videoWidth;
+    c.height = v.videoHeight;
     c.getContext('2d').drawImage(v, 0, 0);
-    if (type === 'entry') entryPhoto = c.toDataURL(); else exitPhoto = c.toDataURL();
+    if (type === 'entry') entryPhoto = c.toDataURL();
+    else exitPhoto = c.toDataURL();
     globalStream.getTracks().forEach(t => t.stop());
     $("#camera-overlay").hide();
     finishAttendance(type);
   });
   $("#flip-btn").off().click(() => { usingFront = !usingFront; startCam(); });
-  $("#cancel-btn").off().click(() => { if (globalStream) globalStream.getTracks().forEach(t => t.stop()); $("#camera-overlay").hide(); });
+  $("#cancel-btn").off().click(() => {
+    if (globalStream) globalStream.getTracks().forEach(t => t.stop());
+    $("#camera-overlay").hide();
+  });
 }
+
 function finishAttendance(type) {
   let jobs = getJobs();
   if (type === 'entry') {
-    jobs.unshift({ place: selectedPlace?.name || "Unknown", zipcode: selectedPlace?.zipcode || "", entryTime: new Date().toLocaleString(), entryPhoto, status: "pending-exit" });
+    jobs.unshift({
+      place: selectedPlace?.name || "Unknown",
+      zipcode: selectedPlace?.zipcode || "",
+      entryTime: new Date().toLocaleString(),
+      entryPhoto,
+      status: "pending-exit"
+    });
   } else {
     let j = jobs.find(x => x.status === "pending-exit");
     if (j) {
-      j.exitTime = new Date().toLocaleString(); j.exitPhoto = exitPhoto; j.status = "completed";
+      j.exitTime = new Date().toLocaleString();
+      j.exitPhoto = exitPhoto;
+      j.status = "completed";
     }
   }
   setJobs(jobs);
@@ -766,25 +891,36 @@ function finishAttendance(type) {
   renderStatisticsTable();
   showAlert(type === 'entry' ? "Entry marked!" : "Exit marked!", false);
 }
+
+// Check-in / Check-out click
 $('#checkin-btn').click(() => {
   if (!selectedPlace) return showAlert("Select place", true);
-  if (getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng()) <= 400) openCamera('entry');
+  if (getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng()) <= 400)
+    openCamera('entry');
   else showAlert("Too far from site", true);
 });
+
 $('#checkout-btn').click(() => {
   if (!selectedPlace) return showAlert("Select place", true);
-  if (!getJobs().some(j => j.status === "pending-exit")) return showAlert("No active job", true);
-  if (getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng()) <= 400) openCamera('exit');
+  if (!getJobs().some(j => j.status === "pending-exit"))
+    return showAlert("No active job", true);
+  if (getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng()) <= 400)
+    openCamera('exit');
   else showAlert("Too far from site", true);
 });
+
 function getDistance(lat1, lon1, lat2, lon2) {
   const R = 6371e3, toRad = d => d * Math.PI / 180;
   let dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
-  let a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  let a = Math.sin(dLat / 2) ** 2 +
+          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+          Math.sin(dLon / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+// =============================
 // Profile
+// =============================
 function loadProfile() {
   let p = getProfile();
   $("#prof-email").val(userEmail);
@@ -792,13 +928,20 @@ function loadProfile() {
   $("#prof-fullname").val(p.fullname || userName);
   $("#prof-contact").val(p.contact || "");
 }
+
 $("#profile-form").submit(e => {
   e.preventDefault();
-  setProfile({ username: $("#prof-username").val(), fullname: $("#prof-fullname").val(), contact: $("#prof-contact").val() });
+  setProfile({
+    username: $("#prof-username").val(),
+    fullname: $("#prof-fullname").val(),
+    contact: $("#prof-contact").val()
+  });
   $("#profile-save-result").text("Saved!").fadeIn().delay(1200).fadeOut();
 });
 
-// Stats
+// =============================
+// Statistics
+// =============================
 function renderStatisticsTable() {
   let arr = getJobs(), total = arr.length, todayCount = 0, last7 = 0, last30 = 0;
   let today = new Date(); today.setHours(0, 0, 0, 0);
@@ -810,65 +953,101 @@ function renderStatisticsTable() {
     if (d >= last7date) last7++;
     if (d >= last30date) last30++;
   });
-  $("#statistics-holder").html(`<table class="table table-bordered table-dark text-center"><tr><th>Today</th><th>Last 7 Days</th><th>Last 30 Days</th><th>Total</th></tr><tr><td>${todayCount}</td><td>${last7}</td><td>${last30}</td><td>${total}</td></tr></table>`);
+  $("#statistics-holder").html(
+    `<table class="table table-bordered table-dark text-center">
+       <tr><th>Today</th><th>Last 7 Days</th><th>Last 30 Days</th><th>Total</th></tr>
+       <tr><td>${todayCount}</td><td>${last7}</td><td>${last30}</td><td>${total}</td></tr>
+     </table>`
+  );
 }
 
+// =============================
 // Help form
+// =============================
 $("#help-form").submit(function (e) {
   e.preventDefault();
-  let msg = $("#help-message").val().trim(); if (!msg) return $("#help-response").text("Please enter your issue.");
+  let msg = $("#help-message").val().trim();
+  if (!msg) return $("#help-response").text("Please enter your issue.");
   let prof = getProfile();
-  let issue = { username: prof.username || userEmail.split('@')[0], fullname: prof.fullname || userName, time: new Date().toLocaleString(), message: msg };
+  let issue = {
+    username: prof.username || userEmail.split('@')[0],
+    fullname: prof.fullname || userName,
+    time: new Date().toLocaleString(),
+    message: msg
+  };
   let issues = JSON.parse(localStorage.getItem("issues__") || "[]");
-  issues.unshift(issue); localStorage.setItem("issues__", JSON.stringify(issues));
+  issues.unshift(issue);
+  localStorage.setItem("issues__", JSON.stringify(issues));
   $("#help-response").html('<span class="text-success">Issue reported successfully!</span>');
   $("#help-message").val("");
 });
 
+// =============================
 // Admin
+// =============================
 function getAllUserEmails() {
-  return Object.keys(localStorage).filter(k => k.startsWith('attendance_jobs__')).map(k => k.replace('attendance_jobs__', ''));
+  return Object.keys(localStorage)
+    .filter(k => k.startsWith('attendance_jobs__'))
+    .map(k => k.replace('attendance_jobs__', ''));
 }
+
 function getDurationStr(r) {
   if (!r.entryTime || !r.exitTime) return "00:00";
-  let et = new Date(r.entryTime), xt = new Date(r.exitTime); let ms = xt - et;
+  let et = new Date(r.entryTime), xt = new Date(r.exitTime);
+  let ms = xt - et;
   if (isNaN(ms) || ms < 60000) return "00:00";
-  let mins = Math.floor(ms / 60000), hrs = Math.floor(mins / 60), m = mins % 60;
+  let mins = Math.floor(ms / 60000),
+      hrs = Math.floor(mins / 60),
+      m = mins % 60;
   return String(hrs).padStart(2, "0") + ":" + String(m).padStart(2, "0");
 }
 
 function renderAdminTable() {
+  if (!allowedAdminEmails.includes(userEmail)) {
+    $('.admin-only').hide();
+    return;
+  }
   let users = getAllUserEmails();
   let list = "<ul class='list-group'>";
   users.forEach(email => {
-    let p = getProfile(email) || {}, u = p.username || email.split('@')[0], f = p.fullname || "";
+    let p = getProfile(email) || {},
+        u = p.username || email.split('@')[0],
+        f = p.fullname || "";
     list += `<li class='list-group-item admin-user-row' data-email="${email}">${escape(f)} (${escape(u)})</li>`;
   });
   list += "</ul>";
   $("#admin-users-list").html(list);
   $("#admin-user-details").empty();
+
   $(".admin-user-row").off().click(function () {
     const email = $(this).data("email");
     const isActive = $(this).hasClass("active");
     $(".admin-user-row").removeClass("active");
     if (isActive) {
-      // Collapse if already active
       $("#admin-user-details").empty();
     } else {
       $(this).addClass("active");
       showAdminUserDetails(email);
     }
   });
+
   renderAdminIssues();
+
   $("#admin-export").off().click(function () {
     let rows = [];
     users.forEach(email => {
       let p = getProfile(email) || {};
       getJobs(email).forEach(r => {
         rows.push({
-          Email: email, Username: p.username || "", FullName: p.fullname || "", Contact: p.contact || "",
+          Email: email,
+          Username: p.username || "",
+          FullName: p.fullname || "",
+          Contact: p.contact || "",
           Place: `(${r.place}${r.zipcode ? ", " + r.zipcode : ""})`,
-          Entry: r.entryTime, Exit: r.exitTime || "", Duration: getDurationStr(r), Status: r.status
+          Entry: r.entryTime,
+          Exit: r.exitTime || "",
+          Duration: getDurationStr(r),
+          Status: r.status
         });
       });
     });
@@ -879,11 +1058,13 @@ function renderAdminTable() {
 }
 
 function showAdminUserDetails(email) {
-  let p = getProfile(email) || {}, u = p.username || email.split('@')[0], f = p.fullname || "";
+  let p = getProfile(email) || {},
+      u = p.username || email.split('@')[0],
+      f = p.fullname || "";
   let recs = getJobs(email);
   let html = `<div class='mt-3 mb-2'><strong>${escape(f)} (${escape(u)})</strong></div>`;
   if (!recs.length) {
-    html += "<p class='text-muted'>No records.</p>";
+    html += "<p style='color:#a8c5ff;font-weight:600;'>No records.</p>";
     return $("#admin-user-details").html(html);
   }
   html += `<table class='table table-bordered admin-record-table'>
@@ -903,7 +1084,10 @@ function showAdminUserDetails(email) {
 
 function renderAdminIssues() {
   let issues = JSON.parse(localStorage.getItem("issues__") || "[]");
-  if (!issues.length) return $("#admin-issues-holder").html("<p class='text-muted'>No issues reported.</p>");
+  if (!issues.length) {
+    return $("#admin-issues-holder")
+      .html("<p style='color:#a8c5ff;font-weight:600;'>No issues reported.</p>");
+  }
   let html = "<table class='table table-bordered table-sm table-dark'><thead><tr><th>Username</th><th>Full Name</th><th>Time</th><th>Message</th></tr></thead><tbody>";
   issues.forEach(i => {
     html += `<tr><td>${escape(i.username)}</td><td>${escape(i.fullname)}</td><td>${escape(i.time)}</td><td>${escape(i.message)}</td></tr>`;
@@ -912,31 +1096,42 @@ function renderAdminIssues() {
   $("#admin-issues-holder").html(html);
 }
 
-// Alert helper
+// =============================
+// Alerts
+// =============================
 function showAlert(msg, isError) {
-  $("#action-alert").text(msg).css({ opacity: 1, background: isError ? 'rgba(220,53,69,0.25)' : '#2434aa26', borderColor: isError ? '#dc3545' : '#5e73d2bb' });
+  $("#action-alert").text(msg).css({
+    opacity: 1,
+    background: isError ? 'rgba(220,53,69,0.25)' : '#2434aa26',
+    borderColor: isError ? '#dc3545' : '#5e73d2bb'
+  });
   setTimeout(() => $("#action-alert").css('opacity', 0), 3000);
 }
 
-// INIT
+// =============================
+// Init
+// =============================
 $(document).ready(function () {
   initMap();
   renderAttendanceCards();
   renderStatisticsTable();
   loadProfile();
-  if (userEmail === allowedAdminEmail) renderAdminTable();
+  if (allowedAdminEmails.includes(userEmail)) renderAdminTable();
+
   $("#filter-select").change(function () {
     $("#start-date,#end-date").toggle($(this).val() === 'custom');
     renderAttendanceCards();
   });
+
   $("#start-date,#end-date").on('change', renderAttendanceCards);
 
+  // ✅ Logout button
   $("#logout").click(() => {
-  sessionStorage.clear();
-  location.href = "login.html";
-});
-
+    sessionStorage.clear();
+    location.href = "index.html";
+  });
 });
 </script>
+
 </body>
 </html>
