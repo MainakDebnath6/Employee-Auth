@@ -393,6 +393,11 @@
     box-shadow: 0 1px 10px #334bf933;
     overflow-x: auto;
   }
+  #admin-issues-holder p.text-muted {
+  color: #a8c5ff; /* lighter, readable pastel blue */
+  font-weight: 600; /* optional: make it slightly bolder for emphasis */
+}
+
   #admin-issues-holder table {
     margin-bottom: 0;
   }
@@ -925,6 +930,12 @@ $(document).ready(function () {
     renderAttendanceCards();
   });
   $("#start-date,#end-date").on('change', renderAttendanceCards);
+
+  $("#logout").click(() => {
+  sessionStorage.clear();
+  location.href = "login.html";
+});
+
 });
 </script>
 </body>
