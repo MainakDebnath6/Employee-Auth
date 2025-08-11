@@ -482,6 +482,11 @@
   #admin-issues-holder::-webkit-scrollbar-thumb:hover {
     background: var(--scrollbar-thumb-hover);
   }
+  #admin-user-search::placeholder {
+  color: #a8c5ff;          /* themed light blue for visibility */
+  opacity: 1;              /* ensure full opacity */
+  font-weight: 600;        /* make it a bit bolder */
+}
 
   /* Responsive */
   @media (max-width: 680px) {
@@ -1008,15 +1013,35 @@ function renderAdminTable() {
     return;
   }
   let users = getAllUserEmails();
-  let list = "<ul class='list-group'>";
-  users.forEach(email => {
-    let p = getProfile(email) || {},
-        u = p.username || email.split('@')[0],
-        f = p.fullname || "";
-    list += `<li class='list-group-item admin-user-row' data-email="${email}">${escape(f)} (${escape(u)})</li>`;
+  // Add search bar HTML
+let list = `
+  <input type="text" id="admin-user-search" class="form-control mb-2" 
+         placeholder="Search users by name or email">
+  <ul class='list-group'>
+`;
+
+// Generate user list
+users.forEach(email => {
+  let p = getProfile(email) || {},
+      u = p.username || email.split('@')[0],
+      f = p.fullname || "";
+  list += `<li class='list-group-item admin-user-row' data-email="${email}">
+              ${escape(f)} (${escape(u)})
+           </li>`;
+});
+list += "</ul>";
+
+$("#admin-users-list").html(list);
+$("#admin-user-details").empty();
+
+// ✅ Make search filter work
+$("#admin-user-search").on("keyup", function () {
+  let value = $(this).val().toLowerCase();
+  $(".admin-user-row").filter(function () {
+    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
   });
-  list += "</ul>";
-  $("#admin-users-list").html(list);
+});
+
   $("#admin-user-details").empty();
 
   $(".admin-user-row").off().click(function () {
