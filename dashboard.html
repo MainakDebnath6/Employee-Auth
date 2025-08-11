@@ -637,9 +637,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// =============================
-// Admin configuration
-// =============================
+// 🔹 Multiple allowed admin emails
 const allowedAdminEmails = [
   "mainakdebnath13@gmail.com",
   "mainakdebnatha@gmail.com"
@@ -647,50 +645,35 @@ const allowedAdminEmails = [
 
 const userEmail = sessionStorage.getItem("googleEmail");
 const userName = sessionStorage.getItem("googleName") || "User";
-if (!userEmail) location.href = "login.html";
-$("#user-name").text(userName);
-if (!allowedAdminEmails.includes(userEmail)) { $('.admin-only').hide(); }
 
-// Escape helper
+// Redirect if no email in session
+if (!userEmail) location.href = "login.html";
+
+// Set username in navbar
+$("#user-name").text(userName);
+
+// Hide admin-only sections if not in allowed list
+if (!allowedAdminEmails.includes(userEmail)) {
+  $('.admin-only').hide();
+}
+
+// =============================
+// Utility functions
+// =============================
+function getJobs(u = userEmail) {
+  return JSON.parse(localStorage.getItem("attendance_jobs__" + u) || "[]");
+}
+function setJobs(data, u = userEmail) {
+  localStorage.setItem("attendance_jobs__" + u, JSON.stringify(data));
+}
+function getProfile(u = userEmail) {
+  return JSON.parse(localStorage.getItem("prof__" + u) || "{}");
+}
+function setProfile(data, u = userEmail) {
+  localStorage.setItem("prof__" + u, JSON.stringify(data));
+}
 function escape(t) {
   return t ? t.replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m])) : "";
-}
-
-// =============================
-// API-based Data Functions (replaces localStorage)
-// =============================
-async function getJobs(u = userEmail) {
-  const res = await fetch(`/.netlify/functions/get-jobs?email=${encodeURIComponent(u)}`);
-  return await res.json();
-}
-async function setJobs(job, u = userEmail) {
-  await fetch(`/.netlify/functions/save-job`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...job, email: u })
-  });
-}
-async function getProfile(u = userEmail) {
-  const res = await fetch(`/.netlify/functions/get-profile?email=${encodeURIComponent(u)}`);
-  return await res.json();
-}
-async function setProfile(profile, u = userEmail) {
-  await fetch(`/.netlify/functions/save-profile`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...profile, email: u })
-  });
-}
-async function getIssues() {
-  const res = await fetch(`/.netlify/functions/get-issues`);
-  return await res.json();
-}
-async function addIssue(issue) {
-  await fetch(`/.netlify/functions/save-issue`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(issue)
-  });
 }
 
 // =============================
@@ -713,35 +696,61 @@ function sameDay(d1, d2) {
          d1.getMonth() === d2.getMonth() &&
          d1.getDate() === d2.getDate();
 }
-async function filterArray() {
-  let arr = await getJobs();
-  let f = $("#filter-select").val(), td = new Date();
-  td.setHours(0,0,0,0);
+
+function filterArray() {
+  let arr = [...getJobs()],
+      f = $("#filter-select").val(),
+      td = new Date();
+  td.setHours(0, 0, 0, 0);
+
   if (f === "yesterday") {
-    let yd = new Date(td); yd.setDate(td.getDate() - 1);
+    let yd = new Date(td);
+    yd.setDate(td.getDate() - 1);
     return arr.filter(r => sameDay(new Date(r.entryTime), yd));
   }
+
   if (f === "last7") {
-    let wk = new Date(td); wk.setDate(td.getDate() - 6);
-    return arr.filter(r => { let d=new Date(r.entryTime); d.setHours(0,0,0,0); return d>=wk && d<=td; });
+    let wk = new Date(td);
+    wk.setDate(td.getDate() - 6);
+    return arr.filter(r => {
+      let d = new Date(r.entryTime);
+      d.setHours(0, 0, 0, 0);
+      return d >= wk && d <= td;
+    });
   }
+
   if (f === "last30") {
-    let mk = new Date(td); mk.setDate(td.getDate() - 29);
-    return arr.filter(r => { let d=new Date(r.entryTime); d.setHours(0,0,0,0); return d>=mk && d<=td; });
+    let mk = new Date(td);
+    mk.setDate(td.getDate() - 29);
+    return arr.filter(r => {
+      let d = new Date(r.entryTime);
+      d.setHours(0, 0, 0, 0);
+      return d >= mk && d <= td;
+    });
   }
+
   if (f === "custom") {
-    let sd = $("#start-date").val(), ed = $("#end-date").val();
+    let sd = $("#start-date").val(),
+        ed = $("#end-date").val();
     if (!sd || !ed) return [];
-    let sdt = new Date(sd), edt = new Date(ed);
-    sdt.setHours(0,0,0,0); edt.setHours(0,0,0,0);
-    return arr.filter(r => { let d=new Date(r.entryTime); d.setHours(0,0,0,0); return d>=sdt && d<=edt; });
+    let sdt = new Date(sd),
+        edt = new Date(ed);
+    sdt.setHours(0, 0, 0, 0);
+    edt.setHours(0, 0, 0, 0);
+    return arr.filter(r => {
+      let d = new Date(r.entryTime);
+      d.setHours(0, 0, 0, 0);
+      return d >= sdt && d <= edt;
+    });
   }
   return arr;
 }
-async function renderAttendanceCards() {
-  let arr = await filterArray();
-  let c = $("#attendance-cards").empty();
+
+function renderAttendanceCards() {
+  let arr = filterArray(),
+      c = $("#attendance-cards").empty();
   if (!arr.length) return c.html(`<p class='text-center text-muted'>No records.</p>`);
+
   arr.forEach((job) => {
     let zipStr = job.zipcode ? `, ${escape(job.zipcode)}` : "";
     let details = `<div class="record-details" style="display:none">
@@ -753,6 +762,7 @@ async function renderAttendanceCards() {
             ${job.exitPhoto ? `<div class="time-label">Exit:</div>${escape(job.exitTime)}` : ""}
           </div>
         </div>
+        <button class="btn btn-danger btn-sm delete-record-btn mt-2">Delete</button>
       </div>`;
     let card = $(`<div class="attendance-card">
       <div class="card-summary">
@@ -768,6 +778,14 @@ async function renderAttendanceCards() {
       $(this).find(".expand-icon").toggleClass("bi-chevron-down bi-chevron-up");
       det.slideToggle(200);
     });
+    card.find(".delete-record-btn").click(function (e) {
+      e.stopPropagation();
+      let jobs = getJobs();
+      jobs.splice(jobs.indexOf(job), 1);
+      setJobs(jobs);
+      renderAttendanceCards();
+      renderStatisticsTable();
+    });
     c.append(card);
   });
 }
@@ -775,113 +793,152 @@ async function renderAttendanceCards() {
 // =============================
 // Map
 // =============================
-let selectedPlace=null,userLat=null,userLng=null,map,marker,userLiveMarker;
+let selectedPlace = null, userLat = null, userLng = null, map, marker, userLiveMarker;
+
 function initMap() {
-  map = new google.maps.Map(document.getElementById('map'), { center: { lat: 28.61, lng: 77.23 }, zoom: 12 });
-  const searchBox = new google.maps.places.SearchBox(document.getElementById('pac-input'), { componentRestrictions: { country: ["in"] } });
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: { lat: 28.61, lng: 77.23 },
+    zoom: 12
+  });
+  const searchBox = new google.maps.places.SearchBox(
+    document.getElementById('pac-input'),
+    { componentRestrictions: { country: ["in"] } }
+  );
   if (navigator.geolocation) {
     navigator.geolocation.watchPosition(function (position) {
-      userLat=position.coords.latitude; userLng=position.coords.longitude;
+      userLat = position.coords.latitude;
+      userLng = position.coords.longitude;
       if (!userLiveMarker) {
-        let pos={lat:userLat,lng:userLng};
-        userLiveMarker=new google.maps.Marker({ position:pos,map,icon:{ path:google.maps.SymbolPath.CIRCLE,scale:8,fillColor:"#2977FF",fillOpacity:.8,strokeColor:"#fff",strokeWeight:2 }});
-        map.setCenter(pos); map.setZoom(16);
-      } else { userLiveMarker.setPosition({ lat:userLat, lng:userLng }); }
+        let pos = { lat: userLat, lng: userLng };
+        userLiveMarker = new google.maps.Marker({
+          position: pos,
+          map,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: "#2977FF",
+            fillOpacity: .8,
+            strokeColor: "#fff",
+            strokeWeight: 2
+          }
+        });
+        map.setCenter(pos);
+        map.setZoom(16);
+      } else {
+        userLiveMarker.setPosition({ lat: userLat, lng: userLng });
+      }
     });
   }
   searchBox.addListener('places_changed', () => {
     const places = searchBox.getPlaces();
     if (!places.length) return;
-    selectedPlace=places[0];
+    selectedPlace = places[0];
     if (marker) marker.setMap(null);
-    marker=new google.maps.Marker({ map, position:selectedPlace.geometry.location });
-    map.panTo(selectedPlace.geometry.location); map.setZoom(16);
+    marker = new google.maps.Marker({ map, position: selectedPlace.geometry.location });
+    map.panTo(selectedPlace.geometry.location);
+    map.setZoom(16);
   });
 }
 
 // =============================
-// Camera + Finish Attendance
+// Camera
 // =============================
-let usingFront=false,globalStream,entryPhoto="",exitPhoto="";
+let usingFront = false, globalStream, entryPhoto = "", exitPhoto = "";
+
 function openCamera(type) {
-  $("#camera-overlay").css("display","flex");
+  $("#camera-overlay").css("display", "flex");
   function startCam() {
-    if (globalStream) globalStream.getTracks().forEach(t=>t.stop());
-    navigator.mediaDevices.getUserMedia({ video:{ facingMode: usingFront ? 'user' : 'environment' } }).then(stream=>{ $("#video")[0].srcObject=stream; globalStream=stream; });
+    if (globalStream) globalStream.getTracks().forEach(t => t.stop());
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: usingFront ? 'user' : 'environment' }
+    }).then(stream => {
+      $("#video")[0].srcObject = stream;
+      globalStream = stream;
+    });
   }
   startCam();
   $("#snap-btn").off().click(() => {
-    const v=$("#video")[0],c=$("#canvas")[0];
-    c.width=v.videoWidth; c.height=v.videoHeight;
-    c.getContext('2d').drawImage(v,0,0);
-    if (type==='entry') entryPhoto=c.toDataURL(); else exitPhoto=c.toDataURL();
-    globalStream.getTracks().forEach(t=>t.stop());
+    const v = $("#video")[0], c = $("#canvas")[0];
+    c.width = v.videoWidth;
+    c.height = v.videoHeight;
+    c.getContext('2d').drawImage(v, 0, 0);
+    if (type === 'entry') entryPhoto = c.toDataURL();
+    else exitPhoto = c.toDataURL();
+    globalStream.getTracks().forEach(t => t.stop());
     $("#camera-overlay").hide();
     finishAttendance(type);
   });
-  $("#flip-btn").off().click(() => { usingFront=!usingFront; startCam(); });
-  $("#cancel-btn").off().click(() => { if (globalStream) globalStream.getTracks().forEach(t=>t.stop()); $("#camera-overlay").hide(); });
+  $("#flip-btn").off().click(() => { usingFront = !usingFront; startCam(); });
+  $("#cancel-btn").off().click(() => {
+    if (globalStream) globalStream.getTracks().forEach(t => t.stop());
+    $("#camera-overlay").hide();
+  });
 }
-async function finishAttendance(type) {
+
+function finishAttendance(type) {
+  let jobs = getJobs();
   if (type === 'entry') {
-    await setJobs({
-      username: userName,
-      fullname: userName,
-      contact: '',
+    jobs.unshift({
       place: selectedPlace?.name || "Unknown",
       zipcode: selectedPlace?.zipcode || "",
       entryTime: new Date().toLocaleString(),
-      exitTime: null,
-      entryPhoto: entryPhoto,
-      exitPhoto: null,
+      entryPhoto,
       status: "pending-exit"
     });
   } else {
-    let jobs = await getJobs();
-    let job = jobs.find(j => j.status === "pending-exit");
-    if (job) {
-      job.exitTime = new Date().toLocaleString();
-      job.exitPhoto = exitPhoto;
-      job.status = "completed";
-      await setJobs(job);
+    let j = jobs.find(x => x.status === "pending-exit");
+    if (j) {
+      j.exitTime = new Date().toLocaleString();
+      j.exitPhoto = exitPhoto;
+      j.status = "completed";
     }
   }
-  await renderAttendanceCards();
-  await renderStatisticsTable();
+  setJobs(jobs);
+  renderAttendanceCards();
+  renderStatisticsTable();
   showAlert(type === 'entry' ? "Entry marked!" : "Exit marked!", false);
 }
+
+// Check-in / Check-out click
 $('#checkin-btn').click(() => {
   if (!selectedPlace) return showAlert("Select place", true);
-  if (getDistance(userLat,userLng,selectedPlace.geometry.location.lat(),selectedPlace.geometry.location.lng()) <= 400) openCamera('entry');
+  if (getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng()) <= 400)
+    openCamera('entry');
   else showAlert("Too far from site", true);
 });
-$('#checkout-btn').click(async () => {
+
+$('#checkout-btn').click(() => {
   if (!selectedPlace) return showAlert("Select place", true);
-  let jobs = await getJobs();
-  if (!jobs.some(j => j.status==="pending-exit")) return showAlert("No active job", true);
-  if (getDistance(userLat,userLng,selectedPlace.geometry.location.lat(),selectedPlace.geometry.location.lng()) <= 400) openCamera('exit');
+  if (!getJobs().some(j => j.status === "pending-exit"))
+    return showAlert("No active job", true);
+  if (getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng()) <= 400)
+    openCamera('exit');
   else showAlert("Too far from site", true);
 });
+
 function getDistance(lat1, lon1, lat2, lon2) {
-  const R=6371e3,toRad=d=>d*Math.PI/180;
-  let dLat=toRad(lat2-lat1),dLon=toRad(lon2-lon1);
-  let a=Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+  const R = 6371e3, toRad = d => d * Math.PI / 180;
+  let dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+  let a = Math.sin(dLat / 2) ** 2 +
+          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+          Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 // =============================
 // Profile
 // =============================
-async function loadProfile() {
-  let p = await getProfile();
+function loadProfile() {
+  let p = getProfile();
   $("#prof-email").val(userEmail);
   $("#prof-username").val(p.username || userEmail.split('@')[0]);
   $("#prof-fullname").val(p.fullname || userName);
   $("#prof-contact").val(p.contact || "");
 }
-$("#profile-form").submit(async e => {
+
+$("#profile-form").submit(e => {
   e.preventDefault();
-  await setProfile({
+  setProfile({
     username: $("#prof-username").val(),
     fullname: $("#prof-fullname").val(),
     contact: $("#prof-contact").val()
@@ -892,16 +949,16 @@ $("#profile-form").submit(async e => {
 // =============================
 // Statistics
 // =============================
-async function renderStatisticsTable() {
-  let arr = await getJobs(), total = arr.length, todayCount=0,last7=0,last30=0;
-  let today = new Date(); today.setHours(0,0,0,0);
-  let last7date = new Date(today); last7date.setDate(today.getDate()-6);
-  let last30date = new Date(today); last30date.setDate(today.getDate()-29);
+function renderStatisticsTable() {
+  let arr = getJobs(), total = arr.length, todayCount = 0, last7 = 0, last30 = 0;
+  let today = new Date(); today.setHours(0, 0, 0, 0);
+  let last7date = new Date(today); last7date.setDate(today.getDate() - 6);
+  let last30date = new Date(today); last30date.setDate(today.getDate() - 29);
   arr.forEach(j => {
-    let d=new Date(j.entryTime); d.setHours(0,0,0,0);
-    if (d.getTime()===today.getTime()) todayCount++;
-    if (d>=last7date) last7++;
-    if (d>=last30date) last30++;
+    let d = new Date(j.entryTime); d.setHours(0, 0, 0, 0);
+    if (d.getTime() === today.getTime()) todayCount++;
+    if (d >= last7date) last7++;
+    if (d >= last30date) last30++;
   });
   $("#statistics-holder").html(
     `<table class="table table-bordered table-dark text-center">
@@ -914,18 +971,20 @@ async function renderStatisticsTable() {
 // =============================
 // Help form
 // =============================
-$("#help-form").submit(async function (e) {
+$("#help-form").submit(function (e) {
   e.preventDefault();
   let msg = $("#help-message").val().trim();
   if (!msg) return $("#help-response").text("Please enter your issue.");
-  let prof = await getProfile();
+  let prof = getProfile();
   let issue = {
     username: prof.username || userEmail.split('@')[0],
     fullname: prof.fullname || userName,
     time: new Date().toLocaleString(),
     message: msg
   };
-  await addIssue(issue);
+  let issues = JSON.parse(localStorage.getItem("issues__") || "[]");
+  issues.unshift(issue);
+  localStorage.setItem("issues__", JSON.stringify(issues));
   $("#help-response").html('<span class="text-success">Issue reported successfully!</span>');
   $("#help-message").val("");
 });
@@ -933,60 +992,104 @@ $("#help-form").submit(async function (e) {
 // =============================
 // Admin
 // =============================
+function getAllUserEmails() {
+  return Object.keys(localStorage)
+    .filter(k => k.startsWith('attendance_jobs__'))
+    .map(k => k.replace('attendance_jobs__', ''));
+}
+
 function getDurationStr(r) {
   if (!r.entryTime || !r.exitTime) return "00:00";
-  let et=new Date(r.entryTime),xt=new Date(r.exitTime),ms=xt-et;
-  if (isNaN(ms) || ms<60000) return "00:00";
-  let mins=Math.floor(ms/60000),hrs=Math.floor(mins/60),m=mins%60;
-  return String(hrs).padStart(2,"0")+":"+String(m).padStart(2,"0");
+  let et = new Date(r.entryTime), xt = new Date(r.exitTime);
+  let ms = xt - et;
+  if (isNaN(ms) || ms < 60000) return "00:00";
+  let mins = Math.floor(ms / 60000),
+      hrs = Math.floor(mins / 60),
+      m = mins % 60;
+  return String(hrs).padStart(2, "0") + ":" + String(m).padStart(2, "0");
 }
-async function renderAdminTable() {
-  $('.admin-only').show();
-  let allJobs = await getJobs(); // all users if backend supports no email param
-  let users = [...new Set(allJobs.map(j => j.email))];
-  let list = `<input type="text" id="admin-user-search" class="form-control mb-2" placeholder="Search users">
-              <ul class='list-group'>`;
-  for (let email of users) {
-    let p = await getProfile(email);
-    let u = p.username || email.split('@')[0], f = p.fullname || "";
-    list += `<li class='list-group-item admin-user-row' data-email="${email}">${escape(f)} (${escape(u)})</li>`;
-  }
+
+function renderAdminTable() {
+  // 🔹 Removed admin-only restriction
+  // Now any logged-in user can see all users' records
+  $('.admin-only').show();  // Ensure admin-only sections are visible
+
+  let users = getAllUserEmails();
+
+  // Add search bar HTML
+  let list = `
+    <input type="text" id="admin-user-search" class="form-control mb-2" 
+           placeholder="Search users by name or email">
+    <ul class='list-group'>
+  `;
+
+  // Generate user list
+  users.forEach(email => {
+    let p = getProfile(email) || {},
+        u = p.username || email.split('@')[0],
+        f = p.fullname || "";
+    list += `<li class='list-group-item admin-user-row' data-email="${email}">
+                ${escape(f)} (${escape(u)})
+             </li>`;
+  });
   list += "</ul>";
+
   $("#admin-users-list").html(list);
+  $("#admin-user-details").empty();
+
+  // ✅ Search filter
   $("#admin-user-search").on("keyup", function () {
-    let value=$(this).val().toLowerCase();
-    $(".admin-user-row").toggle(function (){ return $(this).text().toLowerCase().indexOf(value) > -1; });
+    let value = $(this).val().toLowerCase();
+    $(".admin-user-row").filter(function () {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+    });
   });
-  $(".admin-user-row").off().click(async function () {
-    const email=$(this).data("email");
-    const isActive=$(this).hasClass("active");
+
+  $(".admin-user-row").off().click(function () {
+    const email = $(this).data("email");
+    const isActive = $(this).hasClass("active");
     $(".admin-user-row").removeClass("active");
-    if (isActive) { $("#admin-user-details").empty(); }
-    else { $(this).addClass("active"); await showAdminUserDetails(email); }
+    if (isActive) {
+      $("#admin-user-details").empty();
+    } else {
+      $(this).addClass("active");
+      showAdminUserDetails(email);
+    }
   });
-  await renderAdminIssues();
-  $("#admin-export").off().click(async function () {
-    let exportJobs = await getJobs();
-    let rows = exportJobs.map(r => ({
-      Email: r.email,
-      Username: r.username || "",
-      FullName: r.fullname || "",
-      Contact: r.contact || "",
-      Place: `(${r.place}${r.zipcode ? ", " + r.zipcode : ""})`,
-      Entry: r.entryTime,
-      Exit: r.exitTime || "",
-      Duration: getDurationStr(r),
-      Status: r.status
-    }));
-    let wb=XLSX.utils.book_new();
+
+  // Render issues and export button for everyone now
+  renderAdminIssues();
+
+  $("#admin-export").off().click(function () {
+    let rows = [];
+    users.forEach(email => {
+      let p = getProfile(email) || {};
+      getJobs(email).forEach(r => {
+        rows.push({
+          Email: email,
+          Username: p.username || "",
+          FullName: p.fullname || "",
+          Contact: p.contact || "",
+          Place: `(${r.place}${r.zipcode ? ", " + r.zipcode : ""})`,
+          Entry: r.entryTime,
+          Exit: r.exitTime || "",
+          Duration: getDurationStr(r),
+          Status: r.status
+        });
+      });
+    });
+    let wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), "Attendance");
     XLSX.writeFile(wb, "attendance.xlsx");
   });
 }
-async function showAdminUserDetails(email) {
-  let p = await getProfile(email);
-  let u = p.username || email.split('@')[0], f=p.fullname || "";
-  let recs = await getJobs(email);
+
+
+function showAdminUserDetails(email) {
+  let p = getProfile(email) || {},
+      u = p.username || email.split('@')[0],
+      f = p.fullname || "";
+  let recs = getJobs(email);
   let html = `<div class='mt-3 mb-2'><strong>${escape(f)} (${escape(u)})</strong></div>`;
   if (!recs.length) {
     html += "<p style='color:#a8c5ff;font-weight:600;'>No records.</p>";
@@ -994,7 +1097,7 @@ async function showAdminUserDetails(email) {
   }
   html += `<table class='table table-bordered admin-record-table'>
     <thead><tr><th>Place (ZIP)</th><th>Entry</th><th>Exit</th><th>Duration</th><th>Status</th></tr></thead><tbody>`;
-  for (let r of recs) {
+  recs.forEach(r => {
     html += `<tr>
       <td>(${escape(r.place)}${r.zipcode ? ", " + escape(r.zipcode) : ""})</td>
       <td>${escape(r.entryTime) || ""}</td>
@@ -1002,19 +1105,21 @@ async function showAdminUserDetails(email) {
       <td>${getDurationStr(r)}</td>
       <td>${escape(r.status) || ""}</td>
     </tr>`;
-  }
+  });
   html += "</tbody></table>";
   $("#admin-user-details").html(html);
 }
-async function renderAdminIssues() {
-  let issues = await getIssues();
+
+function renderAdminIssues() {
+  let issues = JSON.parse(localStorage.getItem("issues__") || "[]");
   if (!issues.length) {
-    return $("#admin-issues-holder").html("<p style='color:#a8c5ff;font-weight:600;'>No issues reported.</p>");
+    return $("#admin-issues-holder")
+      .html("<p style='color:#a8c5ff;font-weight:600;'>No issues reported.</p>");
   }
-  let html="<table class='table table-bordered table-sm table-dark'><thead><tr><th>Username</th><th>Full Name</th><th>Time</th><th>Message</th></tr></thead><tbody>";
-  for (let i of issues) {
+  let html = "<table class='table table-bordered table-sm table-dark'><thead><tr><th>Username</th><th>Full Name</th><th>Time</th><th>Message</th></tr></thead><tbody>";
+  issues.forEach(i => {
     html += `<tr><td>${escape(i.username)}</td><td>${escape(i.fullname)}</td><td>${escape(i.time)}</td><td>${escape(i.message)}</td></tr>`;
-  }
+  });
   html += "</tbody></table>";
   $("#admin-issues-holder").html(html);
 }
@@ -1024,29 +1129,35 @@ async function renderAdminIssues() {
 // =============================
 function showAlert(msg, isError) {
   $("#action-alert").text(msg).css({
-    opacity:1,
+    opacity: 1,
     background: isError ? 'rgba(220,53,69,0.25)' : '#2434aa26',
     borderColor: isError ? '#dc3545' : '#5e73d2bb'
   });
-  setTimeout(()=>$("#action-alert").css('opacity',0),3000);
+  setTimeout(() => $("#action-alert").css('opacity', 0), 3000);
 }
 
 // =============================
 // Init
 // =============================
-$(document).ready(async function () {
+$(document).ready(function () {
   initMap();
-  await renderAttendanceCards();
-  await renderStatisticsTable();
-  await loadProfile();
-  if (allowedAdminEmails.includes(userEmail)) await renderAdminTable();
+  renderAttendanceCards();
+  renderStatisticsTable();
+  loadProfile();
+  if (allowedAdminEmails.includes(userEmail)) renderAdminTable();
 
-  $("#filter-select").change(async function () {
+  $("#filter-select").change(function () {
     $("#start-date,#end-date").toggle($(this).val() === 'custom');
-    await renderAttendanceCards();
+    renderAttendanceCards();
   });
+
   $("#start-date,#end-date").on('change', renderAttendanceCards);
-  $("#logout").click(() => { sessionStorage.clear(); location.href = "index.html"; });
+
+  // ✅ Logout button
+  $("#logout").click(() => {
+    sessionStorage.clear();
+    location.href = "index.html";
+  });
 });
 </script>
 
