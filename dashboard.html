@@ -10,624 +10,131 @@
 <link rel="icon" href="./Bureau_Veritas.svg.png" type="image/png" />
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA97qnWyZu_Id_BCQhWvwOhm6qxn0TPty8&libraries=places"></script>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+
 <style>
-  :root {
-    --primary: #334bf9;
-    --secondary: #43bfff;
-    --accent: #6da9ff;
-    --dark-bg1: #191d29;
-    --dark-bg2: #273970;
-    --card-bg: #222a4b;
-    --card-bg-hover: #2c4478;
-    --admin-user-hover: #2a4dab;
-    --admin-bg: #1a2340;
-    --text-light: #d1d4dc;
-    --text-mid: #a8c5ff;
-    --text-accent: #43bfff;
-    --success: #69e07b;
-    --warning: #f1da65;
-    --error: #e46d78;
-    --shadow: 0 8px 32px 0 #2848bb60;
-    --soft-shadow: 0 1px 8px 0 #00193360;
-    --section-gradient: linear-gradient(115deg, #191d29 30%, #273970 120%);
-    --admin-gradient: linear-gradient(115deg, #1a2340, #28356c);
-    --scrollbar-bg: #1a2340;
-    --scrollbar-thumb: #4869f8;
-    --scrollbar-thumb-hover: #6f8aff;
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  body {
-    font-family: 'Urbanist', sans-serif;
-    background: linear-gradient(120deg, #0e141f 0%, #1b2233 100%);
-    color: var(--text-light);
-    min-height: 100vh;
-  }
-
-  .navbar {
-    background: linear-gradient(90deg, #1c1f32, #23355a 90%);
-    box-shadow: var(--soft-shadow);
-  }
-
-  .nav-link {
-    color: var(--text-light) !important;
-    border-radius: 10px;
-    padding: 0.6rem 1.1rem;
-    margin-right: 6px;
-    transition: background 0.2s, color 0.2s, box-shadow 0.3s;
-    font-weight: 700;
-    font-size: 1.05rem;
-    cursor: pointer;
-  }
-  .nav-link.active, .nav-link:hover {
-    color: var(--accent) !important;
-    background: var(--card-bg-hover);
-    box-shadow: 0 2px 12px var(--accent)38;
-  }
-
-  .navbar-toggler { border-color: var(--accent);}
-  .navbar-toggler-icon { filter: brightness(0.8) invert(1); }
-
-  .section {
-    display: none;
-    opacity: 0;
-    transition: opacity 0.5s cubic-bezier(.23,1.16,.64,1);
-  }
-  .section.active {
-    display: block;
-    opacity: 1;
-    animation: fadein-1 1s;
-  }
-  @keyframes fadein-1 { from { opacity: 0; } to { opacity: 1; } }
-
-  #container-main {
-    max-width: 1100px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background: rgba(23,29,52,.98);
-    border-radius: 28px;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(2px);
-  }
-
-  .section-card {
-    background: var(--section-gradient);
-    border-radius: 24px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--soft-shadow);
-    animation: cardin 1.3s;
-  }
-  @keyframes cardin {
-    from { opacity: .3; transform: scale(0.98); }
-    to { opacity: 1; transform: scale(1);}
-  }
-
-  .section-title {
-    font-size: 1.55rem;
-    font-weight: 800;
-    color: var(--secondary);
-    margin-bottom: 1.1rem;
-    text-shadow: 0 2px 22px var(--accent)33;
-    letter-spacing: 1px;
-    display: flex; align-items: center; gap: 8px;
-  }
-
-  #map-wrapper {
-    position: relative;
-    height: 330px;
-    border-radius: 18px;
-    margin-bottom: 1.2rem;
-    background: #1a2030;
-    box-shadow: 0 2px 16px #232b5066;
-    overflow: hidden;
-  }
-  #pac-input {
-    position: absolute;
-    top: 18px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 92%;
-    max-width: 520px;
-    padding: 0.7rem 1.4rem;
-    border-radius: 14px;
-    border: 1.7px solid var(--accent);
-    background: #28376f;
-    color: #d9e2ff;
-    font-size: 1.1rem;
-    z-index: 10;
-    box-shadow: 0 4px 18px #1178ffd5;
-  }
-
-  #map {
-    width: 100%;
-    height: 100%;
-    border-radius: 18px;
-  }
-
-  .attendance-card {
-    background: linear-gradient(110deg, #23294b 86%, #202038 98%);
-    border-radius: 16px;
-    margin-bottom: 0.7rem;
-    padding: 0.7rem 1.1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    opacity: 1;
-    box-shadow: 0 2px 12px #3840c022;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-
-  @keyframes fadein-card { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); }}
-
-  .attendance-card:hover {
-    transform: scale(1.03);
-    background: linear-gradient(120deg, var(--primary) 8%, var(--accent) 90%);
-    color: #fff;
-    box-shadow: 0 6px 32px #334bf9cc;
-  }
-
-  .status-dot {
-    width: 16px; height: 16px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 4px;
-    box-shadow: 0 0 4px #fff3;
-  }
-  .completed { background: var(--success); }
-  .pending { background: var(--warning); }
-
-  .card-summary {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    cursor: pointer;
-  }
-
-  .card-place {
-    font-weight: 700;
-    font-size: 1.09rem;
-    color: var(--accent);
-    flex-grow: 1;
-    word-break: break-word;
-    text-shadow: 0 2px 9px #367af626;
-  }
-
-  .card-date {
-    font-size: 0.96rem;
-    opacity: 0.8;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-  }
-
-  .photo-label {
-    font-size: 0.84rem;
-    font-weight: 700;
-    color: #c0dcfa;
-    text-align: center;
-    margin-top: 0.2rem;
-    letter-spacing: 0.03em;
-  }
-
-  .time-label {
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: #bbe3fa;
-    margin-top: 0.36rem;
-    margin-bottom: 0.1rem;
-    text-shadow: 0 1px 9px #68a8e233;
-  }
-
-  #action-alert {
-    font-weight: 600;
-    min-height: 35px;
-    border-radius: 13px;
-    background: #2434aa26;
-    border: 2px solid #5e73d2bb;
-    color: #bedeff;
-    margin-top: 1rem;
-    padding: 0.45rem 1.1rem;
-    text-align: center;
-    opacity: 0;
-    font-size: 1.09rem;
-    transition: opacity 0.32s cubic-bezier(.23,1.16,.64,1);
-    box-shadow: 0 2px 12px #334bf966;
-  }
-
-  #camera-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background: #000c;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    flex-direction: column;
-    animation: fade-bg 0.5s;
-  }
-  @keyframes fade-bg { from { opacity: 0; } to { opacity: 1; } }
-
-  #camera-controls {
-    margin-top: 1rem;
-    display: flex; gap: 1rem; justify-content: center;
-  }
-
-  #camera-controls .btn {
-    font-size: 1.1rem;
-    border-radius: 11px;
-    padding: 0.45rem 1.2rem;
-    box-shadow: 0 1px 8px #485cc666;
-    border: none;
-    cursor: pointer;
-  }
-
-  .admin-user-row {
-    cursor: pointer;
-    font-weight: 700;
-    text-shadow: 0 1px 6px #2848bb55;
-    transition: background 0.22s, color 0.22s, box-shadow 0.22s;
-    word-break: break-word;
-    background: linear-gradient(90deg, #29387c 0%, #232d4d 90%);
-    border-radius: 13px;
-    border: none;
-    color: var(--text-mid);
-    margin-bottom: 6px;
-    padding: 13px 18px;
-    box-shadow: 0 2px 12px #23355a22;
-    position: relative;
-    outline: none;
-    user-select: none;
-  }
-  .admin-user-row:hover, .admin-user-row:focus {
-    background: var(--admin-user-hover);
-    color: #fff;
-    outline: none;
-    box-shadow: 0 0 18px #658fe333;
-  }
-  .admin-user-row.active {
-    background: var(--primary);
-    color: #fff;
-    box-shadow: 0 0 26px var(--accent);
-  }
-  .admin-user-row:active::after {
-    content: '';
-    position: absolute; left:0; right:0; bottom:0; top:0;
-    border-radius: 13px;
-    background: #5d87e680;
-    opacity: 0.17;
-    pointer-events: none;
-  }
-
-  .list-group-item {
-    padding: 10px 15px;
-    background: none;
-    border: none;
-  }
-
-  #admin-users-list {
-    max-height: 330px;
-    overflow-y: auto;
-    background: var(--admin-gradient);
-    border-radius: 18px;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 1px 8px #2341a166;
-  }
-
-  #admin-export {
-    width: 100%;
-    max-width: 240px;
-    font-weight: 700;
-    border-radius: 13px;
-    background: var(--accent);
-    color: #21274a;
-    box-shadow: 0 2px 18px var(--accent)33;
-    transition: box-shadow 0.2s;
-    margin-bottom: 1.3rem;
-    margin-top: 0.7rem;
-    font-size: 1.1rem;
-    cursor: pointer;
-  }
-  #admin-export:hover, #admin-export:focus {
-    background: var(--primary);
-    color: #fff;
-    box-shadow: 0 6px 28px #334bf999;
-  }
-
-  #admin-user-details {
-    background: linear-gradient(115deg, #19203a, #2a3f71);
-    border-radius: 16px;
-    padding: 1.1rem;
-    color: #c2d6ff;
-    box-shadow: 0 0 10px #284da866 inset;
-    overflow-x: auto;
-    font-size: 1.05rem;
-    margin-bottom: 1.5rem;
-    animation: fadein-card 0.8s;
-  }
-
-  .admin-record-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 7px;
-    margin-top: 0.9rem;
-    margin-bottom: 0.5rem;
-    font-family: 'Urbanist', sans-serif;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 0 18px #1f2f7caa inset;
-  }
-  .admin-record-table th, .admin-record-table td {
-    background: #2a3f71;
-    border: none;
-    padding: 12px 15px;
-    text-align: center;
-    color: #b7c9ff;
-    font-size: 1rem;
-  }
-  .admin-record-table th {
-    background: #334bf9;
-    color: #efe8ff;
-    font-weight: 800;
-    box-shadow: 0 2px 12px #334bf966;
-  }
-  .admin-record-table tr:hover td {
-    background: var(--accent);
-    color: var(--dark-bg1);
-    transition: background 0.22s, color 0.22s;
-  }
-
-  #admin-issues-holder {
-    background: linear-gradient(90deg, #273970 80%, #191d29 100%);
-    border-radius: 14px;
-    margin-top: 8px;
-    margin-bottom: 18px;
-    padding: 0.7rem 0.3rem;
-    font-size: 0.96rem;
-    box-shadow: 0 1px 10px #334bf933;
-    overflow-x: auto;
-  }
-  #admin-issues-holder p.text-muted {
-  color: #a8c5ff; /* lighter, readable pastel blue */
-  font-weight: 600; /* optional: make it slightly bolder for emphasis */
-}
-
-  #admin-issues-holder table {
-    margin-bottom: 0;
-  }
-
-  .profile-label {
-    font-weight: 700;
-    color: var(--accent);
-  }
-  .form-control {
-    background: linear-gradient(90deg, #1e2a63, #15204d);
-    color: #c9e6ff;
-    border-radius: 14px;
-    border: 1.5px solid #3a4fbf;
-    font-size: 1.08rem;
-    box-shadow: 0 1px 8px #3351f8aa;
-    margin-bottom: 10px;
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-  }
-  .form-control:focus {
-    background: linear-gradient(90deg, #4568ff, #263bca);
-    color: #fff;
-    border-color: var(--accent);
-    box-shadow: 0 5px 18px var(--accent)70;
-    outline: none;
-  }
-
-  textarea#help-message {
-    min-height: 74px;
-  }
-
-  #filter-select {
-    background: #28376f;
-    color: #d9e2ff;
-    border: 1.7px solid var(--accent);
-    font-weight: 700;
-    border-radius: 14px;
-    box-shadow: 0 1px 8px #334bf933;
-    transition: background-color 0.3s, color 0.3s;
-    min-width: 130px;
-  }
-  #filter-select option {
-    background: #28376f;
-    color: #d9e2ff;
-    font-weight: 600;
-  }
-  #filter-select:focus {
-    outline: none;
-    border-color: var(--accent);
-    background: #3657ed;
-    color: #ffffff;
-  }
-
-  .d-flex.justify-content-center.gap-3.my-3 {
-    flex-direction: column;
-    gap: 11px;
-  }
-  .d-flex.justify-content-center.gap-3.my-3 button {
-    width: 100%;
-    max-width: 330px;
-  }
-
-  /* Cool Scrollbar */
-  #admin-users-list::-webkit-scrollbar,
-  #attendance-cards::-webkit-scrollbar,
-  #admin-user-details::-webkit-scrollbar,
-  #admin-issues-holder::-webkit-scrollbar {
-    width: 12px;
-    background: var(--scrollbar-bg);
-    border-radius: 12px;
-  }
-  #admin-users-list::-webkit-scrollbar-thumb,
-  #attendance-cards::-webkit-scrollbar-thumb,
-  #admin-user-details::-webkit-scrollbar-thumb,
-  #admin-issues-holder::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
-    border-radius: 12px;
-    border: 3px solid var(--scrollbar-bg);
-  }
-  #admin-users-list::-webkit-scrollbar-thumb:hover,
-  #attendance-cards::-webkit-scrollbar-thumb:hover,
-  #admin-user-details::-webkit-scrollbar-thumb:hover,
-  #admin-issues-holder::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover);
-  }
-  #admin-user-search::placeholder {
-  color: #a8c5ff;          /* themed light blue for visibility */
-  opacity: 1;              /* ensure full opacity */
-  font-weight: 600;        /* make it a bit bolder */
-}
-
-  /* Responsive */
-  @media (max-width: 680px) {
-    #container-main {
-      padding: 0.7rem;
-      margin: 0.7rem;
-      border-radius: 17px;
-    }
-    .section-title { font-size: 1.24rem; }
-    .section-card { padding: 0.65rem; border-radius: 16px;}
-    #admin-users-list { max-height: none; padding: 0.3rem; margin-bottom: 0.6rem;}
-    #admin-user-details { font-size: 1rem; padding: 0.7rem;}
-    .admin-user-row { font-size: 1rem; padding: 16px 10px; margin-bottom: 9px; }
-    #admin-export { font-size: 1.07rem; margin-bottom: 1rem; margin-top: 0.5rem;}
-    .admin-record-table th, .admin-record-table td { padding: 9px 6px; font-size: 0.91rem;}
-    #pac-input { max-width: 96%; font-size: 0.95rem; }
-    #camera-overlay video { max-width: 97vw; }
-    .d-flex.justify-content-center.gap-3.my-3 button { max-width: 100%; }
-    .admin-record-table { font-size: 0.95rem;}
-  }
-
-  @media (max-width:480px) {
-    #container-main {padding: .4rem;}
-    #admin-export { font-size: 0.98rem; }
-    #pac-input { font-size: 0.91rem;}
-    .admin-user-row {font-size: 0.98rem;}
-    .card-date, .photo-label, .card-place { font-size: 0.92rem; }
-  }
+  :root { --primary: #334bf9; --secondary: #43bfff; --accent: #6da9ff; --dark-bg1: #191d29; --dark-bg2: #273970; --card-bg: #222a4b; --card-bg-hover: #2c4478; --admin-user-hover: #2a4dab; --admin-bg: #1a2340; --text-light: #d1d4dc; --text-mid: #a8c5ff; --text-accent: #43bfff; --success: #69e07b; --warning: #f1da65; --error: #e46d78; --shadow: 0 8px 32px 0 #2848bb60; --soft-shadow: 0 1px 8px 0 #00193360; --section-gradient: linear-gradient(115deg, #191d29 30%, #273970 120%); }
+  * { box-sizing: border-box; }
+  body { font-family: 'Urbanist', sans-serif; background: linear-gradient(120deg, #0e141f 0%, #1b2233 100%); color: var(--text-light); min-height: 100vh; }
+  #loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #121217; display: flex; justify-content: center; align-items: center; z-index: 10000; color: #aabcff; font-size: 1.5rem; }
+  .navbar { background: linear-gradient(90deg, #1c1f32, #23355a 90%); box-shadow: var(--soft-shadow); }
+  .nav-link { color: var(--text-light) !important; border-radius: 10px; padding: 0.6rem 1.1rem; margin-right: 6px; transition: background 0.2s, color 0.2s; font-weight: 700; font-size: 1.05rem; cursor: pointer; }
+  .nav-link.active, .nav-link:hover { color: #fff !important; background: var(--card-bg-hover); }
+  .section { display: none; } .section.active { display: block; animation: fadeIn 0.5s ease-in-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  #container-main { max-width: 1100px; margin: 2rem auto; padding: 2rem; background: rgba(23,29,52,.9); border-radius: 28px; box-shadow: var(--shadow); backdrop-filter: blur(5px); }
+  .section-card { background: var(--section-gradient); border-radius: 24px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: var(--soft-shadow); }
+  .section-title { font-size: 1.55rem; font-weight: 800; color: var(--secondary); margin-bottom: 1.2rem; text-shadow: 0 2px 22px #43bfff33; display: flex; align-items: center; gap: 8px; }
+  #map-wrapper { position: relative; height: 330px; border-radius: 18px; margin-bottom: 1.2rem; background: #1a2030; box-shadow: 0 2px 16px #00000030; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  #map-error { color: var(--warning); text-align: center; display: none; padding: 1rem; }
+  #pac-input { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 520px; padding: 0.7rem 1.4rem; border-radius: 14px; border: 1.7px solid var(--accent); background: #28376f; color: #d9e2ff; font-size: 1.1rem; z-index: 10; box-shadow: 0 4px 18px #00000050; }
+  #map { width: 100%; height: 100%; border-radius: 18px; }
+  .attendance-card { background: linear-gradient(110deg, #23294b, #202038); border-radius: 16px; margin-bottom: 0.7rem; padding: 0.7rem 1.1rem; transition: transform 0.2s, box-shadow 0.2s; }
+  .attendance-card:hover { transform: translateY(-3px); box-shadow: 0 6px 32px #334bf944; }
+  .status-dot { width: 16px; height: 16px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+  .completed { background: var(--success); } .pending { background: var(--warning); }
+  .card-summary { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; cursor: pointer; }
+  .card-place { font-weight: 700; font-size: 1.09rem; color: var(--accent); flex-grow: 1; }
+  .card-date { font-size: 0.96rem; opacity: 0.8; font-weight: 600; }
+  #action-alert { font-weight: 600; min-height: 35px; border-radius: 13px; margin-top: 1rem; padding: 0.45rem 1.1rem; text-align: center; opacity: 0; font-size: 1.09rem; transition: opacity 0.3s; }
+  #camera-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000c; display: none; align-items: center; justify-content: center; z-index: 9999; flex-direction: column; }
+  .form-control { background: #1e2a63; color: #c9e6ff; border-radius: 14px; border: 1.5px solid #3a4fbf; }
+  .form-control:focus { background: #263bca; color: #fff; border-color: var(--accent); box-shadow: none; }
+  .form-control:disabled { background: #1e2a63; color: var(--text-mid); opacity: 0.7; }
+  .btn-info { background-color: #43bfff; border-color: #43bfff; color: #191d29; font-weight: bold; }
+  .btn-info:hover { background-color: #6da9ff; border-color: #6da9ff; }
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 10001; }
+  .modal-content { background: var(--dark-bg1); padding: 2rem; border-radius: 16px; text-align: center; border: 1px solid var(--accent); box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+  .user-dot { width: 20px; height: 20px; border-radius: 50%; background-color: #4285F4; border: 3px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+  .form-control::placeholder, textarea::placeholder { color: var(--text-mid) !important; opacity: 0.7 !important; }
+  #admin-user-search::placeholder { color: var(--text-mid) !important; opacity: 0.7 !important; }
+  .photo-preview-modal-body { display: flex; gap: 1rem; justify-content: center; align-items: center; margin-top: 1rem; }
+  .photo-preview-modal-body img { max-width: 40vw; max-height: 50vh; border-radius: 10px; }
+  .photo-preview-modal-body div { text-align: center; }
 </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg mb-3 shadow">
-  <div class="container-fluid">
-    <a class="navbar-brand text-light d-flex align-items-center gap-2" style="font-weight: 700;">
-      <i class="bi bi-clock-history"></i> Attendance
-    </a>
-    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navMain">
-      <ul class="navbar-nav me-auto mt-2 mt-lg-0">
-        <li><a class="nav-link active" data-sec="dashboard"><i class="bi bi-map"></i> Dashboard</a></li>
-        <li><a class="nav-link" data-sec="statistics"><i class="bi bi-bar-chart-line"></i> Statistics</a></li>
-        <li><a class="nav-link" data-sec="profile"><i class="bi bi-person-circle"></i> Profile</a></li>
-        <li class="admin-only"><a class="nav-link" data-sec="admin"><i class="bi bi-people"></i> Admin</a></li>
-        <li><a class="nav-link" data-sec="help"><i class="bi bi-question-circle"></i> Help</a></li>
-      </ul>
-      <span id="user-name" class="text-light me-3"></span>
-      <button id="logout" class="btn btn-outline-light btn-sm">Logout</button>
-    </div>
-  </div>
-</nav>
 
-<div id="container-main">
-  <!-- Dashboard -->
-  <div class="section active" id="dashboard">
-    <div class="section-card">
-      <div class="section-title"><i class="bi bi-map"></i> Dashboard</div>
-      <div id="map-wrapper">
-        <input id="pac-input" placeholder="Search site or address"/>
-        <div id="map"></div>
-      </div>
-      <div class="d-flex justify-content-center gap-3 my-3">
-        <button id="checkin-btn" class="btn btn-success glow-on-hover"><i class="bi bi-box-arrow-in-right"></i> Mark Entry</button>
-        <button id="checkout-btn" class="btn btn-warning glow-on-hover"><i class="bi bi-box-arrow-right"></i> Mark Exit</button>
-      </div>
-      <div id="action-alert"></div>
-      <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-        <label class="profile-label mb-0">Show:</label>
-        <select id="filter-select" class="form-select form-select-sm" style="max-width:150px;">
-          <option value="all">All</option><option value="yesterday">Yesterday</option>
-          <option value="last7">Last Week</option><option value="last30">Last Month</option>
-          <option value="custom">Custom Range</option>
-        </select>
-        <input type="date" id="start-date" style="display:none;">
-        <input type="date" id="end-date" style="display:none;">
-      </div>
-      <div id="attendance-cards"></div>
-    </div>
-  </div>
-
-  <!-- Statistics -->
-  <div class="section" id="statistics">
-    <div class="section-card">
-      <div class="section-title"><i class="bi bi-bar-chart-line"></i> Statistics</div>
-      <div id="statistics-holder"></div>
-    </div>
-  </div>
-
-  <!-- Profile -->
-  <div class="section" id="profile">
-    <div class="section-card">
-      <div class="section-title"><i class="bi bi-person-circle"></i> Profile</div>
-      <form id="profile-form">
-        <div class="mb-2"><label class="profile-label">Email</label><input id="prof-email" class="form-control" disabled></div>
-        <div class="mb-2"><label class="profile-label">Username</label><input id="prof-username" class="form-control"></div>
-        <div class="mb-2"><label class="profile-label">Full Name</label><input id="prof-fullname" class="form-control"></div>
-        <div class="mb-2"><label class="profile-label">Contact</label><input id="prof-contact" class="form-control"></div>
-        <button class="btn btn-primary mt-2 glow-on-hover" type="submit">Save</button>
-      </form>
-      <div id="profile-save-result" class="mt-2"></div>
-    </div>
-  </div>
-
-  <!-- Admin -->
-  <div class="section" id="admin">
-    <div class="section-card">
-      <div class="section-title"><i class="bi bi-people"></i> Admin Dashboard</div>
-      <div id="admin-users-list" class="mb-3"></div>
-      <div id="admin-user-details" class="glassify"></div>
-      <button id="admin-export" class="btn btn-success btn-sm mb-3 glow-on-hover">Export Attendance Excel</button>
-      <h5 class="text-info">Reported Issues</h5>
-      <div id="admin-issues-holder"></div>
-    </div>
-  </div>
-
-  <!-- Help -->
-  <div class="section" id="help">
-    <div class="section-card">
-      <div class="section-title"><i class="bi bi-question-circle"></i> Help</div>
-      <form id="help-form">
-        <label class="profile-label">Describe your issue</label>
-        <textarea id="help-message" rows="4" maxlength="700" class="form-control mb-2"></textarea>
-        <button type="submit" class="btn btn-primary glow-on-hover">Send Message</button>
-        <div id="help-response" class="mt-2 text-warning"></div>
-      </form>
-      <div class="mt-3">
-        <label class="profile-label">Contact Us:</label><br>
-        <a href="https://wa.me/9007947130" target="_blank" class="btn btn-success me-2"><i class="bi bi-whatsapp"></i> WhatsApp</a>
-        <a href="tel:+919007947130" class="btn btn-info"><i class="bi bi-telephone"></i> Call</a>
-      </div>
-    </div>
-  </div>
+<div id="loader-overlay">
+    <div><span class="spinner-border" role="status"></span> Authenticating...</div>
 </div>
 
-<!-- Camera overlay -->
+<div id="main-content" style="display: none;">
+    <nav class="navbar navbar-expand-lg mb-3 shadow-sm">
+      <div class="container-fluid">
+        <a class="navbar-brand text-light d-flex align-items-center gap-2" style="font-weight: 700;">
+          <i class="bi bi-clock-history"></i> Attendance
+        </a>
+        <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navMain"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navMain">
+          <ul class="navbar-nav me-auto mt-2 mt-lg-0">
+            <li><a class="nav-link active" data-sec="dashboard"><i class="bi bi-map"></i> Dashboard</a></li>
+            <li><a class="nav-link" data-sec="statistics"><i class="bi bi-bar-chart-line"></i> Statistics</a></li>
+            <li><a class="nav-link" data-sec="profile"><i class="bi bi-person-circle"></i> Profile</a></li>
+            <li class="admin-only" style="display:none;"><a class="nav-link" data-sec="admin"><i class="bi bi-people"></i> Admin</a></li>
+            <li><a class="nav-link" data-sec="help"><i class="bi bi-question-circle"></i> Help</a></li>
+          </ul>
+          <span id="user-name" class="text-light me-3"></span>
+          <button id="logout" class="btn btn-outline-light btn-sm">Logout</button>
+        </div>
+      </div>
+    </nav>
+    
+    <div id="container-main">
+        <div class="section active" id="dashboard">
+            <div class="section-card">
+                <div class="section-title"><i class="bi bi-geo-alt-fill"></i> Mark Attendance</div>
+                <div id="map-wrapper">
+                    <div id="map-error">
+                        <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+                        <p class="mt-2">Map could not load. Please check your internet connection and the API key configuration in the Google Cloud Console.</p>
+                    </div>
+                    <input id="pac-input" placeholder="Search site or address"/><div id="map"></div>
+                </div>
+                <div class="d-flex justify-content-center flex-column align-items-center gap-2 my-3">
+                    <button id="checkin-btn" class="btn btn-success w-100" style="max-width: 330px;"><i class="bi bi-box-arrow-in-right"></i> Mark Entry</button>
+                    <button id="checkout-btn" class="btn btn-warning w-100" style="max-width: 330px;"><i class="bi bi-box-arrow-right"></i> Mark Exit</button>
+                </div>
+                <div id="action-alert"></div>
+                
+                <hr style="border-color: var(--accent); opacity: 0.5;">
+
+                <div id="records-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0 text-light">Your Records</h5>
+                        <select id="filter-select" class="form-select form-select-sm" style="max-width:150px; background-color: #28376f; color: #d9e2ff; border-color: var(--accent);">
+                            <option value="all">All</option>
+                            <option value="today">Today</option>
+                            <option value="yesterday">Yesterday</option>
+                            <option value="last7">Last Week</option>
+                            <option value="last30">Last Month</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                    <div id="custom-date-range" class="d-flex gap-2 mb-3" style="display: none;">
+                        <input type="date" id="start-date" class="form-control form-control-sm">
+                        <input type="date" id="end-date" class="form-control form-control-sm">
+                    </div>
+                    <div id="attendance-cards"><p class='text-center text-muted'>Loading records...</p></div>
+                </div>
+            </div>
+        </div>
+        <div class="section" id="statistics"><div class="section-card"><div class="section-title"><i class="bi bi-bar-chart-line"></i> Statistics</div><div id="statistics-holder"></div></div></div>
+        <div class="section" id="profile"><div class="section-card"><div class="section-title"><i class="bi bi-person-circle"></i> Profile</div><form id="profile-form"><div class="mb-2"><label class="profile-label">Email</label><input id="prof-email" class="form-control" disabled></div><div class="mb-2"><label class="profile-label">Username</label><input id="prof-username" class="form-control" placeholder="e.g., your-name123"></div><div class="mb-2"><label class="profile-label">Full Name</label><input id="prof-fullname" class="form-control" placeholder="Enter your full name"></div><div class="mb-2"><label class="profile-label">Contact</label><input id="prof-contact" class="form-control" type="tel" placeholder="Enter your phone number"></div><button class="btn btn-primary mt-2" type="submit">Save Profile</button></form><div id="profile-save-result" class="mt-2"></div></div></div>
+        <div class="section" id="admin"><div class="section-card"><div class="section-title"><i class="bi bi-people"></i> Admin Dashboard</div><input type="text" id="admin-user-search" class="form-control mb-2" placeholder="Search by name or email..."><div id="admin-users-list" class="mb-3 list-group"></div><div id="admin-user-details"></div><button id="admin-export" class="btn btn-success btn-sm mb-3">Export All to Excel</button><h5 class="text-info mt-3">Reported Issues</h5><div id="admin-issues-holder"></div></div></div>
+        <div class="section" id="help"><div class="section-card"><div class="section-title"><i class="bi bi-question-circle"></i> Help & Support</div><form id="help-form"><label class="profile-label">Describe your issue</label><textarea id="help-message" rows="4" class="form-control mb-2" placeholder="e.g., 'My location is not updating' or 'I cannot see my past records'"></textarea><div class="d-flex gap-2 mt-2"><button type="submit" class="btn btn-primary flex-grow-1">Send to Admin</button></div></form><div id="help-response" class="mt-3"></div></div></div>
+    </div>
+</div>
+
 <div id="camera-overlay">
   <video id="video" autoplay playsinline style="max-width:90%;border-radius:14px;"></video>
-  <div id="camera-controls">
+  <div id="camera-controls" class="mt-3">
     <button id="snap-btn" class="btn btn-primary"><i class="bi bi-camera"></i> Capture</button>
     <button id="flip-btn" class="btn btn-secondary"><i class="bi bi-arrow-repeat"></i> Flip</button>
     <button id="cancel-btn" class="btn btn-danger"><i class="bi bi-x-circle"></i> Cancel</button>
@@ -635,532 +142,276 @@
   <canvas id="canvas" style="display:none;"></canvas>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-// 🔹 Multiple allowed admin emails
-const allowedAdminEmails = [
-  "mainakdebnath13@gmail.com",
-  "mainakdebnatha@gmail.com"
-];
-
-const userEmail = sessionStorage.getItem("googleEmail");
-const userName = sessionStorage.getItem("googleName") || "User";
-
-// Redirect if no email in session
-if (!userEmail) location.href = "login.html";
-
-// Set username in navbar
-$("#user-name").text(userName);
-
-// Hide admin-only sections if not in allowed list
-if (!allowedAdminEmails.includes(userEmail)) {
-  $('.admin-only').hide();
-}
-
-// =============================
-// Utility functions
-// =============================
-function getJobs(u = userEmail) {
-  return JSON.parse(localStorage.getItem("attendance_jobs__" + u) || "[]");
-}
-function setJobs(data, u = userEmail) {
-  localStorage.setItem("attendance_jobs__" + u, JSON.stringify(data));
-}
-function getProfile(u = userEmail) {
-  return JSON.parse(localStorage.getItem("prof__" + u) || "{}");
-}
-function setProfile(data, u = userEmail) {
-  localStorage.setItem("prof__" + u, JSON.stringify(data));
-}
-function escape(t) {
-  return t ? t.replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m])) : "";
-}
-
-// =============================
-// Navigation
-// =============================
-$('.nav-link').click(function () {
-  $('.nav-link').removeClass('active');
-  $(this).addClass('active');
-  let sec = $(this).data('sec');
-  $('.section').removeClass('active').css({ opacity: 0 });
-  $('#' + sec).addClass('active');
-  gsap.to('#' + sec, { opacity: 1, duration: 0.5 });
-});
-
-// =============================
-// Attendance rendering
-// =============================
-function sameDay(d1, d2) {
-  return d1.getFullYear() === d2.getFullYear() &&
-         d1.getMonth() === d2.getMonth() &&
-         d1.getDate() === d2.getDate();
-}
-
-function filterArray() {
-  let arr = [...getJobs()],
-      f = $("#filter-select").val(),
-      td = new Date();
-  td.setHours(0, 0, 0, 0);
-
-  if (f === "yesterday") {
-    let yd = new Date(td);
-    yd.setDate(td.getDate() - 1);
-    return arr.filter(r => sameDay(new Date(r.entryTime), yd));
-  }
-
-  if (f === "last7") {
-    let wk = new Date(td);
-    wk.setDate(td.getDate() - 6);
-    return arr.filter(r => {
-      let d = new Date(r.entryTime);
-      d.setHours(0, 0, 0, 0);
-      return d >= wk && d <= td;
-    });
-  }
-
-  if (f === "last30") {
-    let mk = new Date(td);
-    mk.setDate(td.getDate() - 29);
-    return arr.filter(r => {
-      let d = new Date(r.entryTime);
-      d.setHours(0, 0, 0, 0);
-      return d >= mk && d <= td;
-    });
-  }
-
-  if (f === "custom") {
-    let sd = $("#start-date").val(),
-        ed = $("#end-date").val();
-    if (!sd || !ed) return [];
-    let sdt = new Date(sd),
-        edt = new Date(ed);
-    sdt.setHours(0, 0, 0, 0);
-    edt.setHours(0, 0, 0, 0);
-    return arr.filter(r => {
-      let d = new Date(r.entryTime);
-      d.setHours(0, 0, 0, 0);
-      return d >= sdt && d <= edt;
-    });
-  }
-  return arr;
-}
-
-function renderAttendanceCards() {
-  let arr = filterArray(),
-      c = $("#attendance-cards").empty();
-  if (!arr.length) return c.html(`<p class='text-center text-muted'>No records.</p>`);
-
-  arr.forEach((job) => {
-    let zipStr = job.zipcode ? `, ${escape(job.zipcode)}` : "";
-    let details = `<div class="record-details" style="display:none">
-        <div class="d-flex gap-3 py-2 flex-wrap">
-          <div><img src="${job.entryPhoto}" style="max-width:72px;border-radius:10px;"><div class="photo-label">Entry</div></div>
-          ${job.exitPhoto ? `<div><img src="${job.exitPhoto}" style="max-width:72px;border-radius:10px;"><div class="photo-label">Exit</div></div>` : ""}
-          <div>
-            <div class="time-label">Entry:</div>${escape(job.entryTime)}
-            ${job.exitPhoto ? `<div class="time-label">Exit:</div>${escape(job.exitTime)}` : ""}
-          </div>
-        </div>
-        <button class="btn btn-danger btn-sm delete-record-btn mt-2">Delete</button>
-      </div>`;
-    let card = $(`<div class="attendance-card">
-      <div class="card-summary">
-        <span class="status-dot ${job.exitPhoto ? "completed" : "pending"}"></span>
-        <span class="card-place">(${escape(job.place)}${zipStr})</span>
-        <span class="card-date">${escape(job.entryTime.split(",")[0])}</span>
-        <i class="bi bi-chevron-down expand-icon ms-auto"></i>
+<div id="delete-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h4 class="text-warning">Confirm Deletion</h4>
+      <p class="mt-3">Are you sure you want to delete this record? This action cannot be undone.</p>
+      <div class="d-flex justify-content-center gap-3 mt-4">
+        <button id="modal-cancel-delete" class="btn btn-secondary">Cancel</button>
+        <button id="modal-confirm-delete" class="btn btn-danger">Delete</button>
       </div>
-      ${details}
-    </div>`);
-    card.find('.card-summary').click(function () {
-      let det = $(this).siblings(".record-details");
-      $(this).find(".expand-icon").toggleClass("bi-chevron-down bi-chevron-up");
-      det.slideToggle(200);
-    });
-    card.find(".delete-record-btn").click(function (e) {
-      e.stopPropagation();
-      let jobs = getJobs();
-      jobs.splice(jobs.indexOf(job), 1);
-      setJobs(jobs);
-      renderAttendanceCards();
-      renderStatisticsTable();
-    });
-    c.append(card);
-  });
-}
+    </div>
+</div>
+
+<div id="photo-preview-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h4 class="text-info">Attendance Photos</h4>
+      <div class="photo-preview-modal-body">
+          <div id="entry-photo-container">
+              <h6 class="text-white-50">Entry Photo</h6>
+              <img id="entry-photo-img" src="https://placehold.co/400x300/191d29/a8c5ff?text=Loading..." alt="Entry Photo">
+          </div>
+          <div id="exit-photo-container">
+              <h6 class="text-white-50">Exit Photo</h6>
+              <img id="exit-photo-img" src="https://placehold.co/400x300/191d29/a8c5ff?text=Loading..." alt="Exit Photo">
+          </div>
+      </div>
+      <div class="mt-4">
+        <button id="modal-close-photos" class="btn btn-secondary">Close</button>
+      </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCHBVP_H3Dce3ZcuQVpYSqlgaSdiZh7OGk&libraries=places,marker&loading=async&callback=initMap" async defer></script>
+<script>
+// --- Firebase Configuration ---
+const firebaseConfig = {
+  apiKey: "AIzaSyCHBVP_H3Dce3ZcuQVpYSqlgaSdiZh7OGk",
+  authDomain: "engineer-attendance.firebaseapp.com",
+  projectId: "engineer-attendance",
+  storageBucket: "engineer-attendance.appspot.com",
+  messagingSenderId: "958248576124",
+  appId: "1:958248576124:web:d3750a397c3021220855f9"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+const allowedAdminEmails = [ "mainakdebnath13@gmail.com", "mainakdebnatha@gmail.com" ];
+let currentUser = null;
+let allUserRecords = [];
+
+let attendanceUnsubscribe = null, adminUsersUnsubscribe = null, adminIssuesUnsubscribe = null, adminUserDetailsUnsubscribe = null;
+let map, userLiveMarker, searchMarker, selectedPlace = null, userLat = null, userLng = null, usingFront = false, globalStream;
 
 // =============================
-// Map
+// CORE APP LOGIC & AUTH
 // =============================
-let selectedPlace = null, userLat = null, userLng = null, map, marker, userLiveMarker;
-
-function initMap() {
-  map = new google.maps.Map(document.getElementById('map'), {
-    center: { lat: 28.61, lng: 77.23 },
-    zoom: 12
-  });
-  const searchBox = new google.maps.places.SearchBox(
-    document.getElementById('pac-input'),
-    { componentRestrictions: { country: ["in"] } }
-  );
-  if (navigator.geolocation) {
-    navigator.geolocation.watchPosition(function (position) {
-      userLat = position.coords.latitude;
-      userLng = position.coords.longitude;
-      if (!userLiveMarker) {
-        let pos = { lat: userLat, lng: userLng };
-        userLiveMarker = new google.maps.Marker({
-          position: pos,
-          map,
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 8,
-            fillColor: "#2977FF",
-            fillOpacity: .8,
-            strokeColor: "#fff",
-            strokeWeight: 2
-          }
-        });
-        map.setCenter(pos);
-        map.setZoom(16);
-      } else {
-        userLiveMarker.setPosition({ lat: userLat, lng: userLng });
-      }
-    });
-  }
-  searchBox.addListener('places_changed', () => {
-    const places = searchBox.getPlaces();
-    if (!places.length) return;
-    selectedPlace = places[0];
-    if (marker) marker.setMap(null);
-    marker = new google.maps.Marker({ map, position: selectedPlace.geometry.location });
-    map.panTo(selectedPlace.geometry.location);
-    map.setZoom(16);
-  });
-}
-
-// =============================
-// Camera
-// =============================
-let usingFront = false, globalStream, entryPhoto = "", exitPhoto = "";
-
-function openCamera(type) {
-  $("#camera-overlay").css("display", "flex");
-  function startCam() {
-    if (globalStream) globalStream.getTracks().forEach(t => t.stop());
-    navigator.mediaDevices.getUserMedia({
-      video: { facingMode: usingFront ? 'user' : 'environment' }
-    }).then(stream => {
-      $("#video")[0].srcObject = stream;
-      globalStream = stream;
-    });
-  }
-  startCam();
-  $("#snap-btn").off().click(() => {
-    const v = $("#video")[0], c = $("#canvas")[0];
-    c.width = v.videoWidth;
-    c.height = v.videoHeight;
-    c.getContext('2d').drawImage(v, 0, 0);
-    if (type === 'entry') entryPhoto = c.toDataURL();
-    else exitPhoto = c.toDataURL();
-    globalStream.getTracks().forEach(t => t.stop());
-    $("#camera-overlay").hide();
-    finishAttendance(type);
-  });
-  $("#flip-btn").off().click(() => { usingFront = !usingFront; startCam(); });
-  $("#cancel-btn").off().click(() => {
-    if (globalStream) globalStream.getTracks().forEach(t => t.stop());
-    $("#camera-overlay").hide();
-  });
-}
-
-function finishAttendance(type) {
-  let jobs = getJobs();
-  if (type === 'entry') {
-    jobs.unshift({
-      place: selectedPlace?.name || "Unknown",
-      zipcode: selectedPlace?.zipcode || "",
-      entryTime: new Date().toLocaleString(),
-      entryPhoto,
-      status: "pending-exit"
-    });
-  } else {
-    let j = jobs.find(x => x.status === "pending-exit");
-    if (j) {
-      j.exitTime = new Date().toLocaleString();
-      j.exitPhoto = exitPhoto;
-      j.status = "completed";
-    }
-  }
-  setJobs(jobs);
-  renderAttendanceCards();
-  renderStatisticsTable();
-  showAlert(type === 'entry' ? "Entry marked!" : "Exit marked!", false);
-}
-
-// Check-in / Check-out click
-$('#checkin-btn').click(() => {
-  if (!selectedPlace) return showAlert("Select place", true);
-  if (getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng()) <= 400)
-    openCamera('entry');
-  else showAlert("Too far from site", true);
-});
-
-$('#checkout-btn').click(() => {
-  if (!selectedPlace) return showAlert("Select place", true);
-  if (!getJobs().some(j => j.status === "pending-exit"))
-    return showAlert("No active job", true);
-  if (getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng()) <= 400)
-    openCamera('exit');
-  else showAlert("Too far from site", true);
-});
-
-function getDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371e3, toRad = d => d * Math.PI / 180;
-  let dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
-  let a = Math.sin(dLat / 2) ** 2 +
-          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-          Math.sin(dLon / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-// =============================
-// Profile
-// =============================
-function loadProfile() {
-  let p = getProfile();
-  $("#prof-email").val(userEmail);
-  $("#prof-username").val(p.username || userEmail.split('@')[0]);
-  $("#prof-fullname").val(p.fullname || userName);
-  $("#prof-contact").val(p.contact || "");
-}
-
-$("#profile-form").submit(e => {
-  e.preventDefault();
-  setProfile({
-    username: $("#prof-username").val(),
-    fullname: $("#prof-fullname").val(),
-    contact: $("#prof-contact").val()
-  });
-  $("#profile-save-result").text("Saved!").fadeIn().delay(1200).fadeOut();
-});
-
-// =============================
-// Statistics
-// =============================
-function renderStatisticsTable() {
-  let arr = getJobs(), total = arr.length, todayCount = 0, last7 = 0, last30 = 0;
-  let today = new Date(); today.setHours(0, 0, 0, 0);
-  let last7date = new Date(today); last7date.setDate(today.getDate() - 6);
-  let last30date = new Date(today); last30date.setDate(today.getDate() - 29);
-  arr.forEach(j => {
-    let d = new Date(j.entryTime); d.setHours(0, 0, 0, 0);
-    if (d.getTime() === today.getTime()) todayCount++;
-    if (d >= last7date) last7++;
-    if (d >= last30date) last30++;
-  });
-  $("#statistics-holder").html(
-    `<table class="table table-bordered table-dark text-center">
-       <tr><th>Today</th><th>Last 7 Days</th><th>Last 30 Days</th><th>Total</th></tr>
-       <tr><td>${todayCount}</td><td>${last7}</td><td>${last30}</td><td>${total}</td></tr>
-     </table>`
-  );
-}
-
-// =============================
-// Help form
-// =============================
-$("#help-form").submit(function (e) {
-  e.preventDefault();
-  let msg = $("#help-message").val().trim();
-  if (!msg) return $("#help-response").text("Please enter your issue.");
-  let prof = getProfile();
-  let issue = {
-    username: prof.username || userEmail.split('@')[0],
-    fullname: prof.fullname || userName,
-    time: new Date().toLocaleString(),
-    message: msg
-  };
-  let issues = JSON.parse(localStorage.getItem("issues__") || "[]");
-  issues.unshift(issue);
-  localStorage.setItem("issues__", JSON.stringify(issues));
-  $("#help-response").html('<span class="text-success">Issue reported successfully!</span>');
-  $("#help-message").val("");
-});
-
-// =============================
-// Admin
-// =============================
-function getAllUserEmails() {
-  return Object.keys(localStorage)
-    .filter(k => k.startsWith('attendance_jobs__'))
-    .map(k => k.replace('attendance_jobs__', ''));
-}
-
-function getDurationStr(r) {
-  if (!r.entryTime || !r.exitTime) return "00:00";
-  let et = new Date(r.entryTime), xt = new Date(r.exitTime);
-  let ms = xt - et;
-  if (isNaN(ms) || ms < 60000) return "00:00";
-  let mins = Math.floor(ms / 60000),
-      hrs = Math.floor(mins / 60),
-      m = mins % 60;
-  return String(hrs).padStart(2, "0") + ":" + String(m).padStart(2, "0");
-}
-
-function renderAdminTable() {
-  // 🔹 Removed admin-only restriction
-  // Now any logged-in user can see all users' records
-  $('.admin-only').show();  // Ensure admin-only sections are visible
-
-  let users = getAllUserEmails();
-
-  // Add search bar HTML
-  let list = `
-    <input type="text" id="admin-user-search" class="form-control mb-2" 
-           placeholder="Search users by name or email">
-    <ul class='list-group'>
-  `;
-
-  // Generate user list
-  users.forEach(email => {
-    let p = getProfile(email) || {},
-        u = p.username || email.split('@')[0],
-        f = p.fullname || "";
-    list += `<li class='list-group-item admin-user-row' data-email="${email}">
-                ${escape(f)} (${escape(u)})
-             </li>`;
-  });
-  list += "</ul>";
-
-  $("#admin-users-list").html(list);
-  $("#admin-user-details").empty();
-
-  // ✅ Search filter
-  $("#admin-user-search").on("keyup", function () {
-    let value = $(this).val().toLowerCase();
-    $(".admin-user-row").filter(function () {
-      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-    });
-  });
-
-  $(".admin-user-row").off().click(function () {
-    const email = $(this).data("email");
-    const isActive = $(this).hasClass("active");
-    $(".admin-user-row").removeClass("active");
-    if (isActive) {
-      $("#admin-user-details").empty();
+auth.onAuthStateChanged(user => {
+    if (user) {
+        currentUser = user;
+        initializeDashboard();
     } else {
-      $(this).addClass("active");
-      showAdminUserDetails(email);
+        if (attendanceUnsubscribe) attendanceUnsubscribe();
+        if (adminUsersUnsubscribe) adminUsersUnsubscribe();
+        if (adminIssuesUnsubscribe) adminIssuesUnsubscribe();
+        if (adminUserDetailsUnsubscribe) adminUserDetailsUnsubscribe();
+        window.location.href = "index.html";
     }
-  });
-
-  // Render issues and export button for everyone now
-  renderAdminIssues();
-
-  $("#admin-export").off().click(function () {
-    let rows = [];
-    users.forEach(email => {
-      let p = getProfile(email) || {};
-      getJobs(email).forEach(r => {
-        rows.push({
-          Email: email,
-          Username: p.username || "",
-          FullName: p.fullname || "",
-          Contact: p.contact || "",
-          Place: `(${r.place}${r.zipcode ? ", " + r.zipcode : ""})`,
-          Entry: r.entryTime,
-          Exit: r.exitTime || "",
-          Duration: getDurationStr(r),
-          Status: r.status
-        });
-      });
-    });
-    let wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), "Attendance");
-    XLSX.writeFile(wb, "attendance.xlsx");
-  });
-}
-
-
-function showAdminUserDetails(email) {
-  let p = getProfile(email) || {},
-      u = p.username || email.split('@')[0],
-      f = p.fullname || "";
-  let recs = getJobs(email);
-  let html = `<div class='mt-3 mb-2'><strong>${escape(f)} (${escape(u)})</strong></div>`;
-  if (!recs.length) {
-    html += "<p style='color:#a8c5ff;font-weight:600;'>No records.</p>";
-    return $("#admin-user-details").html(html);
-  }
-  html += `<table class='table table-bordered admin-record-table'>
-    <thead><tr><th>Place (ZIP)</th><th>Entry</th><th>Exit</th><th>Duration</th><th>Status</th></tr></thead><tbody>`;
-  recs.forEach(r => {
-    html += `<tr>
-      <td>(${escape(r.place)}${r.zipcode ? ", " + escape(r.zipcode) : ""})</td>
-      <td>${escape(r.entryTime) || ""}</td>
-      <td>${escape(r.exitTime) || ""}</td>
-      <td>${getDurationStr(r)}</td>
-      <td>${escape(r.status) || ""}</td>
-    </tr>`;
-  });
-  html += "</tbody></table>";
-  $("#admin-user-details").html(html);
-}
-
-function renderAdminIssues() {
-  let issues = JSON.parse(localStorage.getItem("issues__") || "[]");
-  if (!issues.length) {
-    return $("#admin-issues-holder")
-      .html("<p style='color:#a8c5ff;font-weight:600;'>No issues reported.</p>");
-  }
-  let html = "<table class='table table-bordered table-sm table-dark'><thead><tr><th>Username</th><th>Full Name</th><th>Time</th><th>Message</th></tr></thead><tbody>";
-  issues.forEach(i => {
-    html += `<tr><td>${escape(i.username)}</td><td>${escape(i.fullname)}</td><td>${escape(i.time)}</td><td>${escape(i.message)}</td></tr>`;
-  });
-  html += "</tbody></table>";
-  $("#admin-issues-holder").html(html);
-}
-
-// =============================
-// Alerts
-// =============================
-function showAlert(msg, isError) {
-  $("#action-alert").text(msg).css({
-    opacity: 1,
-    background: isError ? 'rgba(220,53,69,0.25)' : '#2434aa26',
-    borderColor: isError ? '#dc3545' : '#5e73d2bb'
-  });
-  setTimeout(() => $("#action-alert").css('opacity', 0), 3000);
-}
-
-// =============================
-// Init
-// =============================
-$(document).ready(function () {
-  initMap();
-  renderAttendanceCards();
-  renderStatisticsTable();
-  loadProfile();
-  if (allowedAdminEmails.includes(userEmail)) renderAdminTable();
-
-  $("#filter-select").change(function () {
-    $("#start-date,#end-date").toggle($(this).val() === 'custom');
-    renderAttendanceCards();
-  });
-
-  $("#start-date,#end-date").on('change', renderAttendanceCards);
-
-  // ✅ Logout button
-  $("#logout").click(() => {
-    sessionStorage.clear();
-    location.href = "index.html";
-  });
 });
+
+function initializeDashboard() {
+    $("#user-name").text(currentUser.displayName || "User");
+    loadProfile();
+    attachAttendanceListener();
+    renderStatisticsTable();
+    if (allowedAdminEmails.includes(currentUser.email)) {
+        $('.admin-only').show();
+        renderAdminPanel();
+    }
+    $('#loader-overlay').fadeOut();
+    $('#main-content').fadeIn();
+    $('#filter-select, #start-date, #end-date').on('change', () => renderAttendanceCards(allUserRecords));
+}
+
+$('#logout').click(() => auth.signOut());
+$('.nav-link').click(function() {
+    $('.nav-link').removeClass('active');
+    $(this).addClass('active');
+    $('.section').removeClass('active');
+    $('#' + $(this).data('sec')).addClass('active');
+});
+
+function showAlert(msg, isError = false) {
+    const alertBox = $("#action-alert");
+    alertBox.text(msg).css({ opacity: 1, background: isError ? 'rgba(228, 109, 120, 0.15)' : 'rgba(105, 224, 123, 0.15)', borderColor: isError ? 'var(--error)' : 'var(--success)' });
+    setTimeout(() => alertBox.css('opacity', 0), 3500);
+}
+
+function formatTimestamp(ts) {
+    if (!ts || !ts.seconds) return "N/A";
+    return new Date(ts.seconds * 1000).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short'});
+}
+
+// =============================
+// ATTENDANCE & CHECK-IN/OUT
+// =============================
+function attachAttendanceListener() {
+    if (attendanceUnsubscribe) attendanceUnsubscribe();
+    attendanceUnsubscribe = db.collection("attendance")
+        .where("userId", "==", currentUser.uid)
+        .orderBy("entryTime", "desc")
+        .onSnapshot(snapshot => {
+            allUserRecords = snapshot.docs;
+            renderAttendanceCards(allUserRecords);
+        }, err => {
+            console.error("Error fetching attendance:", err);
+            $("#attendance-cards").html(`<p class='text-center text-danger'>Could not load records. A database index is likely required. See console for the link to create it.</p>`);
+        });
+}
+
+function renderAttendanceCards(docs) {
+    const container = $("#attendance-cards").empty();
+    const filteredDocs = filterRecords(docs);
+    if (filteredDocs.length === 0) {
+        return container.html(`<p class='text-center text-muted'>No records for this period.</p>`);
+    }
+    filteredDocs.forEach(doc => {
+        const job = { id: doc.id, ...doc.data() };
+        const entryDate = formatTimestamp(job.entryTime).split(',')[0];
+        let details = $(`<div class="record-details small text-white-50" style="display:none; margin-top: 10px;">
+            <div class="d-flex gap-3 py-2 flex-wrap align-items-center">
+                <div><img src="${job.entryPhoto}" style="max-width:80px;border-radius:10px;" alt="Entry Photo"><div class="text-center small mt-1">Entry</div></div>
+                ${job.exitPhoto ? `<div><img src="${job.exitPhoto}" style="max-width:80px;border-radius:10px;" alt="Exit Photo"><div class="text-center small mt-1">Exit</div></div>` : ""}
+                <div>
+                    <div class="fw-bold">Entry:</div>${formatTimestamp(job.entryTime)}
+                    ${job.exitPhoto ? `<div class="fw-bold mt-2">Exit:</div>${formatTimestamp(job.exitTime)}` : ""}
+                </div>
+            </div>
+            <button class="btn btn-outline-danger btn-sm delete-record-btn mt-2" data-id="${job.id}">Delete</button>
+        </div>`);
+        let card = $(`<div class="attendance-card">
+            <div class="card-summary">
+                <span class="status-dot ${job.exitPhoto ? "completed" : "pending"}"></span>
+                <span class="card-place">${job.place}</span>
+                <span class="card-date ms-auto">${entryDate}</span>
+                <i class="bi bi-chevron-down expand-icon ms-2"></i>
+            </div>
+        </div>`).append(details);
+        card.find('.card-summary').click(function() { details.slideToggle(200); $(this).find(".expand-icon").toggleClass("bi-chevron-down bi-chevron-up"); });
+        card.find('.delete-record-btn').click(function() { showDeleteModal(job.id); });
+        container.append(card);
+    });
+}
+
+function filterRecords(docs) {
+    const filter = $('#filter-select').val();
+    $('#custom-date-range').css('display', filter === 'custom' ? 'flex' : 'none');
+    if (filter === 'all') return docs;
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return docs.filter(doc => {
+        const entryDate = doc.data().entryTime.toDate();
+        if (filter === 'today') return entryDate >= todayStart;
+        if (filter === 'yesterday') {
+            const yesterdayStart = new Date(todayStart);
+            yesterdayStart.setDate(todayStart.getDate() - 1);
+            return entryDate >= yesterdayStart && entryDate < todayStart;
+        }
+        if (filter === 'last7') {
+            const weekAgo = new Date(todayStart);
+            weekAgo.setDate(todayStart.getDate() - 6);
+            return entryDate >= weekAgo;
+        }
+        if (filter === 'last30') {
+            const monthAgo = new Date(todayStart);
+            monthAgo.setDate(todayStart.getDate() - 29);
+            return entryDate >= monthAgo;
+        }
+        if (filter === 'custom') {
+            const startDateStr = $('#start-date').val(); const endDateStr = $('#end-date').val();
+            if (!startDateStr || !endDateStr) return false;
+            const startDate = new Date(startDateStr); const endDate = new Date(endDateStr);
+            if (isNaN(startDate) || isNaN(endDate)) return false;
+            startDate.setHours(0,0,0,0); endDate.setHours(23,59,59,999);
+            return entryDate >= startDate && entryDate <= endDate;
+        }
+        return true;
+    });
+}
+
+$('#checkin-btn').click(() => handleCheckInOut('entry'));
+$('#checkout-btn').click(() => handleCheckInOut('exit'));
+
+async function handleCheckInOut(type) {
+    if (!selectedPlace) return showAlert("Please search and select a site from the map first.", true);
+    if (userLat === null) return showAlert("Waiting for your location. Please enable GPS and grant permission.", true);
+    const distance = getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng());
+    if (distance > 500) return showAlert(`You are ${Math.round(distance)}m away. Please move closer to the site.`, true);
+    
+    const pendingQuery = await db.collection("attendance").where("userId", "==", currentUser.uid).where("status", "==", "pending-exit").orderBy("entryTime", "desc").limit(1).get();
+    const hasPendingCheckin = !pendingQuery.empty;
+    
+    if (type === 'entry' && hasPendingCheckin) return showAlert("You already have a pending check-in. Please mark exit first.", true);
+    if (type === 'exit' && !hasPendingCheckin) return showAlert("No pending check-in found to mark an exit.", true);
+
+    const docIdToUpdate = type === 'exit' ? pendingQuery.docs[0].id : null;
+    openCamera(type, docIdToUpdate);
+}
+
+// =============================
+// MODALS, CAMERA, UPLOAD, PROFILE, STATS, MAP
+// =============================
+function showDeleteModal(docId) { $('#delete-modal').css('display', 'flex').hide().fadeIn(200); $('#modal-confirm-delete').data('docId', docId); }
+$('#modal-confirm-delete').click(function() { const docId = $(this).data('docId'); if (docId) { db.collection('attendance').doc(docId).delete().catch(err => showAlert("Failed to delete record.", true)); } $('#delete-modal').fadeOut(200); });
+$('#modal-cancel-delete').click(() => $('#delete-modal').fadeOut(200));
+function showPhotoPreviewModal(entryPhoto, exitPhoto) { $('#entry-photo-img').attr('src', entryPhoto || 'https://placehold.co/400x300/191d29/a8c5ff?text=Not+Available'); if (exitPhoto) { $('#exit-photo-img').attr('src', exitPhoto); $('#exit-photo-container').show(); } else { $('#exit-photo-container').hide(); } $('#photo-preview-modal').css('display', 'flex').hide().fadeIn(200); }
+$('#modal-close-photos').click(() => $('#photo-preview-modal').fadeOut(200));
+
+async function finishAttendance(type, photoDataUrl, docIdToUpdate) {
+    showAlert("Uploading photo...");
+    const photoRef = storage.ref(`photos/${currentUser.uid}/${Date.now()}_${type}.jpg`);
+    try {
+        const uploadTask = await photoRef.putString(photoDataUrl, 'data_url');
+        const photoURL = await uploadTask.ref.getDownloadURL();
+        showAlert("Saving record...");
+        const placeName = selectedPlace?.name || "Unknown Location";
+        if (type === 'entry') {
+            await db.collection("attendance").add({ userId: currentUser.uid, userEmail: currentUser.email, place: placeName, entryTime: new Date(), entryPhoto: photoURL, status: "pending-exit" });
+        } else {
+            if (!docIdToUpdate) throw new Error("No pending check-in ID found.");
+            await db.collection("attendance").doc(docIdToUpdate).update({ exitTime: new Date(), exitPhoto: photoURL, status: "completed" });
+        }
+        showAlert(`${type.charAt(0).toUpperCase() + type.slice(1)} marked successfully!`);
+    } catch (error) {
+        console.error("Error saving attendance:", error);
+        showAlert(`Failed to save record. ${error.message}`, true);
+    }
+}
+
+function openCamera(type, docIdToUpdate = null) {
+  $("#camera-overlay").css("display", "flex");
+  const startCam = () => { if (globalStream) globalStream.getTracks().forEach(t => t.stop()); navigator.mediaDevices.getUserMedia({ video: { facingMode: usingFront ? 'user' : 'environment' } }).then(stream => { $("#video")[0].srcObject = stream; globalStream = stream; }).catch(err => { showAlert('Could not access camera. Please grant permission.', true); $("#camera-overlay").hide(); }); };
+  startCam();
+  $("#snap-btn").off().click(() => { const v = $("#video")[0], c = $("#canvas")[0]; c.width = v.videoWidth; c.height = v.videoHeight; c.getContext('2d').drawImage(v, 0, 0); const photoDataUrl = c.toDataURL('image/jpeg', 0.8); globalStream.getTracks().forEach(t => t.stop()); $("#camera-overlay").hide(); finishAttendance(type, photoDataUrl, docIdToUpdate); });
+  $("#flip-btn").off().click(() => { usingFront = !usingFront; startCam(); });
+  $("#cancel-btn").off().click(() => { if (globalStream) globalStream.getTracks().forEach(t => t.stop()); $("#camera-overlay").hide(); });
+}
+
+async function loadProfile() { try { const doc = await db.collection('users').doc(currentUser.uid).get(); const p = doc.exists ? doc.data() : {}; $('#prof-email').val(currentUser.email); $('#prof-username').val(p.username || currentUser.email.split('@')[0]); $('#prof-fullname').val(p.fullname || currentUser.displayName); $('#prof-contact').val(p.contact || ''); } catch (error) { console.error("Error loading profile:", error); } }
+$('#profile-form').submit(async e => { e.preventDefault(); const profileData = { username: $('#prof-username').val(), fullname: $('#prof-fullname').val(), contact: $('#prof-contact').val() }; try { await db.collection('users').doc(currentUser.uid).set(profileData, { merge: true }); $('#profile-save-result').html('<div class="text-success">Profile saved!</div>').fadeIn().delay(2000).fadeOut(); } catch (error) { $('#profile-save-result').html('<div class="text-danger">Failed to save.</div>').fadeIn().delay(2000).fadeOut(); } });
+function renderStatisticsTable() { db.collection('attendance').where('userId', '==', currentUser.uid).onSnapshot(snap => { let total = snap.size, today = 0, last7 = 0, last30 = 0; const now = new Date(); now.setHours(0,0,0,0); const sevenDaysAgo = new Date(now); sevenDaysAgo.setDate(now.getDate() - 6); const thirtyDaysAgo = new Date(now); thirtyDaysAgo.setDate(now.getDate() - 29); snap.forEach(doc => { const d = doc.data().entryTime.toDate(); d.setHours(0,0,0,0); if (d.getTime() === now.getTime()) today++; if (d >= sevenDaysAgo) last7++; if (d >= thirtyDaysAgo) last30++; }); $("#statistics-holder").html(`<table class="table table-bordered table-dark text-center"><thead><tr><th>Today</th><th>Last 7 Days</th><th>Last 30 Days</th><th>Total</th></tr></thead><tbody><tr><td>${today}</td><td>${last7}</td><td>${last30}</td><td>${total}</td></tr></tbody></table>`); }); }
+async function initMap() { window.gm_authFailure = () => { $('#map').hide(); $('#map-error').show(); }; try { const { Map } = await google.maps.importLibrary("maps"); const { AdvancedMarkerElement } = await google.maps.importLibrary("marker"); const { Autocomplete } = await google.maps.importLibrary("places"); map = new Map(document.getElementById('map'), { center: { lat: 20.5937, lng: 78.9629 }, zoom: 5, disableDefaultUI: true, zoomControl: true, mapId: 'ENGINEER_APP_MAP' }); const pacInput = document.getElementById('pac-input'); const autocomplete = new Autocomplete(pacInput, { fields: ["geometry", "name", "address_components"], componentRestrictions: { country: "in" } }); autocomplete.addListener('place_changed', () => { const place = autocomplete.getPlace(); if (!place.geometry || !place.geometry.location) { console.warn("Autocomplete returned place with no geometry"); return; } selectedPlace = place; if (searchMarker) searchMarker.map = null; searchMarker = new AdvancedMarkerElement({ map, position: place.geometry.location }); map.panTo(place.geometry.location); map.setZoom(16); }); navigator.geolocation.watchPosition(pos => { userLat = pos.coords.latitude; userLng = pos.coords.longitude; const userPos = { lat: userLat, lng: userLng }; if (!userLiveMarker) { const userDot = document.createElement('div'); userDot.className = 'user-dot'; userLiveMarker = new AdvancedMarkerElement({ position: userPos, map, content: userDot }); map.setCenter(userPos); map.setZoom(15); } else { userLiveMarker.position = userPos; } }, () => showAlert("Please enable GPS for accurate distance tracking.", true), { enableHighAccuracy: true }); } catch (error) { console.error("Error initializing Google Maps:", error); $('#map').hide(); $('#map-error').show(); } }
+function getDistance(lat1, lon1, lat2, lon2) { const R = 6371e3; const toRad = d => d * Math.PI / 180; const dLat = toRad(lat2 - lat1); const dLon = toRad(lon2 - lon1); const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2; return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); }
+
+// =============================
+// ADMIN PANEL (REAL-TIME)
+// =============================
+function renderAdminPanel() { renderAdminUserList(); renderAdminIssues(); }
+function renderAdminUserList() { if (adminUsersUnsubscribe) adminUsersUnsubscribe(); adminUsersUnsubscribe = db.collection("users").orderBy("fullname").onSnapshot(snapshot => { const list = $("#admin-users-list").empty(); if (snapshot.empty) { list.html("<p class='text-muted'>No users have signed up yet.</p>"); return; } snapshot.forEach(doc => { const u = { id: doc.id, ...doc.data() }; $(`<a href="#" class="list-group-item list-group-item-action bg-transparent text-light admin-user-row" data-uid="${u.id}">${u.fullname || u.email} <small class="text-white-50">(${u.email})</small></a>`).appendTo(list); }); $('#admin-user-search').on('keyup', function() { let v = $(this).val().toLowerCase(); $(".admin-user-row").filter(function() { $(this).toggle($(this).text().toLowerCase().indexOf(v) > -1) }); }); $(".admin-user-row").click(function(e) { e.preventDefault(); $(".admin-user-row").removeClass("active"); $(this).addClass("active"); showAdminUserDetails($(this).data("uid")); }); }, error => { console.error("Error loading admin users:", error); $("#admin-users-list").html("<p class='text-danger'>Could not load users.</p>"); }); }
+function showAdminUserDetails(uid) { if (adminUserDetailsUnsubscribe) adminUserDetailsUnsubscribe(); const userDetailsDiv = $("#admin-user-details").html('<p class="text-muted">Loading records...</p>'); adminUserDetailsUnsubscribe = db.collection('attendance').where('userId', '==', uid).orderBy('entryTime', 'desc').onSnapshot(async (attenSnap) => { const userDoc = await db.collection('users').doc(uid).get(); const user = userDoc.data(); let html = `<h5 class='mt-3 mb-2'>Records for ${user.fullname}</h5>`; if (attenSnap.empty) { html += "<p class='text-muted'>No attendance records found.</p>"; } else { html += `<div class="table-responsive"><table class='table table-sm table-dark table-hover'><thead><tr><th>Place</th><th>Entry</th><th>Exit</th><th>Status</th><th>Photos</th></tr></thead><tbody>`; attenSnap.forEach(doc => { const r = doc.data(); html += `<tr><td>${r.place}</td><td>${formatTimestamp(r.entryTime)}</td><td>${formatTimestamp(r.exitTime)}</td><td>${r.status}</td><td><button class="btn btn-outline-info btn-sm view-photos-btn" data-entry-photo="${r.entryPhoto}" data-exit-photo="${r.exitPhoto || ''}"><i class="bi bi-images"></i> View</button></td></tr>`; }); html += "</tbody></table></div>"; } userDetailsDiv.html(html); }, error => { console.error("Error loading user details:", error); userDetailsDiv.html("<p class='text-danger'>Could not load user details.</p>"); }); }
+$(document).on('click', '.view-photos-btn', function() { const entryPhoto = $(this).data('entry-photo'); const exitPhoto = $(this).data('exit-photo'); showPhotoPreviewModal(entryPhoto, exitPhoto); });
+function renderAdminIssues() { if (adminIssuesUnsubscribe) adminIssuesUnsubscribe(); adminIssuesUnsubscribe = db.collection('issues').orderBy('time', 'desc').onSnapshot(snap => { if (snap.empty) return $("#admin-issues-holder").html("<p class='text-center text-muted'>No issues reported.</p>"); let html = `<div class="table-responsive"><table class='table table-sm table-dark table-hover'><thead><tr><th>From</th><th>Time</th><th>Message</th></tr></thead><tbody>`; snap.forEach(doc => { const i = doc.data(); html += `<tr><td>${i.fullname}<br><small>${i.email}</small></td><td>${formatTimestamp(i.time)}</td><td style="white-space: pre-wrap; word-break: break-word;">${i.message}</td></tr>`; }); $("#admin-issues-holder").html(html + "</tbody></table></div>"); }); }
+$('#admin-export').click(async function() { const btn = $(this).prop('disabled', true).text('Generating...'); try { const rows = []; const attenSnap = await db.collection('attendance').orderBy('entryTime', 'desc').get(); const users = {}; const usersSnap = await db.collection('users').get(); usersSnap.forEach(doc => users[doc.id] = doc.data()); attenSnap.forEach(doc => { const r = doc.data(); const u = users[r.userId] || {}; rows.push({ Email: r.userEmail, FullName: u.fullname, Contact: u.contact, Place: r.place, Entry: formatTimestamp(r.entryTime), Exit: formatTimestamp(r.exitTime), Status: r.status }); }); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), "Attendance"); XLSX.writeFile(wb, "attendance_export.xlsx"); } catch (error) { console.error("Export error:", error); showAlert("Failed to generate report.", true); } finally { btn.prop('disabled', false).text('Export All to Excel'); } });
+
+// =============================
+// HELP FORM
+// =============================
+$('#help-form').submit(async function(e) { e.preventDefault(); const msg = $("#help-message").val().trim(); const btn = $(this).find('button[type="submit"]'); if (!msg) { $('#help-response').html('<div class="text-warning">Please enter a message.</div>').fadeIn().delay(3000).fadeOut(); return; } btn.prop('disabled', true); try { const userDoc = await db.collection('users').doc(currentUser.uid).get(); const profile = userDoc.data() || {}; await db.collection('issues').add({ userId: currentUser.uid, username: profile.username, fullname: profile.fullname, email: currentUser.email, time: new Date(), message: msg, status: 'new' }); $('#help-response').html('<div class="text-success">Message sent to admin!</div>').fadeIn().delay(3000).fadeOut(); $("#help-message").val(""); } catch (error) { $('#help-response').html('<div class="text-danger">Could not send message.</div>').fadeIn().delay(3000).fadeOut(); } finally { btn.prop('disabled', false); } });
 </script>
-
-
 </body>
 </html>
+
