@@ -3,109 +3,349 @@
 <head>
 <meta charset="UTF-8" />
 <title>Sign In – Engineer Attendance</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="./Bureau_Veritas.svg.png" type="image/png" />
 
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-
 <style>
-  html, body { margin: 0; padding: 0; height: 100%; background: linear-gradient(135deg, #121217, #1f2430); font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; color: #eee; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-  .login-wrapper { position: relative; width: 360px; max-width: 95vw; background: rgba(30, 34, 45, 0.85); border-radius: 18px; box-shadow: 0 8px 48px rgba(12, 18, 39, 0.7), inset 0 0 30px rgba(96, 123, 196, 0.3); padding: 3.2rem 3rem 3rem 3rem; text-align: center; user-select: none; backdrop-filter: saturate(180%) blur(20px); z-index: 1; }
-  .background-circle { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.22; pointer-events: none; z-index: 0; }
-  .circle-one { width: 450px; height: 450px; background: #4763f9; top: -130px; left: -180px; }
-  .circle-two { width: 440px; height: 440px; background: #223e99; bottom: -150px; right: -160px; }
-  .logo { width: 90px; margin-bottom: 1.8rem; filter: grayscale(90%) brightness(1.05) drop-shadow(0 1.5px 6px #4058afaa); user-select: none; }
-  h2 { font-weight: 900; font-size: 1.85rem; margin-bottom: 2.4rem; color: #aabcff; letter-spacing: 0.05em; text-shadow: 0 0 10px #3759bfaa; }
-  .g_id_signin { border-radius: 50px !important; box-shadow: 0 5px 18px #2e3f74cc; max-width: 230px; margin: 0 auto; transition: box-shadow 0.26s ease, transform 0.26s ease; }
-  .g_id_signin:hover { box-shadow: 0 12px 28px #3b57a9cc; transform: translateY(-4px) scale(1.02); }
-  #loading-spinner { margin-top: 1.15rem; font-weight: 600; font-size: 1rem; color: #7a89b8; display: none; letter-spacing: 0.02em; }
-  #login-alert { margin-top: 1.2rem; font-weight: 700; color: #ff5a6e; font-size: 1rem; text-shadow: 0 0 4px #ff5a6e85; }
+  :root {
+    --glow-color-1: #334bf9;
+    --glow-color-2: #43bfff;
+    --success-color: #2ecc71;
+    --background-color: #0b0c10;
+    --card-background: rgba(22, 25, 37, 0.6);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --text-primary: #f0f2f5;
+    --text-secondary: #a8b2c2;
+    --error-color: #ff6b81;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-primary);
+    background-color: var(--background-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* --- Animated Particle Background --- */
+  #particle-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    background-image: radial-gradient(circle at 20% 20%, var(--glow-color-1), transparent 30%),
+                      radial-gradient(circle at 80% 70%, var(--glow-color-2), transparent 30%);
+    opacity: 0.15;
+    animation: backgroundGlow 20s infinite alternate;
+  }
+
+  @keyframes backgroundGlow {
+    0% { transform: scale(1) rotate(0deg); }
+    100% { transform: scale(1.2) rotate(5deg); }
+  }
+
+
+  /* --- Login Card --- */
+  .login-card {
+    position: relative;
+    z-index: 2;
+    width: 400px;
+    max-width: 90vw;
+    padding: 3rem 2.5rem;
+    background: var(--card-background);
+    border-radius: 24px;
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.3);
+    text-align: center;
+    
+    opacity: 0;
+    transform: translateY(20px);
+    animation: enterAnimation 1s ease-out 0.2s forwards;
+    transition: transform 0.6s ease-in, opacity 0.6s ease-in;
+  }
+
+  /* --- This class triggers the exit animation --- */
+  .login-card.logged-in {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+
+  @keyframes enterAnimation {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Static Aurora Glow Effect (Rotation Removed) */
+  .login-card::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150%;
+    height: 150%;
+    z-index: -1;
+    background: radial-gradient(circle, var(--glow-color-1) 0%, var(--glow-color-2) 40%, transparent 70%);
+    transform: translate(-50%, -50%);
+    opacity: 0.2;
+    filter: blur(80px);
+  }
+
+  .logo {
+    width: 70px;
+    height: auto;
+    margin-bottom: 1.5rem;
+  }
+
+  .login-card h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .login-card p {
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    font-weight: 400;
+  }
+
+  /* --- Aesthetic Button --- */
+  #google-signin-btn {
+    --border-size: 2px;
+    --border-angle: 0turn;
+    
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+    padding: 0.8rem 1rem;
+    background: var(--card-background);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-content, .btn-success-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 1;
+  }
+  
+  .btn-success-content {
+    color: var(--success-color);
+  }
+  
+  #google-signin-btn:hover:not(:disabled) {
+    background: rgba(35, 40, 60, 0.8);
+    box-shadow: 0 0 20px rgba(51, 75, 249, 0.3);
+  }
+
+  #google-signin-btn::before {
+    content: '';
+    position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+    z-index: 0;
+    border-radius: inherit;
+    background: conic-gradient(
+      from var(--border-angle),
+      transparent 50%,
+      var(--glow-color-2),
+      var(--glow-color-1)
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: spinBorder 2.5s linear infinite paused;
+  }
+  
+  #google-signin-btn:hover:not(:disabled)::before {
+    opacity: 1;
+    animation-play-state: running;
+  }
+  
+  #google-signin-btn::after {
+    content: '';
+    position: absolute;
+    top: var(--border-size); right: var(--border-size);
+    bottom: var(--border-size); left: var(--border-size);
+    background: var(--card-background);
+    border-radius: calc(12px - var(--border-size));
+    transition: background 0.2s ease;
+  }
+  
+  /* Success state style */
+  #google-signin-btn.success::after {
+    background: #1c2b22;
+  }
+  
+  @property --border-angle {
+    syntax: "<angle>"; inherits: true; initial-value: 0turn;
+  }
+  @keyframes spinBorder {
+    from { --border-angle: 0turn; }
+    to { --border-angle: 1turn; }
+  }
+
+  .btn-content img { width: 22px; height: 22px; }
+
+  /* Element visibility states */
+  .btn-content, .spinner, .btn-success-content { display: none; }
+  #google-signin-btn.idle .btn-content { display: flex; }
+  #google-signin-btn.loading .spinner { display: block; }
+  #google-signin-btn.success .btn-success-content { display: flex; }
+
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid var(--card-border);
+    border-radius: 50%;
+    border-top-color: var(--text-primary);
+    animation: spin 1s ease-in-out infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  
+  #login-alert {
+    margin-top: 1.5rem;
+    font-weight: 600;
+    color: var(--error-color);
+    font-size: 0.9rem;
+    min-height: 20px;
+  }
+  
+  .footer {
+    position: absolute;
+    bottom: 20px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    opacity: 0.5;
+  }
 </style>
 </head>
 
 <body>
-  <div class="background-circle circle-one"></div>
-  <div class="background-circle circle-two"></div>
+  <div id="particle-container"></div>
 
-  <main class="login-wrapper" role="main" aria-label="Engineer Attendance Google sign in">
-    <img src="./Bureau_Veritas.svg.png" alt="Bureau Veritas grey logo" class="logo" draggable="false" />
-    <h2>Engineer Attendance</h2>
+  <main class="login-card" role="main" aria-label="Sign In">
+    <img src="./Bureau_Veritas.svg.png" alt="Bureau Veritas Logo" class="logo" draggable="false" />
+    <h1>Welcome</h1>
+    <p>Sign in to the Engineer Attendance Portal.</p>
 
-    <div id="g_id_onload"
-      data-client_id="958248576124-k7idvesbd3a036l83stp9l44sopu7fg2.apps.googleusercontent.com"
-      data-callback="onGoogleSignIn"
-      data-ux_mode="popup"
-      data-auto_prompt="false">
-    </div>
+    <button id="google-signin-btn" class="idle" aria-label="Sign in with Google">
+      <div class="btn-content">
+        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="22" height="22" viewBox="0 0 48 48" fill="white">
+            <path fill="#fbc02d" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12	s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20	s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#e53935" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039	l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4caf50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36	c-5.222,0-9.655-3.356-11.127-7.962l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1565c0" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238	C42.022,35.592,44,30.344,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path>
+        </svg>
+        <span>Sign in with Google</span>
+      </div>
+      <div class="spinner"></div>
+      <div class="btn-success-content">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+        </svg>
+        <span>Success! Redirecting...</span>
+      </div>
+    </button>
 
-    <div class="g_id_signin"
-      data-type="standard" data-shape="pill" data-theme="filled_black"
-      data-text="sign_in_with" data-size="large" data-logo_alignment="left"
-      data-ux_mode="popup" aria-label="Sign in with Google">
-    </div>
-
-    <div id="loading-spinner" aria-live="polite" aria-atomic="true">Signing in…</div>
     <div id="login-alert" role="alert" aria-live="assertive"></div>
   </main>
+  
+  <footer class="footer">
+      &copy; 2025 Bureau Veritas. All Rights Reserved.
+  </footer>
 
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script>
+    // Firebase config
     const firebaseConfig = {
-      apiKey: "AIzaSyCHBVP_H3Dce3ZcuQVpYSqlgaSdiZh7OGk",
-      authDomain: "engineer-attendance.firebaseapp.com",
-      projectId: "engineer-attendance",
-      storageBucket: "engineer-attendance.appspot.com",
-      messagingSenderId: "958248576124",
-      appId: "1:958248576124:web:d3750a397c3021220855f9",
-      measurementId: "G-LJD26ST0EH"
+      apiKey: "AIzaSyDiuVZqGwUFeN8hoMTd7iLOqMy3Yp8zT9Q",
+      authDomain: "engineer-attendance-60374.firebaseapp.com",
+      projectId: "engineer-attendance-60374",
+      storageBucket: "engineer-attendance-60374.appspot.com",
+      messagingSenderId: "575411706871",
+      appId: "1:575411706871:web:839ed7b22530d3be93acf2",
+      measurementId: "G-SC1JL1B8VC"
     };
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.firestore();
 
-    async function onGoogleSignIn(response) {
-      const spinner = document.getElementById("loading-spinner");
-      const alertBox = document.getElementById("login-alert");
-      alertBox.textContent = "";
-      spinner.style.display = "block";
+    const signInBtn = document.getElementById('google-signin-btn');
+    const alertBox = document.getElementById('login-alert');
+    const loginCard = document.querySelector('.login-card');
 
-      const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
-
-      try {
-        const userCredential = await auth.signInWithCredential(credential);
-        const user = userCredential.user;
-        
-        // On first login, create a user profile document in Firestore.
-        // On subsequent logins, this will just update the details if they changed.
-        await db.collection('users').doc(user.uid).set({
-            fullname: user.displayName,
-            email: user.email
-        }, { merge: true }); // 'merge: true' prevents overwriting existing data like 'contact'
-        
-        window.location.href = "dashboard.html";
-      } catch (error) {
-        console.error("Firebase sign-in error:", error);
-        spinner.style.display = "none";
-        alertBox.textContent = "Login failed! Please check console and API key restrictions.";
+    function setButtonState(state) { // states: 'idle', 'loading', 'success'
+      signInBtn.className = state;
+      signInBtn.disabled = (state === 'loading' || state === 'success');
+      if (state !== 'idle') {
+        alertBox.textContent = "";
       }
     }
 
-    window.onload = () => {
-      auth.onAuthStateChanged(user => {
-        if (user) {
-          window.location.href = 'dashboard.html';
-        }
-      });
-        
-      gsap.from(".login-wrapper", {duration: 1.25, opacity: 0, y: 40, scale: 0.97, ease: "power2.out"});
-    };
+    signInBtn.addEventListener('click', () => {
+      setButtonState('loading');
+      const provider = new firebase.auth.GoogleAuthProvider();
+
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          // --- Start Exit Transition ---
+          setButtonState('success');
+          loginCard.classList.add('logged-in');
+
+          const user = result.user;
+          sessionStorage.setItem("googleName", user.displayName);
+          sessionStorage.setItem("googleEmail", user.email);
+          sessionStorage.setItem("googleUid", user.uid);
+          sessionStorage.setItem("googlePhoto", user.photoURL || "");
+
+          // Redirect after the animation completes
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 800); // This delay should match the CSS transition duration
+
+        })
+        .catch((error) => {
+          console.error("Firebase Auth Error: ", error);
+          let message = "Sign-in failed. Please try again.";
+          if (error.code === 'auth/popup-closed-by-user') {
+            message = 'Sign-in window was closed.';
+          }
+          alertBox.textContent = message;
+          setButtonState('idle');
+        });
+    });
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        // If user is already logged in, redirect immediately without animation
+        // to avoid getting stuck on a blank login page on refresh.
+        window.location.href = "dashboard.html";
+      }
+    });
   </script>
 </body>
 </html>
-
