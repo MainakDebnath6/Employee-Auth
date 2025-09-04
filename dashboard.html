@@ -6,8 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="./Bureau_Veritas.svg.png" type="image/png" />
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
@@ -19,7 +17,7 @@
     --glow-color-1: #334bf9;
     --glow-color-2: #43bfff;
     --background-color: #0b0c10;
-    --card-background: rgba(22, 25, 37, 0.6);
+    --card-background: rgba(22, 25, 37, 0.75);
     --card-border: rgba(255, 255, 255, 0.1);
     --text-primary: #f0f2f5;
     --text-secondary: #a8b2c2;
@@ -30,9 +28,7 @@
     --primary-gradient: linear-gradient(90deg, var(--glow-color-1), var(--glow-color-2));
   }
 
-  * {
-    box-sizing: border-box;
-  }
+  * { box-sizing: border-box; }
 
   body {
     font-family: 'Poppins', sans-serif;
@@ -42,12 +38,9 @@
     overflow-x: hidden;
   }
 
-  /* Animated Background */
   #particle-container {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: -1;
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%; z-index: -1;
     background-image: radial-gradient(circle at 20% 20%, var(--glow-color-1), transparent 30%),
                       radial-gradient(circle at 80% 70%, var(--glow-color-2), transparent 30%);
     opacity: 0.1;
@@ -59,20 +52,15 @@
     100% { transform: scale(1.2) rotate(5deg); }
   }
 
-  /* Navbar */
   .navbar {
     background: rgba(15, 17, 26, 0.7);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--card-border);
-    padding: 0.75rem 0;
   }
   
   .nav-link {
-    color: var(--text-secondary) !important;
-    font-weight: 600;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    margin: 0 0.25rem;
+    color: var(--text-secondary) !important; font-weight: 600;
+    border-radius: 8px; padding: 0.5rem 1rem; margin: 0 0.25rem;
     transition: all 0.2s ease;
   }
   .nav-link.active, .nav-link:hover {
@@ -80,172 +68,149 @@
     background: rgba(255, 255, 255, 0.1);
   }
 
-  /* Main Container */
   #container-main {
-    max-width: 1100px;
-    margin: 2rem auto;
-    padding: 0;
-    background: transparent;
-    border-radius: 0;
-    box-shadow: none;
+    max-width: 1100px; margin: 2rem auto; padding: 0 1rem;
+    background: transparent; box-shadow: none;
   }
 
-  /* Sections */
-  .section {
-    display: none;
-    opacity: 0;
-  }
-  .section.active {
-    display: block;
-  }
+  .section { display: none; opacity: 0; }
+  .section.active { display: block; }
 
   .section-card {
     background: var(--card-background);
     border: 1px solid var(--card-border);
     backdrop-filter: blur(20px) saturate(150%);
     border-radius: 20px;
-    padding: 2rem;
+    padding: 1.5rem;
     margin-bottom: 2rem;
     box-shadow: 0 8px 32px rgba(0,0,0,0.3);
   }
 
   .section-title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--text-primary);
+    font-size: 1.5rem; font-weight: 700;
     margin-bottom: 1.5rem;
     display: flex; align-items: center; gap: 0.75rem;
     border-bottom: 1px solid var(--card-border);
     padding-bottom: 1rem;
   }
-  .section-title i {
-      color: var(--text-accent);
-  }
+  .section-title i { color: var(--text-accent); }
 
-  /* Map Styles */
   #map-wrapper {
-    position: relative;
-    height: 350px;
-    border-radius: 16px;
-    margin-bottom: 1.5rem;
-    background: #111;
-    overflow: hidden;
-    border: 1px solid var(--card-border);
+    position: relative; height: 350px; border-radius: 16px;
+    background: #e5e3df;
+    overflow: hidden; border: 1px solid var(--card-border);
   }
   #map { height: 100%; width: 100%; }
-
-  #pac-input, .form-control, select {
-    background: rgba(0,0,0,0.3);
-    color: var(--text-primary);
+  
+  #pac-input {
+    background: rgba(255,255,255,0.9);
+    color: #333;
     border-radius: 10px;
     border: 1px solid var(--card-border);
     font-size: 1rem;
+    font-weight: 600;
     padding: 0.75rem 1rem;
     transition: all 0.2s ease;
-    box-shadow: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   }
-  #pac-input:focus, .form-control:focus, select:focus {
-    background: rgba(0,0,0,0.4);
-    color: var(--text-primary);
+  #pac-input::placeholder { color: #666; }
+  #pac-input:focus {
+    color: #000;
+    border-color: var(--glow-color-1);
+    box-shadow: 0 0 15px rgba(51, 75, 249, 0.4);
+  }
+
+  .form-control {
+    background: rgba(0,0,0,0.3); color: var(--text-primary);
+    border-radius: 10px; border: 1px solid var(--card-border);
+  }
+  .form-control:focus {
+    background: rgba(0,0,0,0.4); color: var(--text-primary);
     border-color: var(--glow-color-2);
     box-shadow: 0 0 15px rgba(67, 191, 255, 0.3);
-    outline: none;
   }
   
   .form-control:disabled {
-      background: rgba(0, 0, 0, 0.2);
-      color: var(--text-secondary);
-      opacity: 0.8;
-      cursor: not-allowed;
+      background: rgba(0, 0, 0, 0.2); color: var(--text-secondary);
+      opacity: 0.8; cursor: not-allowed;
       border-color: rgba(255, 255, 255, 0.05);
   }
 
-  /* Buttons */
-  .btn {
-    border-radius: 10px;
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    transition: all 0.2s ease-in-out;
-    border: none;
+  #gps-status {
+      font-size: 0.9rem; font-weight: 600;
+      color: var(--text-secondary); padding: 0.5rem 0;
   }
-  .btn-success { background-color: var(--success); }
-  .btn-warning { background-color: var(--warning); color: #111 !important; }
+  #gps-status .spinner-border-sm { width: 1rem; height: 1rem; margin-right: 0.5rem; }
+
+  .btn {
+    border-radius: 10px; font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.2s ease-in-out; border: none;
+  }
   .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
-  /* Attendance Cards */
   .attendance-card {
-    background: rgba(255,255,255,0.05);
-    border-radius: 12px;
-    margin-bottom: 0.75rem;
-    padding: 1rem 1.25rem;
-    transition: all 0.3s ease;
-    border: 1px solid transparent;
+    background: rgba(255,255,255,0.05); border-radius: 12px;
+    margin-bottom: 0.75rem; padding: 1rem 1.25rem;
+    transition: all 0.3s ease; border: 1px solid transparent;
   }
   .attendance-card:hover {
-    transform: scale(1.02);
-    background: rgba(255,255,255,0.1);
+    transform: scale(1.02); background: rgba(255,255,255,0.1);
     border-color: var(--card-border);
   }
-  .status-dot {
-    width: 12px; height: 12px;
-    border-radius: 50%;
-  }
+  .status-dot { width: 12px; height: 12px; border-radius: 50%; }
   .completed { background-color: var(--success); }
   .pending { background-color: var(--warning); }
   .card-place { color: var(--text-primary); font-weight: 600; font-size: 1.1rem; }
   .card-date { color: var(--text-secondary); }
   .record-details img { border: 1px solid var(--card-border); }
   
-  /* Admin Section */
-   .admin-user-row {
-    background: rgba(255,255,255,0.05);
-    border-radius: 10px;
-    margin-bottom: 0.5rem;
-    padding: 0.8rem 1.2rem;
-    font-weight: 600;
-    cursor: pointer;
+  .admin-user-row {
+    background: rgba(255,255,255,0.05); border-radius: 10px;
+    margin-bottom: 0.5rem; padding: 0.8rem 1.2rem;
+    font-weight: 600; cursor: pointer;
     transition: all 0.2s ease;
   }
   .admin-user-row:hover { background: rgba(255,255,255,0.1); }
   .admin-user-row.active {
-    background: var(--primary-gradient);
-    color: #fff;
+    background: var(--primary-gradient); color: #fff;
     box-shadow: 0 0 20px rgba(51, 75, 249, 0.4);
   }
   
-  .admin-record-card {
-    background: rgba(0,0,0,0.2);
-    border: 1px solid var(--card-border);
-    border-radius: 12px;
-    padding: 1rem;
-    margin-bottom: 1rem;
+  .admin-record-details img {
+    width: 120px; height: 120px; object-fit: cover;
+    border-radius: 8px; border: 1px solid var(--card-border);
+    transition: transform 0.2s ease;
   }
-  .admin-record-card h6 {
-    font-weight: 700;
-    color: var(--text-primary);
+  .admin-record-details a:hover img { transform: scale(1.05); }
+
+  .stat-box {
+      background: var(--card-background);
+      padding: 1.5rem;
+      border-radius: 15px;
+      text-align: center;
+      border: 1px solid var(--card-border);
+      transition: all 0.3s ease;
   }
-  .admin-record-card p {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    margin-bottom: 0.5rem;
-  }
-  .admin-record-images {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  .admin-record-images a {
-    display: block;
-    text-align: center;
-  }
-  .admin-record-images img {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid var(--card-border);
+  .stat-box:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+  .stat-box h4 { font-weight: 700; font-size: 2.25rem; color: var(--text-accent); }
+  .stat-box p { font-weight: 600; color: var(--text-secondary); margin: 0; }
+
+  @media (max-width: 991.98px) {
+    .navbar-collapse {
+        background: rgba(22, 25, 37, 0.9);
+        backdrop-filter: blur(10px);
+        padding: 1rem;
+        border-radius: 15px;
+        margin-top: 0.5rem;
+        border: 1px solid var(--card-border);
+    }
   }
 
+  @media (max-width: 768px) {
+    .section-card { padding: 1rem; }
+    .section-title { font-size: 1.25rem; }
+  }
 </style>
 </head>
 <body>
@@ -274,18 +239,25 @@
 </nav>
 
 <div id="container-main">
+  <!-- Dashboard Section -->
   <div class="section active" id="dashboard">
     <div class="section-card">
       <div class="section-title"><i class="bi bi-map"></i> Mark Your Attendance</div>
+      <div class="mb-3">
+        <input id="pac-input" class="form-control" placeholder="Search for site or address..." />
+      </div>
       <div id="map-wrapper">
-        <input id="pac-input" type="text" placeholder="Search for site or address" />
         <div id="map"></div>
+      </div>
+      <div id="gps-status" class="text-center">
+        <div class="spinner-border spinner-border-sm" role="status"></div>
+        Acquiring GPS signal...
       </div>
       <div class="d-flex justify-content-center gap-3 my-3 flex-column flex-sm-row">
         <button id="checkin-btn" class="btn btn-success"><i class="bi bi-box-arrow-in-right"></i> Mark Entry</button>
         <button id="checkout-btn" class="btn btn-warning"><i class="bi bi-box-arrow-right"></i> Mark Exit</button>
       </div>
-      <div id="action-alert" class="mt-3"></div>
+      <div id="action-alert" class="mt-3" style="display: none;"></div>
     </div>
     <div class="section-card">
         <div class="section-title"><i class="bi bi-clock-history"></i> Your Recent Activity</div>
@@ -303,59 +275,68 @@
     </div>
   </div>
 
+  <!-- Statistics Section -->
   <div class="section" id="statistics">
-    <div class="section-card">
-      <div class="section-title"><i class="bi bi-calculator"></i> Your Statistics</div>
-      <div id="statistics-holder"></div>
-    </div>
-  </div>
-
-  <div class="section" id="profile">
-    <div class="section-card">
-      <div class="section-title"><i class="bi bi-person-badge"></i> Your Profile</div>
-      <form id="profile-form">
-        <div class="mb-3"><label class="form-label">Email</label><input id="prof-email" class="form-control" disabled></div>
-        <div class="mb-3"><label class="form-label">Username</label><input id="prof-username" class="form-control"></div>
-        <div class="mb-3"><label class="form-label">Full Name</label><input id="prof-fullname" class="form-control"></div>
-        <div class="mb-3"><label class="form-label">Contact</label><input id="prof-contact" class="form-control"></div>
-        <button class="btn btn-primary" type="submit">Save Changes</button>
-      </form>
-      <div id="profile-save-result" class="mt-3"></div>
-    </div>
-  </div>
-
-  <div class="section" id="admin">
-    <div class="section-card">
-      <div class="section-title"><i class="bi bi-shield-lock"></i> Admin Dashboard</div>
-      <div id="admin-users-list" class="mb-3"></div>
-      <div id="admin-user-details"></div>
-      <button id="admin-export" class="btn btn-info mt-3">Export Selected User's Data (Excel)</button>
-    </div>
-    <div class="section-card">
-      <div class="section-title"><i class="bi bi-exclamation-triangle"></i> Reported Issues</div>
-      <div id="admin-issues-holder"></div>
-    </div>
-  </div>
-
-  <div class="section" id="help">
-    <div class="section-card">
-      <div class="section-title"><i class="bi bi-question-circle"></i> Get Help</div>
-      <form id="help-form">
-        <label class="form-label">Describe your issue</label>
-        <textarea id="help-message" rows="4" maxlength="700" class="form-control mb-3"></textarea>
-        <button type="submit" class="btn btn-primary">Send Message</button>
-        <div id="help-response" class="mt-3"></div>
-      </form>
-      <div class="mt-4">
-        <label class="form-label">Contact Us Directly:</label><br>
-        <a href="https://wa.me/9007947130" target="_blank" class="btn btn-success me-2"><i class="bi bi-whatsapp"></i> WhatsApp</a>
-        <a href="tel:+919007947130" class="btn btn-info"><i class="bi bi-telephone"></i> Call</a>
+      <div class="section-card">
+        <div class="section-title"><i class="bi bi-bar-chart-line"></i> Your Statistics</div>
+        <div id="statistics-holder"></div>
       </div>
-    </div>
+  </div>
+
+  <!-- Profile Section -->
+  <div class="section" id="profile">
+      <div class="section-card">
+        <div class="section-title"><i class="bi bi-person-badge"></i> Your Profile</div>
+        <form id="profile-form">
+          <div class="mb-3"><label class="form-label">Email</label><input id="prof-email" class="form-control" disabled></div>
+          <div class="mb-3"><label class="form-label">Username</label><input id="prof-username" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Full Name</label><input id="prof-fullname" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Contact</label><input id="prof-contact" class="form-control"></div>
+          <button class="btn btn-primary" type="submit">Save Changes</button>
+        </form>
+        <div id="profile-save-result" class="mt-3"></div>
+      </div>
+  </div>
+
+  <!-- Admin Section -->
+  <div class="section" id="admin">
+      <div class="section-card">
+          <div class="section-title"><i class="bi bi-shield-lock"></i> Admin Dashboard</div>
+          <h6>Select User to View Records</h6>
+          <div id="admin-users-list" class="mb-4"></div>
+          <div id="admin-user-details-wrapper" style="opacity: 0; display: none;">
+              <h5 id="admin-selected-user-name" class="mb-3"></h5>
+              <div id="admin-user-details"></div>
+              <button id="admin-export" class="btn btn-info mt-3"><i class="bi bi-download"></i> Export as Excel</button>
+          </div>
+      </div>
+      <div class="section-card">
+          <div class="section-title"><i class="bi bi-exclamation-triangle"></i> Reported Issues</div>
+          <div id="admin-issues-holder"></div>
+      </div>
+  </div>
+
+  <!-- Help Section -->
+  <div class="section" id="help">
+      <div class="section-card">
+        <div class="section-title"><i class="bi bi-question-circle"></i> Get Help</div>
+        <form id="help-form">
+          <label class="form-label">Describe your issue</label>
+          <textarea id="help-message" rows="4" maxlength="700" class="form-control mb-3"></textarea>
+          <button type="submit" class="btn btn-primary">Send Message</button>
+          <div id="help-response" class="mt-3"></div>
+        </form>
+        <div class="mt-4">
+          <label class="form-label">Contact Us Directly:</label><br>
+          <a href="https://wa.me/9007947130" target="_blank" class="btn btn-success me-2"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+          <a href="tel:+919007947130" class="btn btn-info"><i class="bi bi-telephone"></i> Call</a>
+        </div>
+      </div>
   </div>
 </div>
 
-<div id="camera-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 9999; flex-direction: column;">
+<!-- Camera Overlay (hidden by default) -->
+<div id="camera-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 9999; flex-direction: column;">
     <video id="video" autoplay playsinline style="max-width:90%; border-radius:14px;"></video>
     <div id="camera-controls" class="mt-3 d-flex gap-3">
         <button id="snap-btn" class="btn btn-primary"><i class="bi bi-camera-fill"></i> Capture</button>
@@ -365,15 +346,14 @@
     <canvas id="canvas" style="display:none;"></canvas>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA97qnWyZu_Id_BCQhWvwOhm6qxn0TPty8&libraries=places&callback=initMap" async defer></script>
 
 <script>
-// --- Global Variables & Config ---
+// --- Global State & Config ---
 const firebaseConfig = {
     apiKey: "AIzaSyDiuVZqGwUFeN8hoMTd7iLOqMy3Yp8zT9Q",
     authDomain: "engineer-attendance-60374.firebaseapp.com",
@@ -390,60 +370,79 @@ const db = firebase.firestore();
 const allowedAdminEmails = ["mainakdebnath13@gmail.com", "mainakdebnatha@gmail.com"];
 
 let userName, userEmail, userUid;
-let map, marker, userLiveMarker, selectedPlace = null, userLat = null, userLng = null;
-let currentSection = '#dashboard';
+let map, marker, userLiveMarker, selectedPlace = null;
+let currentSectionId = '#dashboard';
 let usingFront = false, globalStream;
+let userLat = null, userLng = null;
 
 // --- Authentication & Initialization ---
-$(document).ready(async () => {
-    userName = sessionStorage.getItem("googleName");
-    userEmail = sessionStorage.getItem("googleEmail");
-    userUid = sessionStorage.getItem("googleUid");
-
-    if (!userEmail || !userUid) {
+auth.onAuthStateChanged(user => {
+    if (user) {
+        userName = user.displayName;
+        userEmail = user.email;
+        userUid = user.uid;
+        initializeApp();
+    } else {
         window.location.href = "index.html";
-        return;
     }
-
-    $("#user-name").text(`Welcome, ${userName.split(' ')[0]}`);
-    const isAdmin = allowedAdminEmails.includes(userEmail);
-    if (!isAdmin) $('.admin-only').hide();
-
-    setupEventListeners();
-    
-    // Initial animation for the first section
-    gsap.fromTo(currentSection, { opacity: 0, y: 20 }, { 
-        opacity: 1, y: 0, duration: 0.5, onComplete: () => {
-            // Trigger map resize after the intro animation to ensure it renders correctly
-            if(map) google.maps.event.trigger(map, 'resize');
-        }
-    });
-    
-    await loadProfile();
-    await renderAttendanceCards();
-    await renderStatisticsTable();
-    if (isAdmin) await renderAdminSection();
 });
 
-// --- Event Listeners Setup ---
-function setupEventListeners() {
-    $('.nav-link').click(handleNavClick);
-    $("#logout").click(handleLogout);
-    $('#checkin-btn').click(handleCheckIn);
-    $('#checkout-btn').click(handleCheckout);
-    $("#profile-form").submit(handleProfileSave);
-    $("#help-form").submit(handleHelpRequest);
-    $("#filter-select").change(renderAttendanceCards);
-    $("#start-date, #end-date").on('input', renderAttendanceCards);
-    $('#admin-export').on('click', handleAdminExport);
+function initializeApp() {
+    $("#user-name").text(`Welcome, ${userName.split(' ')[0]}`);
+    if (!allowedAdminEmails.includes(userEmail)) $('.admin-only').hide();
+    
+    gsap.fromTo(currentSectionId, { opacity: 0, y: 20 }, { 
+        opacity: 1, y: 0, duration: 0.5, onComplete: () => {
+            if(map && currentSectionId === '#dashboard') google.maps.event.trigger(map, 'resize');
+        }
+    });
+
+    setupNavListeners();
+    initDashboard();
+    initProfile();
+    initAdmin();
+    initHelp();
+    renderStatistics();
 }
 
-// --- Firestore Helper Functions ---
+function setupNavListeners() {
+    $('.nav-link').click(function() {
+        const targetSectionId = '#' + $(this).data('sec');
+        if (targetSectionId === currentSectionId) return;
+
+        $('.nav-link').removeClass('active');
+        $(this).addClass('active');
+        
+        const oldSection = $(currentSectionId);
+        const newSection = $(targetSectionId);
+
+        gsap.to(oldSection, {
+            opacity: 0, duration: 0.3, onComplete: () => {
+                oldSection.removeClass('active');
+                newSection.addClass('active');
+                
+                if (targetSectionId === '#statistics') renderStatistics();
+                if (targetSectionId === '#admin') initAdmin();
+                
+                gsap.fromTo(newSection, { opacity: 0, y: 20 }, { 
+                    opacity: 1, y: 0, duration: 0.5, onComplete: () => {
+                        if(map && targetSectionId === '#dashboard') google.maps.event.trigger(map, 'resize');
+                    }
+                });
+            }
+        });
+        currentSectionId = targetSectionId;
+    });
+
+    $("#logout").click(() => auth.signOut());
+}
+
+// --- Firestore Helper ---
 const Firestore = {
     getProfile: (uid = userUid) => db.collection("profiles").doc(uid).get().then(doc => doc.exists ? doc.data() : {}),
     setProfile: (data, uid = userUid) => db.collection("profiles").doc(uid).set(data, { merge: true }),
     getJobs: (uid = userUid) => db.collection("attendance").doc(uid).collection("entries").orderBy("entryTime", "desc").get().then(snap => snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))),
-    addJob: (job, uid = userUid) => db.collection("attendance").doc(uid).collection("entries").add(job).then(res => res.id),
+    addJob: (job, uid = userUid) => db.collection("attendance").doc(uid).collection("entries").add(job),
     updateJob: (jobId, data, uid = userUid) => db.collection("attendance").doc(uid).collection("entries").doc(jobId).update(data),
     deleteJob: (jobId, uid = userUid) => db.collection("attendance").doc(uid).collection("entries").doc(jobId).delete(),
     addIssue: (issue) => db.collection("issues").add(issue),
@@ -451,211 +450,18 @@ const Firestore = {
     getAllUsers: () => db.collection("profiles").get().then(snap => snap.docs.map(doc => ({ uid: doc.id, ...doc.data() })))
 };
 
-// --- UI & Navigation ---
-function handleNavClick() {
-    $('.nav-link').removeClass('active');
-    $(this).addClass('active');
-    let targetSection = '#' + $(this).data('sec');
-
-    if (targetSection === currentSection) return;
-
-    gsap.to(currentSection, {
-        opacity: 0,
-        duration: 0.3,
-        onComplete: () => {
-            $(currentSection).removeClass('active');
-            $(targetSection).addClass('active');
-            gsap.fromTo(targetSection, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
-            currentSection = targetSection;
-            // If navigating to the dashboard, trigger a map resize to ensure it's rendered
-            if(targetSection === '#dashboard' && map) {
-                google.maps.event.trigger(map, 'resize');
-            }
-        }
-    });
-}
-
-function handleLogout() {
-    auth.signOut().then(() => {
-        sessionStorage.clear();
-        window.location.href = "index.html";
-    });
-}
-
-function showAlert(msg, type = 'info') {
-    const alertClasses = {
-        'info': 'alert-info',
-        'success': 'alert-success',
-        'error': 'alert-danger'
-    };
-    $("#action-alert")
-        .removeClass('alert-info alert-success alert-danger')
-        .addClass(`alert ${alertClasses[type] || 'alert-info'}`)
-        .text(msg)
-        .show();
-    setTimeout(() => $("#action-alert").fadeOut(), 4000);
-}
-
-// --- Map & Camera ---
-function initMap() {
-    // Reverted to default map style by removing the "styles" array
-    map = new google.maps.Map(document.getElementById('map'), { 
-        center: { lat: 20.5937, lng: 78.9629 }, 
-        zoom: 5
-    });
-    
-    const searchBox = new google.maps.places.SearchBox(document.getElementById('pac-input'));
-    
-    if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(pos => {
-            userLat = pos.coords.latitude;
-            userLng = pos.coords.longitude;
-            let currentPos = { lat: userLat, lng: userLng };
-            if (!userLiveMarker) {
-                userLiveMarker = new google.maps.Marker({ position: currentPos, map, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#4285F4", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 2 } });
-                map.setCenter(currentPos);
-                map.setZoom(15);
-            } else {
-                userLiveMarker.setPosition(currentPos);
-            }
-        }, err => console.warn(`Geolocation ERROR(${err.code}): ${err.message}`), { enableHighAccuracy: true });
-    }
-
-    searchBox.addListener('places_changed', () => {
-        const places = searchBox.getPlaces();
-        if (!places.length) return;
-        selectedPlace = places[0];
-        if (marker) marker.setMap(null);
-        marker = new google.maps.Marker({ map, position: selectedPlace.geometry.location });
-        map.panTo(selectedPlace.geometry.location);
-        map.setZoom(16);
-    });
-}
-
-function openCamera(type) {
-    $("#camera-overlay").css("display", "flex");
-    const startCam = () => {
-        if (globalStream) globalStream.getTracks().forEach(t => t.stop());
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: usingFront ? 'user' : 'environment' } })
-            .then(stream => {
-                $("#video")[0].srcObject = stream;
-                globalStream = stream;
-            }).catch(err => {
-                showAlert("Could not access camera.", 'error');
-                $("#camera-overlay").hide();
-            });
-    };
-    startCam();
-    $("#snap-btn").off().click(() => {
-        const video = $("#video")[0], canvas = $("#canvas")[0];
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        const photo = canvas.toDataURL('image/jpeg', 0.8);
-        globalStream.getTracks().forEach(t => t.stop());
-        $("#camera-overlay").hide();
-        finishAttendance(type, photo);
-    });
-    $("#flip-btn").off().click(() => { usingFront = !usingFront; startCam(); });
-    $("#cancel-btn").off().click(() => {
-        if (globalStream) globalStream.getTracks().forEach(t => t.stop());
-        $("#camera-overlay").hide();
-    });
-}
-
-// --- Attendance Logic ---
-async function handleCheckIn() {
-    if (!selectedPlace) return showAlert("Please search and select a site from the map first.", 'error');
-    const jobs = await Firestore.getJobs();
-    if (jobs.some(j => j.status === "pending-exit")) return showAlert("You already have a pending check-in.", 'error');
-    
-    if (getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng()) <= 500) {
-        openCamera('entry');
-    } else {
-        showAlert("You are too far from the selected site to mark entry.", 'error');
-    }
-}
-
-async function handleCheckout() {
-    if (!selectedPlace) return showAlert("Please select the site you are checking out from.", 'error');
-    const jobs = await Firestore.getJobs();
-    const pendingJob = jobs.find(j => j.status === "pending-exit");
-    if (!pendingJob) return showAlert("No active check-in found to mark exit.", 'error');
-    
-    if (getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng()) <= 1000) {
-        openCamera('exit');
-    } else {
-        showAlert("You are too far from the selected site to mark exit.", 'error');
-    }
-}
-
-async function finishAttendance(type, photo) {
-    if (type === 'entry') {
-        await Firestore.addJob({
-            place: selectedPlace?.name || "Unknown Site",
-            address: selectedPlace?.formatted_address || "N/A",
-            entryTime: new Date().toISOString(),
-            entryPhoto: photo,
-            status: "pending-exit"
-        });
-        showAlert("Entry marked successfully!", 'success');
-    } else {
-        const jobs = await Firestore.getJobs();
-        const pendingJob = jobs.find(j => j.status === "pending-exit");
-        if (pendingJob) {
-            await Firestore.updateJob(pendingJob.id, {
-                exitTime: new Date().toISOString(),
-                exitPhoto: photo,
-                status: "completed"
-            });
-            showAlert("Exit marked successfully!", 'success');
-        }
-    }
+// --- Section Initializers & Renderers ---
+async function initDashboard() {
+    $('#checkin-btn').click(handleCheckIn);
+    $('#checkout-btn').click(handleCheckout);
+    $("#filter-select, #start-date, #end-date").change(renderAttendanceCards);
     await renderAttendanceCards();
-    await renderStatisticsTable();
 }
 
-// --- Rendering Functions ---
-async function renderAttendanceCards() {
-    const filter = $("#filter-select").val();
-    $("#start-date, #end-date").toggle(filter === 'custom');
-    const jobs = await filterJobs(await Firestore.getJobs(), filter);
-    const container = $("#attendance-cards").empty();
-    if (!jobs.length) {
-        container.html(`<p class='text-center text-secondary'>No records found for this period.</p>`);
-        return;
-    }
-    jobs.forEach(job => {
-        const cardHtml = `
-            <div class="attendance-card">
-                <div class="card-summary d-flex align-items-center">
-                    <span class="status-dot ${job.status === 'completed' ? 'completed' : 'pending'}"></span>
-                    <span class="card-place flex-grow-1">${escape(job.place)}</span>
-                    <span class="card-date">${new Date(job.entryTime).toLocaleDateString()}</span>
-                    <i class="bi bi-chevron-down ms-3"></i>
-                </div>
-                <div class="record-details" style="display:none; margin-top: 1rem;">
-                    <div class="d-flex gap-3 flex-wrap">
-                        <div><img src="${job.entryPhoto}" class="rounded" style="width:100px; height: 100px; object-fit: cover;"><div class="text-center small mt-1">Entry</div></div>
-                        ${job.exitPhoto ? `<div><img src="${job.exitPhoto}" class="rounded" style="width:100px; height: 100px; object-fit: cover;"><div class="text-center small mt-1">Exit</div></div>` : ''}
-                        <div class="small">
-                            <strong>Address:</strong> ${escape(job.address)}<br>
-                            <strong>Entry:</strong> ${new Date(job.entryTime).toLocaleString()}<br>
-                            ${job.exitTime ? `<strong>Exit:</strong> ${new Date(job.exitTime).toLocaleString()}` : ''}
-                        </div>
-                    </div>
-                    <button class="btn btn-outline-danger btn-sm mt-3 delete-record-btn" data-id="${job.id}">Delete</button>
-                </div>
-            </div>`;
-        const card = $(cardHtml);
-        card.find('.card-summary').click(function() { $(this).next('.record-details').slideToggle(300); $(this).find('i').toggleClass('bi-chevron-down bi-chevron-up'); });
-        card.find('.delete-record-btn').click(async function() { if (confirm("Delete this record?")) { await Firestore.deleteJob($(this).data('id')); renderAttendanceCards(); renderStatisticsTable(); } });
-        container.append(card);
-    });
-}
-
-async function renderStatisticsTable() {
+async function renderStatistics() {
     const jobs = await Firestore.getJobs();
+    const statsHolder = $("#statistics-holder").empty();
+
     const today = new Date(); today.setHours(0,0,0,0);
     const last7 = new Date(); last7.setDate(today.getDate() - 6); last7.setHours(0,0,0,0);
     const last30 = new Date(); last30.setDate(today.getDate() - 29); last30.setHours(0,0,0,0);
@@ -669,132 +475,257 @@ async function renderStatisticsTable() {
         if (d >= last30) last30Count++;
     });
 
-    $("#statistics-holder").html(`<div class="row text-center">
-        <div class="col-6 col-md-3 mb-3"><h4>${todayCount}</h4><span class="text-secondary">Today</span></div>
-        <div class="col-6 col-md-3 mb-3"><h4>${last7Count}</h4><span class="text-secondary">Last 7 Days</span></div>
-        <div class="col-6 col-md-3 mb-3"><h4>${last30Count}</h4><span class="text-secondary">Last 30 Days</span></div>
-        <div class="col-6 col-md-3 mb-3"><h4>${jobs.length}</h4><span class="text-secondary">Total Records</span></div>
+    statsHolder.html(`<div class="row text-center g-3">
+        <div class="col-6 col-md-3"><div class="stat-box"><h4>${todayCount}</h4><p>Today</p></div></div>
+        <div class="col-6 col-md-3"><div class="stat-box"><h4>${last7Count}</h4><p>Last 7 Days</p></div></div>
+        <div class="col-6 col-md-3"><div class="stat-box"><h4>${last30Count}</h4><p>Last 30 Days</p></div></div>
+        <div class="col-6 col-md-3"><div class="stat-box"><h4>${jobs.length}</h4><p>Total Records</p></div></div>
     </div>`);
 }
 
-// --- Profile & Help Logic ---
-async function loadProfile() {
+async function initProfile() {
     const p = await Firestore.getProfile();
     $("#prof-email").val(userEmail);
     $("#prof-username").val(p.username || userEmail.split('@')[0]);
     $("#prof-fullname").val(p.fullname || userName);
     $("#prof-contact").val(p.contact || "");
+    $("#profile-form").off('submit').submit(handleProfileSave);
 }
 
-async function handleProfileSave(e) {
-    e.preventDefault();
-    await Firestore.setProfile({
-        username: $("#prof-username").val(),
-        fullname: $("#prof-fullname").val(),
-        contact: $("#prof-contact").val()
-    });
-    $("#profile-save-result").html('<div class="alert alert-success">Profile saved!</div>').fadeIn().delay(2000).fadeOut();
-}
-
-async function handleHelpRequest(e) {
-    e.preventDefault();
-    const message = $("#help-message").val();
-    if (!message.trim()) return;
-    await Firestore.addIssue({ userEmail, userName, message, timestamp: new Date().toISOString() });
-    $("#help-response").html('<div class="alert alert-success">Message sent! We will get back to you shortly.</div>').fadeIn();
-    $("#help-message").val('');
-}
-
-// --- Admin Section Logic ---
-let selectedAdminUID = null;
-async function renderAdminSection() {
+async function initAdmin() {
     const users = await Firestore.getAllUsers();
     const userList = $("#admin-users-list").empty();
     users.forEach(user => {
-        const userRow = $(`<div class="admin-user-row" data-uid="${user.uid}">${escape(user.fullname || 'N/A')} (${escape(user.email || 'N/A')})</div>`);
+        const userRow = $(`<div class="admin-user-row" data-uid="${user.uid}" data-name="${escape(user.fullname || 'N/A')}">${escape(user.fullname || 'N/A')} (${escape(user.email || 'N/A')})</div>`);
         userList.append(userRow);
     });
     
-    $('.admin-user-row').on('click', async function() {
-        $('.admin-user-row').removeClass('active');
-        $(this).addClass('active');
-        selectedAdminUID = $(this).data('uid');
-        const userJobs = await Firestore.getJobs(selectedAdminUID);
-        const detailsContainer = $("#admin-user-details").empty().html(`<h5>Attendance for ${$(this).text()}</h5>`);
-        
-        if (!userJobs.length) {
-            detailsContainer.append("<p class='text-secondary mt-2'>No records for this user.</p>");
-        } else {
-            userJobs.forEach(job => {
-                const recordCard = `
-                    <div class="admin-record-card">
-                        <h6>${escape(job.place)}</h6>
-                        <p><strong>Address:</strong> ${escape(job.address)}</p>
-                        <p><strong>Entry:</strong> ${new Date(job.entryTime).toLocaleString()}</p>
-                        ${job.exitTime ? `<p><strong>Exit:</strong> ${new Date(job.exitTime).toLocaleString()}</p>` : ''}
-                        <div class="admin-record-images">
-                            <a href="${job.entryPhoto}" target="_blank">
-                                <img src="${job.entryPhoto}" alt="Entry Photo">
-                                <small>Entry Photo</small>
-                            </a>
-                            ${job.exitPhoto ? `
-                            <a href="${job.exitPhoto}" target="_blank">
-                                <img src="${job.exitPhoto}" alt="Exit Photo">
-                                <small>Exit Photo</small>
-                            </a>` : ''}
-                        </div>
-                    </div>`;
-                detailsContainer.append(recordCard);
-            });
-        }
-    });
-
+    $('.admin-user-row').on('click', handleAdminUserClick);
+    
     const issues = await Firestore.getIssues();
     const issuesHolder = $("#admin-issues-holder").empty();
     if(!issues.length) {
         issuesHolder.html("<p class='text-secondary'>No issues reported.</p>");
     } else {
         issues.forEach(issue => {
-            issuesHolder.append(`<div class="p-2 mb-2 rounded" style="background: rgba(0,0,0,0.2);">
-                <strong>From:</strong> ${escape(issue.userName)} (${escape(issue.userEmail)}) at ${new Date(issue.timestamp).toLocaleString()}<br>
-                <p class="m-0 mt-1">${escape(issue.message)}</p>
-            </div>`);
+            issuesHolder.append(`<div class="p-2 mb-2 rounded" style="background: rgba(0,0,0,0.2);"><strong>From:</strong> ${escape(issue.userName)} (${escape(issue.userEmail)}) at ${new Date(issue.timestamp).toLocaleString()}<br><p class="m-0 mt-1">${escape(issue.message)}</p></div>`);
         });
     }
 }
 
-async function handleAdminExport() {
-    if (!selectedAdminUID) return alert("Please select a user first.");
-    const userProfile = await Firestore.getProfile(selectedAdminUID);
-    const jobs = await Firestore.getJobs(selectedAdminUID);
+function initHelp() {
+    $("#help-form").off('submit').submit(handleHelpRequest);
+}
+
+async function handleAdminUserClick() {
+    const clickedUserRow = $(this);
+    if (clickedUserRow.hasClass('active')) return;
+
+    const selectedAdminUID = clickedUserRow.data('uid');
+    const selectedAdminName = clickedUserRow.data('name');
+
+    const detailsWrapper = $("#admin-user-details-wrapper");
+    gsap.to(detailsWrapper, {
+        opacity: 0, duration: 0.3,
+        onComplete: async () => {
+            $('.admin-user-row').removeClass('active');
+            clickedUserRow.addClass('active');
+            $("#admin-selected-user-name").text(`Records for ${selectedAdminName}`);
+            detailsWrapper.show();
+            
+            const userJobs = await Firestore.getJobs(selectedAdminUID);
+            renderAdminDetails(userJobs);
+            
+            $('#admin-export').off('click').on('click', () => handleAdminExport(selectedAdminUID));
+            gsap.to(detailsWrapper, { opacity: 1, duration: 0.3 });
+        }
+    });
+}
+
+function renderAdminDetails(jobs) {
+    const container = $("#admin-user-details").empty();
+    if (!jobs.length) {
+        container.html("<p class='text-secondary mt-2'>No records for this user.</p>");
+        return;
+    }
+    jobs.forEach(job => {
+        const duration = job.exitTime ? calculateDuration(job.entryTime, job.exitTime) : 'Ongoing';
+        const card = $(`<div class="attendance-card">
+                <div class="card-summary d-flex align-items-center">
+                    <span class="status-dot ${job.status === 'completed' ? 'completed' : 'pending'}"></span>
+                    <span class="card-place flex-grow-1">${escape(job.place)}</span>
+                    <span class="card-date">${new Date(job.entryTime).toLocaleDateString()}</span>
+                    <i class="bi bi-chevron-down ms-3"></i>
+                </div>
+                <div class="record-details admin-record-details" style="display:none; margin-top: 1rem;">
+                    <p class="small mb-2"><strong>Duration:</strong> ${duration}</p>
+                    <div class="d-flex gap-3 flex-wrap align-items-center">
+                        <div class="text-center"><a href="${job.entryPhoto}" target="_blank"><img src="${job.entryPhoto}"></a><div class="small mt-1">Entry</div></div>
+                        ${job.exitPhoto ? `<div class="text-center"><a href="${job.exitPhoto}" target="_blank"><img src="${job.exitPhoto}"></a><div class="small mt-1">Exit</div></div>` : ''}
+                        <div class="small"><strong>Entry:</strong> ${new Date(job.entryTime).toLocaleString()}<br>${job.exitTime ? `<strong>Exit:</strong> ${new Date(job.exitTime).toLocaleString()}` : ''}</div>
+                    </div>
+                </div>
+            </div>`);
+        card.find('.card-summary').click(function() { $(this).next('.record-details').slideToggle(300); $(this).find('i').toggleClass('bi-chevron-down bi-chevron-up'); });
+        container.append(card);
+    });
+}
+
+function initMap() {
+    map = new google.maps.Map(document.getElementById('map'), { center: { lat: 20.5937, lng: 78.9629 }, zoom: 5 });
+    const searchBox = new google.maps.places.SearchBox(document.getElementById('pac-input'));
+    const gpsStatus = $('#gps-status');
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(
+            (pos) => {
+                userLat = pos.coords.latitude;
+                userLng = pos.coords.longitude;
+                const currentPos = { lat: userLat, lng: userLng };
+                if (gpsStatus) gpsStatus.html(`<i class="bi bi-geo-alt-fill text-success"></i> GPS Lock Acquired`);
+                if (!userLiveMarker) {
+                    userLiveMarker = new google.maps.Marker({ position: currentPos, map, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#4285F4", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 2 } });
+                    map.setCenter(currentPos);
+                    map.setZoom(15);
+                } else { userLiveMarker.setPosition(currentPos); }
+            }, 
+            (err) => {
+                let message = "Could not get your location.";
+                if (err.code === 1) message = "Location access denied. Please enable it in your browser settings.";
+                if (gpsStatus) gpsStatus.html(`<i class="bi bi-exclamation-triangle-fill text-danger"></i> ${message}`);
+            }, 
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    } else {
+        if (gpsStatus) gpsStatus.text("Geolocation is not supported by this browser.");
+    }
+
+    searchBox.addListener('places_changed', () => {
+        const places = searchBox.getPlaces();
+        if (!places.length) return;
+        selectedPlace = places[0];
+        if (marker) marker.setMap(null);
+        marker = new google.maps.Marker({ map, position: selectedPlace.geometry.location });
+        map.panTo(selectedPlace.geometry.location);
+        map.setZoom(16);
+    });
+}
+async function renderAttendanceCards() {
+    const filter = $("#filter-select").val();
+    $("#start-date, #end-date").toggle(filter === 'custom');
+    const jobs = await filterJobs(await Firestore.getJobs(), filter);
+    const container = $("#attendance-cards").empty();
+    if (!jobs.length) { container.html(`<p class='text-center text-secondary'>No records for this period.</p>`); return; }
+    jobs.forEach(job => {
+        const duration = job.exitTime ? calculateDuration(job.entryTime, job.exitTime) : 'Ongoing';
+        const card = $(`<div class="attendance-card" data-id="${job.id}"><div class="card-summary d-flex align-items-center"><span class="status-dot ${job.status === 'completed' ? 'completed' : 'pending'}"></span><span class="card-place flex-grow-1">${escape(job.place)}</span><span class="card-date">${new Date(job.entryTime).toLocaleDateString()}</span><i class="bi bi-chevron-down ms-3"></i></div><div class="record-details" style="display:none; margin-top: 1rem;"><p class="small mb-2"><strong>Duration:</strong> ${duration}</p><div class="d-flex gap-3 flex-wrap align-items-center"><div class="text-center"><a href="${job.entryPhoto}" target="_blank"><img src="${job.entryPhoto}" class="rounded" style="width:100px; height: 100px; object-fit: cover;"></a><div class="small mt-1">Entry</div></div>${job.exitPhoto ? `<div class="text-center"><a href="${job.exitPhoto}" target="_blank"><img src="${job.exitPhoto}" class="rounded" style="width:100px; height: 100px; object-fit: cover;"></a><div class="small mt-1">Exit</div></div>` : ''}<div class="small"><strong>Entry:</strong> ${new Date(job.entryTime).toLocaleString()}<br>${job.exitTime ? `<strong>Exit:</strong> ${new Date(job.exitTime).toLocaleString()}` : ''}</div></div><button class="btn btn-outline-danger btn-sm mt-3 delete-record-btn">Delete</button></div></div>`);
+        
+        card.find('.card-summary').click(function() { $(this).next('.record-details').slideToggle(300); $(this).find('i').toggleClass('bi-chevron-down bi-chevron-up'); });
+        
+        card.find('.delete-record-btn').click(async function() {
+            const cardElement = $(this).closest('.attendance-card');
+            const jobId = cardElement.data('id');
+            if (confirm("Delete this record?")) {
+                try {
+                    await Firestore.deleteJob(jobId);
+                    gsap.to(cardElement, {
+                        opacity: 0, height: 0, margin: 0, padding: 0, duration: 0.5, 
+                        onComplete: () => {
+                            cardElement.remove();
+                            renderStatistics(); 
+                        } 
+                    });
+                } catch (err) { showAlert("Failed to delete record. Please try again.", "error"); }
+            }
+        });
+        container.append(card);
+    });
+}
+async function handleCheckIn() {
+    if (!userLat || !userLng) return showAlert("Waiting for GPS signal. Please wait a moment and ensure location is enabled.", 'warning');
+    if (!selectedPlace) return showAlert("Please search and select a site from the map first.", 'error');
+    const jobs = await Firestore.getJobs();
+    if (jobs.some(j => j.status === "pending-exit")) return showAlert("You already have a pending check-in.", 'error');
+    if (getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng()) <= 500) {
+        openCamera('entry');
+    } else { showAlert("You are too far from the selected site to mark entry.", 'error'); }
+}
+async function handleCheckout() {
+    if (!userLat || !userLng) return showAlert("Waiting for GPS signal. Please wait a moment and ensure location is enabled.", 'warning');
+    if (!selectedPlace) return showAlert("Please select the site you are checking out from.", 'error');
+    const jobs = await Firestore.getJobs();
+    if (!jobs.some(j => j.status === "pending-exit")) return showAlert("No active check-in found to mark exit.", 'error');
+    if (getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng()) <= 1000) {
+        openCamera('exit');
+    } else { showAlert("You are too far from the selected site to mark exit.", 'error'); }
+}
+async function finishAttendance(type, photo) {
+    if (type === 'entry') {
+        await Firestore.addJob({ place: selectedPlace?.name || "Unknown Site", address: selectedPlace?.formatted_address || "N/A", entryTime: new Date().toISOString(), entryPhoto: photo, status: "pending-exit" });
+        showAlert("Entry marked successfully!", 'success');
+    } else {
+        const jobs = await Firestore.getJobs();
+        const pendingJob = jobs.find(j => j.status === "pending-exit");
+        if (pendingJob) {
+            await Firestore.updateJob(pendingJob.id, { exitTime: new Date().toISOString(), exitPhoto: photo, status: "completed" });
+            showAlert("Exit marked successfully!", 'success');
+        }
+    }
+    renderAttendanceCards();
+    renderStatistics();
+}
+async function handleProfileSave(e) {
+    e.preventDefault();
+    await Firestore.setProfile({ username: $("#prof-username").val(), fullname: $("#prof-fullname").val(), contact: $("#prof-contact").val() });
+    $("#profile-save-result").html('<div class="alert alert-success">Profile saved!</div>').fadeIn().delay(2000).fadeOut();
+}
+async function handleHelpRequest(e) {
+    e.preventDefault();
+    const message = $("#help-message").val();
+    if (!message.trim()) return;
+    await Firestore.addIssue({ userEmail, userName, message, timestamp: new Date().toISOString() });
+    $("#help-response").html('<div class="alert alert-success">Message sent!</div>').fadeIn();
+    $("#help-message").val('');
+}
+async function handleAdminExport(uid) {
+    if (!uid) return alert("Please select a user first.");
+    const userProfile = await Firestore.getProfile(uid);
+    const jobs = await Firestore.getJobs(uid);
     if (!jobs.length) return alert("User has no data to export.");
-
-    const dataToExport = jobs.map(job => ({
-        "Site Name": job.place, "Address": job.address,
-        "Entry Time": job.entryTime ? new Date(job.entryTime).toLocaleString() : '',
-        "Exit Time": job.exitTime ? new Date(job.exitTime).toLocaleString() : '', "Status": job.status
-    }));
-
+    const dataToExport = jobs.map(job => ({ "Site Name": job.place, "Address": job.address, "Entry Time": job.entryTime ? new Date(job.entryTime).toLocaleString() : '', "Exit Time": job.exitTime ? new Date(job.exitTime).toLocaleString() : '', "Status": job.status, "Duration": job.exitTime ? calculateDuration(job.entryTime, job.exitTime) : '' }));
     const ws = XLSX.utils.json_to_sheet(dataToExport);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Attendance");
     XLSX.writeFile(wb, `Attendance_${userProfile.fullname.replace(/\s+/g, '_')}.xlsx`);
 }
-
-// --- Utility & Helper Functions ---
+function openCamera(type) {
+    $("#camera-overlay").css("display", "flex");
+    const startCam = () => {
+        if (globalStream) globalStream.getTracks().forEach(t => t.stop());
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: usingFront ? 'user' : 'environment' } })
+            .then(stream => { $("#video")[0].srcObject = stream; globalStream = stream; })
+            .catch(err => { showAlert("Could not access camera.", 'error'); $("#camera-overlay").hide(); });
+    };
+    startCam();
+    $("#snap-btn").off().click(() => {
+        const v = $("#video")[0], c = $("#canvas")[0];
+        c.width = v.videoWidth; c.height = v.videoHeight;
+        c.getContext('2d').drawImage(v, 0, 0);
+        const photo = c.toDataURL('image/jpeg', 0.8);
+        globalStream.getTracks().forEach(t => t.stop());
+        $("#camera-overlay").hide();
+        finishAttendance(type, photo);
+    });
+    $("#flip-btn").off().click(() => { usingFront = !usingFront; startCam(); });
+    $("#cancel-btn").off().click(() => { if (globalStream) globalStream.getTracks().forEach(t => t.stop()); $("#camera-overlay").hide(); });
+}
 function getDistance(lat1, lon1, lat2, lon2) {
     if (lat1 === null || lon1 === null) return Infinity;
-    const R = 6371e3;
-    const toRad = val => val * Math.PI / 180;
+    const R = 6371e3; const toRad = val => val * Math.PI / 180;
     const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
     const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); // in meters
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
-
-function escape(t) {
-    return t ? String(t).replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m])) : "";
-}
-
+function escape(t) { return t ? String(t).replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m])) : ""; }
 function filterJobs(jobs, filter) {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -813,10 +744,20 @@ function filterJobs(jobs, filter) {
             if (!start || !end) return [];
             const sDate = new Date(start); const eDate = new Date(end); eDate.setHours(23, 59, 59, 999);
             return jobs.filter(j => new Date(j.entryTime) >= sDate && new Date(j.entryTime) <= eDate);
-        default:
-            return jobs;
+        default: return jobs;
     }
 }
+function calculateDuration(startTime, endTime) {
+    if (!startTime || !endTime) return 'N/A';
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    let diff = Math.abs(end.getTime() - start.getTime()) / 1000; 
+    const hours = Math.floor(diff / 3600);
+    diff %= 3600;
+    const minutes = Math.floor(diff / 60);
+    return `${hours}h ${minutes}m`;
+}
 </script>
+
 </body>
 </html>
