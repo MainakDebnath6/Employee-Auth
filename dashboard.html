@@ -68,6 +68,13 @@
     background: rgba(255, 255, 255, 0.1);
   }
 
+  .navbar-toggler {
+      border-color: rgba(255, 255, 255, 0.2);
+  }
+  .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28240, 242, 245, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  }
+
   #container-main {
     max-width: 1100px; margin: 2rem auto; padding: 0 1rem;
     background: transparent; box-shadow: none;
@@ -178,7 +185,7 @@
   }
   
   .admin-record-details img {
-    width: 120px; height: 120px; object-fit: cover;
+    width: 100px; height: 100px; object-fit: cover;
     border-radius: 8px; border: 1px solid var(--card-border);
     transition: transform 0.2s ease;
   }
@@ -196,16 +203,19 @@
   .stat-box h4 { font-weight: 700; font-size: 2.25rem; color: var(--text-accent); }
   .stat-box p { font-weight: 600; color: var(--text-secondary); margin: 0; }
 
+  /* --- FIX for Mobile Nav Visibility --- */
   @media (max-width: 991.98px) {
     .navbar-collapse {
-        background: rgba(22, 25, 37, 0.9);
-        backdrop-filter: blur(10px);
-        padding: 1rem;
-        border-radius: 15px;
-        margin-top: 0.5rem;
+        background: var(--card-background);
+        backdrop-filter: blur(20px) saturate(150%);
+        padding: 1.5rem;
+        border-radius: 20px;
+        margin-top: 0.75rem;
         border: 1px solid var(--card-border);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     }
   }
+  /* --- END FIX --- */
 
   @media (max-width: 768px) {
     .section-card { padding: 1rem; }
@@ -221,7 +231,7 @@
     <a class="navbar-brand text-light d-flex align-items-center gap-2" style="font-weight: 700; font-size: 1.2rem;">
       <i class="bi bi-shield-check"></i> Attendance
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navMain">
@@ -238,8 +248,9 @@
   </div>
 </nav>
 
+<div id="global-alert-container" style="position: fixed; top: 80px; right: 20px; z-index: 10000; width: 350px;"></div>
+
 <div id="container-main">
-  <!-- Dashboard Section -->
   <div class="section active" id="dashboard">
     <div class="section-card">
       <div class="section-title"><i class="bi bi-map"></i> Mark Your Attendance</div>
@@ -257,7 +268,6 @@
         <button id="checkin-btn" class="btn btn-success"><i class="bi bi-box-arrow-in-right"></i> Mark Entry</button>
         <button id="checkout-btn" class="btn btn-warning"><i class="bi bi-box-arrow-right"></i> Mark Exit</button>
       </div>
-      <div id="action-alert" class="mt-3" style="display: none;"></div>
     </div>
     <div class="section-card">
         <div class="section-title"><i class="bi bi-clock-history"></i> Your Recent Activity</div>
@@ -275,7 +285,6 @@
     </div>
   </div>
 
-  <!-- Statistics Section -->
   <div class="section" id="statistics">
       <div class="section-card">
         <div class="section-title"><i class="bi bi-bar-chart-line"></i> Your Statistics</div>
@@ -283,7 +292,6 @@
       </div>
   </div>
 
-  <!-- Profile Section -->
   <div class="section" id="profile">
       <div class="section-card">
         <div class="section-title"><i class="bi bi-person-badge"></i> Your Profile</div>
@@ -294,18 +302,17 @@
           <div class="mb-3"><label class="form-label">Contact</label><input id="prof-contact" class="form-control"></div>
           <button class="btn btn-primary" type="submit">Save Changes</button>
         </form>
-        <div id="profile-save-result" class="mt-3"></div>
       </div>
   </div>
 
-  <!-- Admin Section -->
   <div class="section" id="admin">
       <div class="section-card">
           <div class="section-title"><i class="bi bi-shield-lock"></i> Admin Dashboard</div>
           <h6>Select User to View Records</h6>
           <div id="admin-users-list" class="mb-4"></div>
           <div id="admin-user-details-wrapper" style="opacity: 0; display: none;">
-              <h5 id="admin-selected-user-name" class="mb-3"></h5>
+              <h5 id="admin-selected-user-name" class="mb-1"></h5>
+              <p id="admin-selected-user-contact" class="text-secondary small mb-3"></p>
               <div id="admin-user-details"></div>
               <button id="admin-export" class="btn btn-info mt-3"><i class="bi bi-download"></i> Export as Excel</button>
           </div>
@@ -316,7 +323,6 @@
       </div>
   </div>
 
-  <!-- Help Section -->
   <div class="section" id="help">
       <div class="section-card">
         <div class="section-title"><i class="bi bi-question-circle"></i> Get Help</div>
@@ -324,7 +330,6 @@
           <label class="form-label">Describe your issue</label>
           <textarea id="help-message" rows="4" maxlength="700" class="form-control mb-3"></textarea>
           <button type="submit" class="btn btn-primary">Send Message</button>
-          <div id="help-response" class="mt-3"></div>
         </form>
         <div class="mt-4">
           <label class="form-label">Contact Us Directly:</label><br>
@@ -335,7 +340,6 @@
   </div>
 </div>
 
-<!-- Camera Overlay (hidden by default) -->
 <div id="camera-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 9999; flex-direction: column;">
     <video id="video" autoplay playsinline style="max-width:90%; border-radius:14px;"></video>
     <div id="camera-controls" class="mt-3 d-flex gap-3">
@@ -346,7 +350,7 @@
     <canvas id="canvas" style="display:none;"></canvas>
 </div>
 
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -381,14 +385,28 @@ auth.onAuthStateChanged(user => {
         userName = user.displayName;
         userEmail = user.email;
         userUid = user.uid;
+
+        const userProfileRef = db.collection("profiles").doc(user.uid);
+        userProfileRef.get().then(doc => {
+            if (!doc.exists || !doc.data().email) {
+                userProfileRef.set({
+                    email: user.email,
+                    fullname: user.displayName || user.email.split('@')[0]
+                }, { merge: true });
+            }
+        });
+
         initializeApp();
     } else {
-        window.location.href = "index.html";
+        console.log("No user found, redirecting to login.");
+        window.location.href = "index.html"; 
     }
 });
 
+
 function initializeApp() {
-    $("#user-name").text(`Welcome, ${userName.split(' ')[0]}`);
+    $("#user-name").text(`Welcome, ${userName.split(' ')[0]}`); 
+    
     if (!allowedAdminEmails.includes(userEmail)) $('.admin-only').hide();
     
     gsap.fromTo(currentSectionId, { opacity: 0, y: 20 }, { 
@@ -496,7 +514,15 @@ async function initAdmin() {
     const users = await Firestore.getAllUsers();
     const userList = $("#admin-users-list").empty();
     users.forEach(user => {
-        const userRow = $(`<div class="admin-user-row" data-uid="${user.uid}" data-name="${escape(user.fullname || 'N/A')}">${escape(user.fullname || 'N/A')} (${escape(user.email || 'N/A')})</div>`);
+        const displayName = escape(user.fullname || user.email || 'Unnamed User');
+        const displayEmail = escape(user.email || 'No Email');
+        const userRow = $(`<div class="admin-user-row" 
+                              data-uid="${user.uid}" 
+                              data-name="${escape(user.fullname || user.email)}" 
+                              data-email="${displayEmail}"
+                              data-contact="${escape(user.contact || 'Not Provided')}">
+                              ${displayName} (${displayEmail})
+                           </div>`);
         userList.append(userRow);
     });
     
@@ -521,20 +547,24 @@ async function handleAdminUserClick() {
     const clickedUserRow = $(this);
     if (clickedUserRow.hasClass('active')) return;
 
-    const selectedAdminUID = clickedUserRow.data('uid');
-    const selectedAdminName = clickedUserRow.data('name');
-
     const detailsWrapper = $("#admin-user-details-wrapper");
     gsap.to(detailsWrapper, {
         opacity: 0, duration: 0.3,
         onComplete: async () => {
             $('.admin-user-row').removeClass('active');
             clickedUserRow.addClass('active');
-            $("#admin-selected-user-name").text(`Records for ${selectedAdminName}`);
+
+            const selectedAdminUID = clickedUserRow.data('uid');
+            const selectedAdminName = clickedUserRow.data('name');
+            const selectedAdminEmail = clickedUserRow.data('email');
+            const selectedAdminContact = clickedUserRow.data('contact');
+            
+            $("#admin-selected-user-name").text(`Records for: ${selectedAdminName}`);
+            $("#admin-selected-user-contact").html(`<i class="bi bi-envelope-fill"></i> ${selectedAdminEmail} <span class="mx-2">|</span> <i class="bi bi-telephone-fill"></i> ${selectedAdminContact}`);
             detailsWrapper.show();
             
             const userJobs = await Firestore.getJobs(selectedAdminUID);
-            renderAdminDetails(userJobs);
+            renderAdminDetails(userJobs, selectedAdminUID);
             
             $('#admin-export').off('click').on('click', () => handleAdminExport(selectedAdminUID));
             gsap.to(detailsWrapper, { opacity: 1, duration: 0.3 });
@@ -542,31 +572,77 @@ async function handleAdminUserClick() {
     });
 }
 
-function renderAdminDetails(jobs) {
+function renderAdminDetails(jobs, uid) {
     const container = $("#admin-user-details").empty();
     if (!jobs.length) {
-        container.html("<p class='text-secondary mt-2'>No records for this user.</p>");
+        container.html("<p class='text-secondary mt-2'>No records found for this user.</p>");
         return;
     }
+
     jobs.forEach(job => {
         const duration = job.exitTime ? calculateDuration(job.entryTime, job.exitTime) : 'Ongoing';
-        const card = $(`<div class="attendance-card">
-                <div class="card-summary d-flex align-items-center">
-                    <span class="status-dot ${job.status === 'completed' ? 'completed' : 'pending'}"></span>
-                    <span class="card-place flex-grow-1">${escape(job.place)}</span>
-                    <span class="card-date">${new Date(job.entryTime).toLocaleDateString()}</span>
-                    <i class="bi bi-chevron-down ms-3"></i>
+        
+        const card = $(`
+        <div class="attendance-card" id="admin-job-${job.id}">
+            <div class="card-summary d-flex align-items-center" style="cursor: pointer;">
+                <span class="status-dot ${job.status === 'completed' ? 'completed' : 'pending'} me-3"></span>
+                <div class="flex-grow-1">
+                    <div class="card-place">${escape(job.place)}</div>
+                    <div class="card-date small">${new Date(job.entryTime).toLocaleDateString()}</div>
                 </div>
-                <div class="record-details admin-record-details" style="display:none; margin-top: 1rem;">
-                    <p class="small mb-2"><strong>Duration:</strong> ${duration}</p>
-                    <div class="d-flex gap-3 flex-wrap align-items-center">
-                        <div class="text-center"><a href="${job.entryPhoto}" target="_blank"><img src="${job.entryPhoto}"></a><div class="small mt-1">Entry</div></div>
-                        ${job.exitPhoto ? `<div class="text-center"><a href="${job.exitPhoto}" target="_blank"><img src="${job.exitPhoto}"></a><div class="small mt-1">Exit</div></div>` : ''}
-                        <div class="small"><strong>Entry:</strong> ${new Date(job.entryTime).toLocaleString()}<br>${job.exitTime ? `<strong>Exit:</strong> ${new Date(job.exitTime).toLocaleString()}` : ''}</div>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="record-details admin-record-details" style="display:none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--card-border);">
+                <div class="row g-3">
+                    <div class="col-lg-7">
+                        <p class="mb-2"><strong><i class="bi bi-stopwatch text-info me-2"></i>Duration:</strong> ${duration}</p>
+                        <p class="mb-2"><strong><i class="bi bi-box-arrow-in-right text-success me-2"></i>Entry:</strong> ${new Date(job.entryTime).toLocaleString()}</p>
+                        ${job.exitTime ? `<p class="mb-2"><strong><i class="bi bi-box-arrow-right text-warning me-2"></i>Exit:</strong> ${new Date(job.exitTime).toLocaleString()}</p>` : '<p class="text-secondary mb-2"><i class="bi bi-box-arrow-right me-2"></i>Exit not marked.</p>'}
+                        <p class="small text-secondary mb-0 mt-3"><strong><i class="bi bi-geo-alt me-2"></i>Address:</strong> ${escape(job.address)}</p>
+                    </div>
+                    <div class="col-lg-5 d-flex gap-2 justify-content-center align-items-start">
+                        <div class="text-center">
+                            <a href="${job.entryPhoto}" target="_blank" title="View Entry Photo"><img src="${job.entryPhoto}"></a>
+                            <div class="small mt-1">Entry Photo</div>
+                        </div>
+                        ${job.exitPhoto ? `
+                        <div class="text-center">
+                            <a href="${job.exitPhoto}" target="_blank" title="View Exit Photo"><img src="${job.exitPhoto}"></a>
+                            <div class="small mt-1">Exit Photo</div>
+                        </div>` : ''}
                     </div>
                 </div>
-            </div>`);
-        card.find('.card-summary').click(function() { $(this).next('.record-details').slideToggle(300); $(this).find('i').toggleClass('bi-chevron-down bi-chevron-up'); });
+                <div class="text-end mt-3">
+                    <button class="btn btn-outline-danger btn-sm admin-delete-btn" data-jobid="${job.id}">
+                        <i class="bi bi-trash"></i> Delete Record
+                    </button>
+                </div>
+            </div>
+        </div>`);
+        
+        card.find('.card-summary').click(function() { 
+            $(this).next('.record-details').slideToggle(300); 
+            $(this).find('i').toggleClass('bi-chevron-down bi-chevron-up'); 
+        });
+
+        card.find('.admin-delete-btn').click(async function() {
+            const jobId = $(this).data('jobid');
+            if (confirm("Are you sure you want to permanently delete this record? This action cannot be undone.")) {
+                try {
+                    await Firestore.deleteJob(jobId, uid);
+                    const cardElement = $(`#admin-job-${jobId}`);
+                    gsap.to(cardElement, {
+                        opacity: 0, height: 0, margin: 0, padding: 0, duration: 0.5,
+                        onComplete: () => cardElement.remove()
+                    });
+                    showAlert('Record deleted successfully.', 'success');
+                } catch (err) {
+                    console.error("Delete Error:", err);
+                    showAlert('Failed to delete the record.', 'error');
+                }
+            }
+        });
+
         container.append(card);
     });
 }
@@ -617,7 +693,7 @@ async function renderAttendanceCards() {
     if (!jobs.length) { container.html(`<p class='text-center text-secondary'>No records for this period.</p>`); return; }
     jobs.forEach(job => {
         const duration = job.exitTime ? calculateDuration(job.entryTime, job.exitTime) : 'Ongoing';
-        const card = $(`<div class="attendance-card" data-id="${job.id}"><div class="card-summary d-flex align-items-center"><span class="status-dot ${job.status === 'completed' ? 'completed' : 'pending'}"></span><span class="card-place flex-grow-1">${escape(job.place)}</span><span class="card-date">${new Date(job.entryTime).toLocaleDateString()}</span><i class="bi bi-chevron-down ms-3"></i></div><div class="record-details" style="display:none; margin-top: 1rem;"><p class="small mb-2"><strong>Duration:</strong> ${duration}</p><div class="d-flex gap-3 flex-wrap align-items-center"><div class="text-center"><a href="${job.entryPhoto}" target="_blank"><img src="${job.entryPhoto}" class="rounded" style="width:100px; height: 100px; object-fit: cover;"></a><div class="small mt-1">Entry</div></div>${job.exitPhoto ? `<div class="text-center"><a href="${job.exitPhoto}" target="_blank"><img src="${job.exitPhoto}" class="rounded" style="width:100px; height: 100px; object-fit: cover;"></a><div class="small mt-1">Exit</div></div>` : ''}<div class="small"><strong>Entry:</strong> ${new Date(job.entryTime).toLocaleString()}<br>${job.exitTime ? `<strong>Exit:</strong> ${new Date(job.exitTime).toLocaleString()}` : ''}</div></div><button class="btn btn-outline-danger btn-sm mt-3 delete-record-btn">Delete</button></div></div>`);
+        const card = $(`<div class="attendance-card" data-id="${job.id}"><div class="card-summary d-flex align-items-center"><span class="status-dot ${job.status === 'completed' ? 'completed' : 'pending'} me-2"></span><span class="card-place flex-grow-1">${escape(job.place)}</span><span class="card-date">${new Date(job.entryTime).toLocaleDateString()}</span><i class="bi bi-chevron-down ms-3"></i></div><div class="record-details" style="display:none; margin-top: 1rem;"><p class="small mb-2"><strong>Duration:</strong> ${duration}</p><div class="d-flex gap-3 flex-wrap align-items-center"><div class="text-center"><a href="${job.entryPhoto}" target="_blank"><img src="${job.entryPhoto}" class="rounded" style="width:100px; height: 100px; object-fit: cover;"></a><div class="small mt-1">Entry</div></div>${job.exitPhoto ? `<div class="text-center"><a href="${job.exitPhoto}" target="_blank"><img src="${job.exitPhoto}" class="rounded" style="width:100px; height: 100px; object-fit: cover;"></a><div class="small mt-1">Exit</div></div>` : ''}<div class="small"><strong>Entry:</strong> ${new Date(job.entryTime).toLocaleString()}<br>${job.exitTime ? `<strong>Exit:</strong> ${new Date(job.exitTime).toLocaleString()}` : ''}</div></div><button class="btn btn-outline-danger btn-sm mt-3 delete-record-btn">Delete</button></div></div>`);
         
         card.find('.card-summary').click(function() { $(this).next('.record-details').slideToggle(300); $(this).find('i').toggleClass('bi-chevron-down bi-chevron-up'); });
         
@@ -641,7 +717,7 @@ async function renderAttendanceCards() {
     });
 }
 async function handleCheckIn() {
-    if (!userLat || !userLng) return showAlert("Waiting for GPS signal. Please wait a moment and ensure location is enabled.", 'warning');
+    if (!userLat || !userLng) return showAlert("Waiting for GPS signal. Please wait and ensure location is enabled.", 'warning');
     if (!selectedPlace) return showAlert("Please search and select a site from the map first.", 'error');
     const jobs = await Firestore.getJobs();
     if (jobs.some(j => j.status === "pending-exit")) return showAlert("You already have a pending check-in.", 'error');
@@ -650,7 +726,7 @@ async function handleCheckIn() {
     } else { showAlert("You are too far from the selected site to mark entry.", 'error'); }
 }
 async function handleCheckout() {
-    if (!userLat || !userLng) return showAlert("Waiting for GPS signal. Please wait a moment and ensure location is enabled.", 'warning');
+    if (!userLat || !userLng) return showAlert("Waiting for GPS signal. Please wait and ensure location is enabled.", 'warning');
     if (!selectedPlace) return showAlert("Please select the site you are checking out from.", 'error');
     const jobs = await Firestore.getJobs();
     if (!jobs.some(j => j.status === "pending-exit")) return showAlert("No active check-in found to mark exit.", 'error');
@@ -675,27 +751,32 @@ async function finishAttendance(type, photo) {
 }
 async function handleProfileSave(e) {
     e.preventDefault();
-    await Firestore.setProfile({ username: $("#prof-username").val(), fullname: $("#prof-fullname").val(), contact: $("#prof-contact").val() });
-    $("#profile-save-result").html('<div class="alert alert-success">Profile saved!</div>').fadeIn().delay(2000).fadeOut();
+    await Firestore.setProfile({ 
+        email: userEmail,
+        username: $("#prof-username").val(), 
+        fullname: $("#prof-fullname").val(), 
+        contact: $("#prof-contact").val() 
+    });
+    showAlert('Profile saved successfully!', 'success');
 }
 async function handleHelpRequest(e) {
     e.preventDefault();
     const message = $("#help-message").val();
     if (!message.trim()) return;
     await Firestore.addIssue({ userEmail, userName, message, timestamp: new Date().toISOString() });
-    $("#help-response").html('<div class="alert alert-success">Message sent!</div>').fadeIn();
+    showAlert('Your message has been sent. We will get back to you shortly.', 'success');
     $("#help-message").val('');
 }
 async function handleAdminExport(uid) {
-    if (!uid) return alert("Please select a user first.");
+    if (!uid) return showAlert("Please select a user first.", 'warning');
     const userProfile = await Firestore.getProfile(uid);
     const jobs = await Firestore.getJobs(uid);
-    if (!jobs.length) return alert("User has no data to export.");
+    if (!jobs.length) return showAlert("User has no data to export.", 'info');
     const dataToExport = jobs.map(job => ({ "Site Name": job.place, "Address": job.address, "Entry Time": job.entryTime ? new Date(job.entryTime).toLocaleString() : '', "Exit Time": job.exitTime ? new Date(job.exitTime).toLocaleString() : '', "Status": job.status, "Duration": job.exitTime ? calculateDuration(job.entryTime, job.exitTime) : '' }));
     const ws = XLSX.utils.json_to_sheet(dataToExport);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Attendance");
-    XLSX.writeFile(wb, `Attendance_${userProfile.fullname.replace(/\s+/g, '_')}.xlsx`);
+    XLSX.writeFile(wb, `Attendance_${(userProfile.fullname || userProfile.email).replace(/\s+/g, '_')}.xlsx`);
 }
 function openCamera(type) {
     $("#camera-overlay").css("display", "flex");
@@ -726,27 +807,49 @@ function getDistance(lat1, lon1, lat2, lon2) {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 function escape(t) { return t ? String(t).replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m])) : ""; }
+
 function filterJobs(jobs, filter) {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
     switch(filter) {
         case 'yesterday':
-            const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
-            return jobs.filter(j => new Date(j.entryTime) >= yesterday && new Date(j.entryTime) < today);
+            const yesterday = new Date(today);
+            yesterday.setDate(today.getDate() - 1);
+            return jobs.filter(j => {
+                if (!j.entryTime) return false;
+                const entryDate = new Date(j.entryTime);
+                return entryDate >= yesterday && entryDate < today;
+            });
         case 'last7':
-            const last7 = new Date(today); last7.setDate(today.getDate() - 6);
-            return jobs.filter(j => new Date(j.entryTime) >= last7);
+            const last7 = new Date(today);
+            last7.setDate(today.getDate() - 6);
+            return jobs.filter(j => j.entryTime && new Date(j.entryTime) >= last7);
         case 'last30':
-            const last30 = new Date(today); last30.setDate(today.getDate() - 29);
-            return jobs.filter(j => new Date(j.entryTime) >= last30);
+            const last30 = new Date(today);
+            last30.setDate(today.getDate() - 29);
+            return jobs.filter(j => j.entryTime && new Date(j.entryTime) >= last30);
         case 'custom':
-            const start = $("#start-date").val(); const end = $("#end-date").val();
-            if (!start || !end) return [];
-            const sDate = new Date(start); const eDate = new Date(end); eDate.setHours(23, 59, 59, 999);
-            return jobs.filter(j => new Date(j.entryTime) >= sDate && new Date(j.entryTime) <= eDate);
-        default: return jobs;
+            const startStr = $("#start-date").val();
+            const endStr = $("#end-date").val();
+            if (!startStr || !endStr) return [];
+
+            const sDate = new Date(startStr);
+            sDate.setHours(0, 0, 0, 0);
+
+            const eDate = new Date(endStr);
+            eDate.setHours(23, 59, 59, 999);
+
+            return jobs.filter(j => {
+                if (!j.entryTime) return false;
+                const entryDate = new Date(j.entryTime);
+                return entryDate >= sDate && entryDate <= eDate;
+            });
+        default: // 'all'
+            return jobs;
     }
 }
+
 function calculateDuration(startTime, endTime) {
     if (!startTime || !endTime) return 'N/A';
     const start = new Date(startTime);
@@ -756,6 +859,23 @@ function calculateDuration(startTime, endTime) {
     diff %= 3600;
     const minutes = Math.floor(diff / 60);
     return `${hours}h ${minutes}m`;
+}
+
+function showAlert(message, type = 'info') {
+    const alertBox = $('#global-alert-container');
+    let alertClass = 'alert-info';
+    if (type === 'success') alertClass = 'alert-success';
+    if (type === 'error') alertClass = 'alert-danger';
+    if (type === 'warning') alertClass = 'alert-warning';
+    
+    const alertId = 'alert-' + Date.now();
+    const newAlert = $(`<div id="${alertId}" class="alert ${alertClass} alert-dismissible fade show" role="alert" style="box-shadow: 0 5px 15px rgba(0,0,0,0.3);">${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`);
+    
+    alertBox.append(newAlert);
+
+    setTimeout(() => {
+        $(`#${alertId}`).fadeOut(500, function() { $(this).remove(); });
+    }, 5000);
 }
 </script>
 
