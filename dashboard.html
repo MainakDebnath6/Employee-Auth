@@ -102,14 +102,14 @@
   }
   .section-title i { color: var(--text-accent); }
 
-  #map-wrapper {
+  #map-wrapper, #stats-map-wrapper {
     position: relative; height: 350px; border-radius: 16px;
     background: #e5e3df;
     overflow: hidden; border: 1px solid var(--card-border);
   }
-  #map { height: 100%; width: 100%; }
+  #map, #stats-map { height: 100%; width: 100%; }
   
-  #pac-input {
+  .pac-target-input {
     background: rgba(255,255,255,0.9);
     color: #333;
     border-radius: 10px;
@@ -120,8 +120,8 @@
     transition: all 0.2s ease;
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   }
-  #pac-input::placeholder { color: #666; }
-  #pac-input:focus {
+  .pac-target-input::placeholder { color: #666; }
+  .pac-target-input:focus {
     color: #000;
     border-color: var(--glow-color-1);
     box-shadow: 0 0 15px rgba(51, 75, 249, 0.4);
@@ -142,6 +142,12 @@
       opacity: 0.8; cursor: not-allowed;
       border-color: rgba(255, 255, 255, 0.05);
   }
+  
+  .input-group-text {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--card-border);
+      border-left: 0;
+  }
 
   #gps-status {
       font-size: 0.9rem; font-weight: 600;
@@ -156,12 +162,12 @@
   }
   .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
-  .attendance-card {
+  .attendance-card, .travel-card, .issue-card {
     background: rgba(255,255,255,0.05); border-radius: 12px;
     margin-bottom: 0.75rem; padding: 1rem 1.25rem;
     transition: all 0.3s ease; border: 1px solid transparent;
   }
-  .attendance-card:hover {
+  .attendance-card:hover, .travel-card:hover, .issue-card:hover {
     transform: scale(1.02); background: rgba(255,255,255,0.1);
     border-color: var(--card-border);
   }
@@ -170,20 +176,42 @@
   .pending { background-color: var(--warning); }
   .card-place { color: var(--text-primary); font-weight: 600; font-size: 1.1rem; }
   .card-date { color: var(--text-secondary); }
-  .record-details img { border: 1px solid var(--card-border); }
+  .record-details img { border: 1px solid var(--card-border); cursor: pointer; }
   
   .admin-user-row {
     background: rgba(255,255,255,0.05); border-radius: 10px;
     margin-bottom: 0.5rem; padding: 0.8rem 1.2rem;
-    font-weight: 600; cursor: pointer;
+    font-weight: 600;
     transition: all 0.2s ease;
+    cursor: pointer;
   }
   .admin-user-row:hover { background: rgba(255,255,255,0.1); }
   .admin-user-row.active {
-    background: var(--primary-gradient); color: #fff;
+    background: var(--primary-gradient);
+    color: #fff;
     box-shadow: 0 0 20px rgba(51, 75, 249, 0.4);
   }
+  .admin-user-row.active .email {
+     color: rgba(255, 255, 255, 0.8);
+  }
+  .admin-user-row .email {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--text-secondary);
+      margin-left: 0.5rem;
+  }
   
+  .admin-user-row .form-check-input {
+      display: none;
+  }
+  .select-mode-active .admin-user-row .form-check-input {
+      display: inline-block;
+  }
+  .select-mode-active .admin-user-row {
+      cursor: pointer;
+  }
+
+
   .admin-record-details img {
     width: 100px; height: 100px; object-fit: cover;
     border-radius: 8px; border: 1px solid var(--card-border);
@@ -202,8 +230,40 @@
   .stat-box:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
   .stat-box h4 { font-weight: 700; font-size: 2.25rem; color: var(--text-accent); }
   .stat-box p { font-weight: 600; color: var(--text-secondary); margin: 0; }
+  
+  #admin-summary-stats .stat-box h4, #stats-travel-summary .stat-box h4 { font-size: 1.75rem; }
+  
+  /* Full-screen Image Viewer */
+  #image-viewer {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(10px);
+      z-index: 10000;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+  }
+  #image-viewer img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  
+  .modal-content {
+      background: var(--card-background);
+      border: 1px solid var(--card-border);
+      color: var(--text-primary);
+  }
+  .modal-header, .modal-footer {
+      border-color: var(--card-border);
+  }
+  .modal-header .btn-close {
+      filter: invert(1) grayscale(100%) brightness(200%);
+  }
 
-  /* --- FIX for Mobile Nav Visibility --- */
+
+  /* FIX for Mobile Nav Visibility */
   @media (max-width: 991.98px) {
     .navbar-collapse {
         background: var(--card-background);
@@ -215,7 +275,6 @@
         box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     }
   }
-  /* --- END FIX --- */
 
   @media (max-width: 768px) {
     .section-card { padding: 1rem; }
@@ -249,13 +308,36 @@
 </nav>
 
 <div id="global-alert-container" style="position: fixed; top: 80px; right: 20px; z-index: 10000; width: 350px;"></div>
+<div id="image-viewer" style="display: none;"><img id="fullscreen-image" src=""></div>
+
+<div class="modal fade" id="replyModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="replyModalLabel">Reply to Issue</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>To:</strong> <span id="reply-user-email"></span></p>
+        <div class="mb-3">
+          <label for="reply-message" class="form-label">Your Reply</label>
+          <textarea class="form-control" id="reply-message" rows="5"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="send-reply-btn">Send Reply</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div id="container-main">
   <div class="section active" id="dashboard">
     <div class="section-card">
       <div class="section-title"><i class="bi bi-map"></i> Mark Your Attendance</div>
       <div class="mb-3">
-        <input id="pac-input" class="form-control" placeholder="Search for site or address..." />
+        <input id="pac-input" class="form-control pac-target-input" placeholder="Search for site or address..." />
       </div>
       <div id="map-wrapper">
         <div id="map"></div>
@@ -287,8 +369,28 @@
 
   <div class="section" id="statistics">
       <div class="section-card">
-        <div class="section-title"><i class="bi bi-bar-chart-line"></i> Your Statistics</div>
+        <div class="section-title"><i class="bi bi-bar-chart-line"></i> Summary Statistics</div>
         <div id="statistics-holder"></div>
+      </div>
+      <div class="section-card">
+        <div class="section-title"><i class="bi bi-sign-turn-right"></i> Your Travel Details</div>
+        <div id="stats-travel-container">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                <label class="form-label mb-0 fw-bold">Filter by:</label>
+                <select id="stats-travel-filter-select" class="form-select form-select-sm" style="max-width:180px;">
+                  <option value="all">All Time</option><option value="yesterday">Yesterday</option>
+                  <option value="last7">Last 7 Days</option><option value="last30">Last 30 Days</option>
+                  <option value="custom">Custom Range</option>
+                </select>
+                <input type="date" id="stats-travel-start-date" class="form-control form-control-sm" style="display:none; max-width: 150px;">
+                <input type="date" id="stats-travel-end-date" class="form-control form-control-sm" style="display:none; max-width: 150px;">
+            </div>
+            <div id="stats-travel-summary"></div>
+            <div id="stats-travel-details" class="mt-3"></div>
+            <div id="stats-map-wrapper" class="mt-4">
+                <div id="stats-map"></div>
+            </div>
+        </div>
       </div>
   </div>
 
@@ -303,18 +405,56 @@
           <button class="btn btn-primary" type="submit">Save Changes</button>
         </form>
       </div>
+      <div class="section-card">
+        <div class="section-title"><i class="bi bi-house-gear"></i> Set Home Address</div>
+        <form id="home-address-form">
+            <div class="mb-3">
+                <label class="form-label">Your current home address</label>
+                 <div class="input-group">
+                    <input id="home-pac-input" class="form-control pac-target-input" placeholder="Start typing your address..." />
+                    <span class="input-group-text" id="home-valid-icon" style="display: none;"><i class="bi bi-check-circle-fill text-success"></i></span>
+                </div>
+                <div class="form-text">This is used to calculate travel distances.</div>
+            </div>
+            <button class="btn btn-success" type="submit">Save Home</button>
+        </form>
+      </div>
   </div>
 
   <div class="section" id="admin">
-      <div class="section-card">
-          <div class="section-title"><i class="bi bi-shield-lock"></i> Admin Dashboard</div>
-          <h6>Select User to View Records</h6>
+      <div class="section-card" id="admin-user-selection-card">
+          <div class="d-flex justify-content-between align-items-center">
+              <div class="section-title m-0 p-0 border-0"><i class="bi bi-people"></i> Select Users</div>
+              <button class="btn btn-primary btn-sm" id="admin-toggle-select-mode"><i class="bi bi-check2-square me-2"></i>Select Multiple</button>
+          </div>
+          <hr style="border-color: var(--card-border);">
           <div id="admin-users-list" class="mb-4"></div>
+          
+          <div id="admin-actions-bar" style="display: none;">
+                <p class="fw-bold">Actions for selected users:</p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button id="admin-export-selected" class="btn btn-info"><i class="bi bi-download"></i> Export Selected</button>
+                    <button id="admin-delete-selected" class="btn btn-danger"><i class="bi bi-trash"></i> Delete Selected Records</button>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                    <label class="form-label mb-0 fw-bold">Filter records by:</label>
+                    <select id="admin-filter-select" class="form-select form-select-sm" style="max-width:180px;">
+                      <option value="all">All Time</option><option value="yesterday">Yesterday</option>
+                      <option value="last7">Last 7 Days</option><option value="last30">Last 30 Days</option>
+                      <option value="custom">Custom Range</option>
+                    </select>
+                    <input type="date" id="admin-start-date" class="form-control form-control-sm" style="display:none; max-width: 150px;">
+                    <input type="date" id="admin-end-date" class="form-control form-control-sm" style="display:none; max-width: 150px;">
+                </div>
+          </div>
+
           <div id="admin-user-details-wrapper" style="opacity: 0; display: none;">
+              <hr style="border-color: var(--card-border);">
               <h5 id="admin-selected-user-name" class="mb-1"></h5>
               <p id="admin-selected-user-contact" class="text-secondary small mb-3"></p>
-              <div id="admin-user-details"></div>
-              <button id="admin-export" class="btn btn-info mt-3"><i class="bi bi-download"></i> Export as Excel</button>
+              <div id="admin-view-container">
+                <!-- Admin content will be dynamically generated here -->
+              </div>
           </div>
       </div>
       <div class="section-card">
@@ -354,7 +494,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA97qnWyZu_Id_BCQhWvwOhm6qxn0TPty8&libraries=places&callback=initMap" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA97qnWyZu_Id_BCQhWvwOhm6qxn0TPty8&libraries=places,geometry&callback=initMap" async defer></script>
 
 <script>
 // --- Global State & Config ---
@@ -374,10 +514,13 @@ const db = firebase.firestore();
 const allowedAdminEmails = ["mainakdebnath13@gmail.com", "mainakdebnatha@gmail.com"];
 
 let userName, userEmail, userUid;
-let map, marker, userLiveMarker, selectedPlace = null;
+let map, marker, userLiveMarker, selectedPlace = null, homePlace = null;
+let statsMap, statsMapMarkers = [];
 let currentSectionId = '#dashboard';
 let usingFront = false, globalStream;
 let userLat = null, userLng = null;
+let replyModal;
+let isAdminSelectMode = false;
 
 // --- Authentication & Initialization ---
 auth.onAuthStateChanged(user => {
@@ -399,19 +542,19 @@ auth.onAuthStateChanged(user => {
         initializeApp();
     } else {
         console.log("No user found, redirecting to login.");
-        window.location.href = "index.html"; 
+        window.location.href = "index.html";
     }
 });
 
 
 function initializeApp() {
-    $("#user-name").text(`Welcome, ${userName.split(' ')[0]}`); 
-    
+    $("#user-name").text(`Welcome, ${userName.split(' ')[0]}`);
+
     if (!allowedAdminEmails.includes(userEmail)) $('.admin-only').hide();
-    
-    gsap.fromTo(currentSectionId, { opacity: 0, y: 20 }, { 
+
+    gsap.fromTo(currentSectionId, { opacity: 0, y: 20 }, {
         opacity: 1, y: 0, duration: 0.5, onComplete: () => {
-            if(map && currentSectionId === '#dashboard') google.maps.event.trigger(map, 'resize');
+            if (map && currentSectionId === '#dashboard') google.maps.event.trigger(map, 'resize');
         }
     });
 
@@ -421,16 +564,19 @@ function initializeApp() {
     initAdmin();
     initHelp();
     renderStatistics();
+    
+    $('#image-viewer').on('click', function() { $(this).fadeOut(200); });
+    replyModal = new bootstrap.Modal(document.getElementById('replyModal'));
 }
 
 function setupNavListeners() {
-    $('.nav-link').click(function() {
+    $('.nav-link').click(function () {
         const targetSectionId = '#' + $(this).data('sec');
         if (targetSectionId === currentSectionId) return;
 
         $('.nav-link').removeClass('active');
         $(this).addClass('active');
-        
+
         const oldSection = $(currentSectionId);
         const newSection = $(targetSectionId);
 
@@ -438,13 +584,15 @@ function setupNavListeners() {
             opacity: 0, duration: 0.3, onComplete: () => {
                 oldSection.removeClass('active');
                 newSection.addClass('active');
-                
+
                 if (targetSectionId === '#statistics') renderStatistics();
                 if (targetSectionId === '#admin') initAdmin();
-                
-                gsap.fromTo(newSection, { opacity: 0, y: 20 }, { 
+                if (targetSectionId === '#profile') initProfile();
+
+                gsap.fromTo(newSection, { opacity: 0, y: 20 }, {
                     opacity: 1, y: 0, duration: 0.5, onComplete: () => {
-                        if(map && targetSectionId === '#dashboard') google.maps.event.trigger(map, 'resize');
+                        if (map && currentSectionId === '#dashboard') google.maps.event.trigger(map, 'resize');
+                        if (statsMap && targetSectionId === '#statistics') google.maps.event.trigger(statsMap, 'resize');
                     }
                 });
             }
@@ -477,17 +625,19 @@ async function initDashboard() {
 }
 
 async function renderStatistics() {
+    $("#statistics-holder").html(getSpinnerHTML());
+    
     const jobs = await Firestore.getJobs();
     const statsHolder = $("#statistics-holder").empty();
 
-    const today = new Date(); today.setHours(0,0,0,0);
-    const last7 = new Date(); last7.setDate(today.getDate() - 6); last7.setHours(0,0,0,0);
-    const last30 = new Date(); last30.setDate(today.getDate() - 29); last30.setHours(0,0,0,0);
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const last7 = new Date(); last7.setDate(today.getDate() - 6); last7.setHours(0, 0, 0, 0);
+    const last30 = new Date(); last30.setDate(today.getDate() - 29); last30.setHours(0, 0, 0, 0);
 
     let todayCount = 0, last7Count = 0, last30Count = 0;
     jobs.forEach(j => {
         if (!j.entryTime) return;
-        const d = new Date(j.entryTime); d.setHours(0,0,0,0);
+        const d = new Date(j.entryTime); d.setHours(0, 0, 0, 0);
         if (d.getTime() === today.getTime()) todayCount++;
         if (d >= last7) last7Count++;
         if (d >= last30) last30Count++;
@@ -499,6 +649,18 @@ async function renderStatistics() {
         <div class="col-6 col-md-3"><div class="stat-box"><h4>${last30Count}</h4><p>Last 30 Days</p></div></div>
         <div class="col-6 col-md-3"><div class="stat-box"><h4>${jobs.length}</h4><p>Total Records</p></div></div>
     </div>`);
+
+    initAndRenderStatsTravel();
+}
+
+async function initAndRenderStatsTravel() {
+    if (!statsMap) {
+        statsMap = new google.maps.Map(document.getElementById('stats-map'), { center: { lat: 20.5937, lng: 78.9629 }, zoom: 5, mapId: 'STATS_MAP' });
+    }
+    $("#stats-travel-filter-select, #stats-travel-start-date, #stats-travel-end-date").off('change').on('change', () => {
+         renderTravelStats('stats');
+    });
+    await renderTravelStats('stats');
 }
 
 async function initProfile() {
@@ -508,6 +670,13 @@ async function initProfile() {
     $("#prof-fullname").val(p.fullname || userName);
     $("#prof-contact").val(p.contact || "");
     $("#profile-form").off('submit').submit(handleProfileSave);
+
+    if (p.homeLocation) {
+        $("#home-pac-input").val(p.homeLocation.address || p.homeLocation.name);
+    } else {
+        $("#home-pac-input").val('');
+    }
+    $("#home-address-form").off('submit').submit(handleHomeAddressSave);
 }
 
 async function initAdmin() {
@@ -516,26 +685,52 @@ async function initAdmin() {
     users.forEach(user => {
         const displayName = escape(user.fullname || user.email || 'Unnamed User');
         const displayEmail = escape(user.email || 'No Email');
-        const userRow = $(`<div class="admin-user-row" 
-                              data-uid="${user.uid}" 
-                              data-name="${escape(user.fullname || user.email)}" 
-                              data-email="${displayEmail}"
-                              data-contact="${escape(user.contact || 'Not Provided')}">
-                              ${displayName} (${displayEmail})
-                           </div>`);
+        const userRow = $(`
+            <div class="admin-user-row d-flex align-items-center" data-uid="${user.uid}" data-name="${escape(user.fullname || user.email)}" data-email="${displayEmail}" data-contact="${escape(user.contact || 'Not Provided')}">
+                <input type="checkbox" class="form-check-input me-3 admin-user-checkbox">
+                <div>
+                    <div>${displayName}</div>
+                    <div class="email">${displayEmail}</div>
+                </div>
+            </div>`);
         userList.append(userRow);
     });
+
+    $('.admin-user-row').on('click', handleAdminUserRowClick);
     
-    $('.admin-user-row').on('click', handleAdminUserClick);
+    $('#admin-toggle-select-mode').off('click').on('click', toggleAdminSelectMode);
     
+    $('#admin-select-all-users').off('change').on('change', function() {
+        $('#admin-users-list .admin-user-checkbox').prop('checked', this.checked).trigger('change');
+    });
+    
+    $('#admin-export-selected').on('click', handleMultiExport);
+    $('#admin-delete-selected').on('click', handleMultiDelete);
+
     const issues = await Firestore.getIssues();
     const issuesHolder = $("#admin-issues-holder").empty();
-    if(!issues.length) {
+    if (!issues.length) {
         issuesHolder.html("<p class='text-secondary'>No issues reported.</p>");
     } else {
         issues.forEach(issue => {
-            issuesHolder.append(`<div class="p-2 mb-2 rounded" style="background: rgba(0,0,0,0.2);"><strong>From:</strong> ${escape(issue.userName)} (${escape(issue.userEmail)}) at ${new Date(issue.timestamp).toLocaleString()}<br><p class="m-0 mt-1">${escape(issue.message)}</p></div>`);
+            const issueCard = $(`
+                <div class="issue-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong class="card-place"><i class="bi bi-person-circle me-2"></i> ${escape(issue.userName)}</strong>
+                            <div class="card-date small mt-1">${new Date(issue.timestamp).toLocaleString()}</div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-info reply-btn" data-email="${escape(issue.userEmail)}" data-name="${escape(issue.userName)}">
+                           <i class="bi bi-reply-fill"></i> Reply
+                        </button>
+                    </div>
+                    <hr style="border-color: var(--card-border);">
+                    <p class="m-0" style="white-space: pre-wrap;">${escape(issue.message)}</p>
+                </div>
+            `);
+            issuesHolder.append(issueCard);
         });
+        $('.reply-btn').on('click', handleReplyClick);
     }
 }
 
@@ -543,54 +738,100 @@ function initHelp() {
     $("#help-form").off('submit').submit(handleHelpRequest);
 }
 
-async function handleAdminUserClick() {
-    const clickedUserRow = $(this);
-    if (clickedUserRow.hasClass('active')) return;
-
-    const detailsWrapper = $("#admin-user-details-wrapper");
-    gsap.to(detailsWrapper, {
-        opacity: 0, duration: 0.3,
-        onComplete: async () => {
-            $('.admin-user-row').removeClass('active');
-            clickedUserRow.addClass('active');
-
-            const selectedAdminUID = clickedUserRow.data('uid');
-            const selectedAdminName = clickedUserRow.data('name');
-            const selectedAdminEmail = clickedUserRow.data('email');
-            const selectedAdminContact = clickedUserRow.data('contact');
-            
-            $("#admin-selected-user-name").text(`Records for: ${selectedAdminName}`);
-            $("#admin-selected-user-contact").html(`<i class="bi bi-envelope-fill"></i> ${selectedAdminEmail} <span class="mx-2">|</span> <i class="bi bi-telephone-fill"></i> ${selectedAdminContact}`);
-            detailsWrapper.show();
-            
-            const userJobs = await Firestore.getJobs(selectedAdminUID);
-            renderAdminDetails(userJobs, selectedAdminUID);
-            
-            $('#admin-export').off('click').on('click', () => handleAdminExport(selectedAdminUID));
-            gsap.to(detailsWrapper, { opacity: 1, duration: 0.3 });
-        }
-    });
+function getSpinnerHTML() {
+    return `<div class="d-flex justify-content-center align-items-center p-5"><div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"><span class="visually-hidden">Loading...</span></div></div>`;
 }
 
-function renderAdminDetails(jobs, uid) {
-    const container = $("#admin-user-details").empty();
-    if (!jobs.length) {
-        container.html("<p class='text-secondary mt-2'>No records found for this user.</p>");
+async function setupAdminView(uid) {
+    const container = $('#admin-view-container').empty();
+    
+    container.html(`
+        <div class="d-flex flex-wrap align-items-center gap-2 my-3">
+            <label class="form-label mb-0 fw-bold">Filter records by:</label>
+            <select id="admin-record-filter-select" class="form-select form-select-sm" style="max-width:180px;">
+              <option value="all">All Time</option><option value="yesterday">Yesterday</option>
+              <option value="last7">Last 7 Days</option><option value="last30">Last 30 Days</option>
+              <option value="custom">Custom Range</option>
+            </select>
+            <input type="date" id="admin-record-start-date" class="form-control form-control-sm" style="display:none; max-width: 150px;">
+            <input type="date" id="admin-record-end-date" class="form-control form-control-sm" style="display:none; max-width: 150px;">
+        </div>
+        <div id="admin-summary-stats"></div>
+        <div id="admin-records-list" class="mt-3"></div>
+    `);
+    
+    $('#admin-summary-stats, #admin-records-list').html(getSpinnerHTML());
+    const [profile, allJobs] = await Promise.all([Firestore.getProfile(uid), Firestore.getJobs(uid)]);
+    
+    $(`#admin-record-filter-select, #admin-record-start-date, #admin-record-end-date`).off('change').on('change', () => {
+        updateAdminRecordView(profile, allJobs);
+    });
+    
+    updateAdminRecordView(profile, allJobs);
+}
+
+function updateAdminRecordView(profile, allJobs) {
+    const filter = $('#admin-record-filter-select').val();
+    $('#admin-record-start-date, #admin-record-end-date').toggle(filter === 'custom');
+    const jobs = filterJobs(allJobs, filter, 'admin-record');
+
+    renderAdminSummary(jobs, profile);
+    renderAdminDetails(jobs, profile, profile.uid || userUid);
+}
+
+
+function renderAdminSummary(jobs, profile) {
+    const summaryContainer = $('#admin-summary-stats').empty();
+    const homeCoords = profile.homeLocation?.coords;
+    let totalDistance = 0;
+    const validJobs = jobs.filter(j => j.coords && j.entryTime);
+
+    if (homeCoords) {
+        validJobs.forEach(job => {
+            totalDistance += (getDistanceKm(homeCoords, job.coords) * 2);
+        });
+    }
+
+    summaryContainer.html(`
+        <div class="row text-center g-3">
+            <div class="col-6"><div class="stat-box"><h4>${jobs.length}</h4><p>Total Records</p></div></div>
+            <div class="col-6"><div class="stat-box"><h4>${homeCoords ? totalDistance.toFixed(1) : 'N/A'} <small>km</small></h4><p>Total Distance</p></div></div>
+        </div>
+    `);
+}
+
+function renderAdminDetails(jobs, profile, uid) {
+    const container = $("#admin-records-list").empty();
+    if (!jobs || jobs.length === 0) {
+        container.html("<p class='text-secondary mt-3 text-center'>No records found for this period.</p>");
         return;
     }
+
+    const homeCoords = profile.homeLocation?.coords;
 
     jobs.forEach(job => {
         const duration = job.exitTime ? calculateDuration(job.entryTime, job.exitTime) : 'Ongoing';
         
+        let distanceText = `<span class="text-secondary fst-italic">No travel data</span>`;
+        if(homeCoords && job.coords) {
+            const roundTrip = getDistanceKm(homeCoords, job.coords) * 2;
+            distanceText = `<i class="bi bi-geo-alt"></i> ${roundTrip.toFixed(1)} km`;
+        } else if (!homeCoords) {
+             distanceText = `<i class="bi bi-geo-alt"></i> <span class="text-secondary fst-italic">No home set</span>`;
+        }
+
         const card = $(`
         <div class="attendance-card" id="admin-job-${job.id}">
             <div class="card-summary d-flex align-items-center" style="cursor: pointer;">
                 <span class="status-dot ${job.status === 'completed' ? 'completed' : 'pending'} me-3"></span>
                 <div class="flex-grow-1">
                     <div class="card-place">${escape(job.place)}</div>
-                    <div class="card-date small">${new Date(job.entryTime).toLocaleDateString()}</div>
+                    <div class="card-date small d-flex justify-content-between align-items-center">
+                        <span>${new Date(job.entryTime).toLocaleDateString()}</span>
+                        <span class="text-info fw-bold">${distanceText}</span>
+                    </div>
                 </div>
-                <i class="bi bi-chevron-down"></i>
+                <i class="bi bi-chevron-down ms-3"></i>
             </div>
             <div class="record-details admin-record-details" style="display:none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--card-border);">
                 <div class="row g-3">
@@ -602,12 +843,12 @@ function renderAdminDetails(jobs, uid) {
                     </div>
                     <div class="col-lg-5 d-flex gap-2 justify-content-center align-items-start">
                         <div class="text-center">
-                            <a href="${job.entryPhoto}" target="_blank" title="View Entry Photo"><img src="${job.entryPhoto}"></a>
+                            <a class="view-photo-btn" data-img-src="${job.entryPhoto}"><img src="${job.entryPhoto}"></a>
                             <div class="small mt-1">Entry Photo</div>
                         </div>
                         ${job.exitPhoto ? `
                         <div class="text-center">
-                            <a href="${job.exitPhoto}" target="_blank" title="View Exit Photo"><img src="${job.exitPhoto}"></a>
+                            <a class="view-photo-btn" data-img-src="${job.exitPhoto}"><img src="${job.exitPhoto}"></a>
                             <div class="small mt-1">Exit Photo</div>
                         </div>` : ''}
                     </div>
@@ -619,13 +860,13 @@ function renderAdminDetails(jobs, uid) {
                 </div>
             </div>
         </div>`);
-        
-        card.find('.card-summary').click(function() { 
-            $(this).next('.record-details').slideToggle(300); 
-            $(this).find('i').toggleClass('bi-chevron-down bi-chevron-up'); 
+
+        card.find('.card-summary').click(function () {
+            $(this).next('.record-details').slideToggle(300);
+            $(this).find('i').toggleClass('bi-chevron-down bi-chevron-up');
         });
 
-        card.find('.admin-delete-btn').click(async function() {
+        card.find('.admin-delete-btn').click(async function () {
             const jobId = $(this).data('jobid');
             if (confirm("Are you sure you want to permanently delete this record? This action cannot be undone.")) {
                 try {
@@ -637,19 +878,44 @@ function renderAdminDetails(jobs, uid) {
                     });
                     showAlert('Record deleted successfully.', 'success');
                 } catch (err) {
-                    console.error("Delete Error:", err);
                     showAlert('Failed to delete the record.', 'error');
                 }
             }
         });
-
+        
         container.append(card);
     });
 }
 
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), { center: { lat: 20.5937, lng: 78.9629 }, zoom: 5 });
-    const searchBox = new google.maps.places.SearchBox(document.getElementById('pac-input'));
+
+    const siteSearchBox = new google.maps.places.SearchBox(document.getElementById('pac-input'));
+    siteSearchBox.addListener('places_changed', () => {
+        const places = siteSearchBox.getPlaces();
+        if (!places.length) return;
+        selectedPlace = places[0];
+        if (marker) marker.setMap(null);
+        marker = new google.maps.Marker({ map, position: selectedPlace.geometry.location });
+        map.panTo(selectedPlace.geometry.location);
+        map.setZoom(16);
+    });
+
+    const homeSearchInput = document.getElementById('home-pac-input');
+    const homeSearchBox = new google.maps.places.SearchBox(homeSearchInput);
+    homeSearchBox.addListener('places_changed', () => {
+        const places = homeSearchBox.getPlaces();
+        if (places.length > 0) {
+            homePlace = places[0];
+            $("#home-pac-input").val(homePlace.formatted_address);
+            $('#home-valid-icon').fadeIn();
+        }
+    });
+    $(homeSearchInput).on('input', () => {
+        homePlace = null;
+        $('#home-valid-icon').fadeOut();
+    });
+
     const gpsStatus = $('#gps-status');
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(
@@ -663,52 +929,43 @@ function initMap() {
                     map.setCenter(currentPos);
                     map.setZoom(15);
                 } else { userLiveMarker.setPosition(currentPos); }
-            }, 
+            },
             (err) => {
                 let message = "Could not get your location.";
                 if (err.code === 1) message = "Location access denied. Please enable it in your browser settings.";
                 if (gpsStatus) gpsStatus.html(`<i class="bi bi-exclamation-triangle-fill text-danger"></i> ${message}`);
-            }, 
+            },
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
     } else {
         if (gpsStatus) gpsStatus.text("Geolocation is not supported by this browser.");
     }
-
-    searchBox.addListener('places_changed', () => {
-        const places = searchBox.getPlaces();
-        if (!places.length) return;
-        selectedPlace = places[0];
-        if (marker) marker.setMap(null);
-        marker = new google.maps.Marker({ map, position: selectedPlace.geometry.location });
-        map.panTo(selectedPlace.geometry.location);
-        map.setZoom(16);
-    });
 }
+
 async function renderAttendanceCards() {
     const filter = $("#filter-select").val();
     $("#start-date, #end-date").toggle(filter === 'custom');
-    const jobs = await filterJobs(await Firestore.getJobs(), filter);
+    const jobs = await filterJobs(await Firestore.getJobs(), filter, 'attendance');
     const container = $("#attendance-cards").empty();
     if (!jobs.length) { container.html(`<p class='text-center text-secondary'>No records for this period.</p>`); return; }
     jobs.forEach(job => {
         const duration = job.exitTime ? calculateDuration(job.entryTime, job.exitTime) : 'Ongoing';
-        const card = $(`<div class="attendance-card" data-id="${job.id}"><div class="card-summary d-flex align-items-center"><span class="status-dot ${job.status === 'completed' ? 'completed' : 'pending'} me-2"></span><span class="card-place flex-grow-1">${escape(job.place)}</span><span class="card-date">${new Date(job.entryTime).toLocaleDateString()}</span><i class="bi bi-chevron-down ms-3"></i></div><div class="record-details" style="display:none; margin-top: 1rem;"><p class="small mb-2"><strong>Duration:</strong> ${duration}</p><div class="d-flex gap-3 flex-wrap align-items-center"><div class="text-center"><a href="${job.entryPhoto}" target="_blank"><img src="${job.entryPhoto}" class="rounded" style="width:100px; height: 100px; object-fit: cover;"></a><div class="small mt-1">Entry</div></div>${job.exitPhoto ? `<div class="text-center"><a href="${job.exitPhoto}" target="_blank"><img src="${job.exitPhoto}" class="rounded" style="width:100px; height: 100px; object-fit: cover;"></a><div class="small mt-1">Exit</div></div>` : ''}<div class="small"><strong>Entry:</strong> ${new Date(job.entryTime).toLocaleString()}<br>${job.exitTime ? `<strong>Exit:</strong> ${new Date(job.exitTime).toLocaleString()}` : ''}</div></div><button class="btn btn-outline-danger btn-sm mt-3 delete-record-btn">Delete</button></div></div>`);
-        
-        card.find('.card-summary').click(function() { $(this).next('.record-details').slideToggle(300); $(this).find('i').toggleClass('bi-chevron-down bi-chevron-up'); });
-        
-        card.find('.delete-record-btn').click(async function() {
+        const card = $(`<div class="attendance-card" data-id="${job.id}"><div class="card-summary d-flex align-items-center"><span class="status-dot ${job.status === 'completed' ? 'completed' : 'pending'} me-2"></span><span class="card-place flex-grow-1">${escape(job.place)}</span><span class="card-date">${new Date(job.entryTime).toLocaleDateString()}</span><i class="bi bi-chevron-down ms-3"></i></div><div class="record-details" style="display:none; margin-top: 1rem;"><p class="small mb-2"><strong>Duration:</strong> ${duration}</p><div class="d-flex gap-3 flex-wrap align-items-center"><div class="text-center"><a class="view-photo-btn" data-img-src="${job.entryPhoto}"><img src="${job.entryPhoto}" class="rounded" style="width:100px; height: 100px; object-fit: cover;"></a><div class="small mt-1">Entry</div></div>${job.exitPhoto ? `<div class="text-center"><a class="view-photo-btn" data-img-src="${job.exitPhoto}"><img src="${job.exitPhoto}" class="rounded" style="width:100px; height: 100px; object-fit: cover;"></a><div class="small mt-1">Exit</div></div>` : ''}<div class="small"><strong>Entry:</strong> ${new Date(job.entryTime).toLocaleString()}<br>${job.exitTime ? `<strong>Exit:</strong> ${new Date(job.exitTime).toLocaleString()}` : ''}</div></div><button class="btn btn-outline-danger btn-sm mt-3 delete-record-btn">Delete</button></div></div>`);
+
+        card.find('.card-summary').click(function () { $(this).next('.record-details').slideToggle(300); $(this).find('i').toggleClass('bi-chevron-down bi-chevron-up'); });
+
+        card.find('.delete-record-btn').click(async function () {
             const cardElement = $(this).closest('.attendance-card');
             const jobId = cardElement.data('id');
             if (confirm("Delete this record?")) {
                 try {
                     await Firestore.deleteJob(jobId);
                     gsap.to(cardElement, {
-                        opacity: 0, height: 0, margin: 0, padding: 0, duration: 0.5, 
+                        opacity: 0, height: 0, margin: 0, padding: 0, duration: 0.5,
                         onComplete: () => {
                             cardElement.remove();
-                            renderStatistics(); 
-                        } 
+                            renderStatistics();
+                        }
                     });
                 } catch (err) { showAlert("Failed to delete record. Please try again.", "error"); }
             }
@@ -716,49 +973,213 @@ async function renderAttendanceCards() {
         container.append(card);
     });
 }
+
 async function handleCheckIn() {
     if (!userLat || !userLng) return showAlert("Waiting for GPS signal. Please wait and ensure location is enabled.", 'warning');
     if (!selectedPlace) return showAlert("Please search and select a site from the map first.", 'error');
     const jobs = await Firestore.getJobs();
     if (jobs.some(j => j.status === "pending-exit")) return showAlert("You already have a pending check-in.", 'error');
-    if (getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng()) <= 500) {
+    
+    const distanceInMeters = getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng());
+    if (distanceInMeters <= 500) {
         openCamera('entry');
-    } else { showAlert("You are too far from the selected site to mark entry.", 'error'); }
+    } else { showAlert(`You are ${(distanceInMeters/1000).toFixed(1)} km away. You must be within 500m of the site to mark entry.`, 'error'); }
 }
+
 async function handleCheckout() {
     if (!userLat || !userLng) return showAlert("Waiting for GPS signal. Please wait and ensure location is enabled.", 'warning');
     if (!selectedPlace) return showAlert("Please select the site you are checking out from.", 'error');
     const jobs = await Firestore.getJobs();
     if (!jobs.some(j => j.status === "pending-exit")) return showAlert("No active check-in found to mark exit.", 'error');
-    if (getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng()) <= 1000) {
+    
+    const distanceInMeters = getDistance(userLat, userLng, selectedPlace.geometry.location.lat(), selectedPlace.geometry.location.lng());
+    if (distanceInMeters <= 1000) {
         openCamera('exit');
-    } else { showAlert("You are too far from the selected site to mark exit.", 'error'); }
+    } else { showAlert(`You are ${(distanceInMeters/1000).toFixed(1)} km away. You must be within 1km of the site to mark exit.`, 'error'); }
 }
+
 async function finishAttendance(type, photo) {
+    const location = selectedPlace.geometry.location;
+    const jobData = {
+        place: selectedPlace?.name || "Unknown Site",
+        address: selectedPlace?.formatted_address || "N/A",
+        coords: { lat: location.lat(), lng: location.lng() }
+    };
+
     if (type === 'entry') {
-        await Firestore.addJob({ place: selectedPlace?.name || "Unknown Site", address: selectedPlace?.formatted_address || "N/A", entryTime: new Date().toISOString(), entryPhoto: photo, status: "pending-exit" });
+        Object.assign(jobData, { entryTime: new Date().toISOString(), entryPhoto: photo, status: "pending-exit" });
+        await Firestore.addJob(jobData);
         showAlert("Entry marked successfully!", 'success');
     } else {
         const jobs = await Firestore.getJobs();
         const pendingJob = jobs.find(j => j.status === "pending-exit");
         if (pendingJob) {
-            await Firestore.updateJob(pendingJob.id, { exitTime: new Date().toISOString(), exitPhoto: photo, status: "completed" });
+            await Firestore.updateJob(pendingJob.id, {
+                exitTime: new Date().toISOString(),
+                exitPhoto: photo,
+                status: "completed"
+            });
             showAlert("Exit marked successfully!", 'success');
         }
     }
     renderAttendanceCards();
     renderStatistics();
 }
+
 async function handleProfileSave(e) {
     e.preventDefault();
-    await Firestore.setProfile({ 
+    await Firestore.setProfile({
         email: userEmail,
-        username: $("#prof-username").val(), 
-        fullname: $("#prof-fullname").val(), 
-        contact: $("#prof-contact").val() 
+        username: $("#prof-username").val(),
+        fullname: $("#prof-fullname").val(),
+        contact: $("#prof-contact").val()
     });
     showAlert('Profile saved successfully!', 'success');
 }
+
+async function handleHomeAddressSave(e) {
+    e.preventDefault();
+    if (!homePlace) {
+        return showAlert('Please type your address and *select an option from the list* before saving.', 'warning');
+    }
+    const homeData = {
+        homeLocation: {
+            name: homePlace.name,
+            address: homePlace.formatted_address,
+            coords: {
+                lat: homePlace.geometry.location.lat(),
+                lng: homePlace.geometry.location.lng()
+            }
+        }
+    };
+    await Firestore.setProfile(homeData);
+    $('#home-valid-icon').fadeOut();
+    showAlert('Home address saved successfully!', 'success');
+    await renderTravelStats('stats');
+}
+
+async function renderTravelStats(type = 'profile') {
+    if (typeof google === 'undefined' || !google.maps?.geometry) {
+        setTimeout(() => renderTravelStats(type), 250);
+        return;
+    }
+    
+    const detailsId = `#${type}-travel-details`;
+    const summaryId = `#${type}-travel-summary`;
+    
+    $(detailsId).html(getSpinnerHTML());
+    if ($(summaryId)) $(summaryId).empty();
+    
+    const userProfile = await Firestore.getProfile();
+    const allJobs = await Firestore.getJobs();
+    
+    $(detailsId).empty();
+
+    if (!userProfile.homeLocation?.coords) {
+        const message = "Set your home address in the Profile section to view travel statistics.";
+        $(detailsId).html(`<p class='text-secondary text-center mt-3'><i class='bi bi-info-circle-fill me-2'></i>${message}</p>`);
+        if (type === 'stats') updateStatsMap([], null);
+        return;
+    }
+
+    const homeCoords = userProfile.homeLocation.coords;
+    const filter = $(`#${type}-travel-filter-select`).val();
+    $(`#${type}-start-date, #${type}-end-date`).toggle(filter === 'custom');
+    const filteredJobs = filterJobs(allJobs, filter, type);
+
+    let totalDistance = 0;
+    const validJobs = filteredJobs.filter(j => j && j.coords && j.entryTime);
+
+    if (type === 'stats') {
+        updateStatsMap(validJobs, userProfile);
+    }
+    
+    if (validJobs.length === 0) {
+        $(detailsId).html("<p class='text-center text-secondary mt-3'>No travel data available for the selected period.</p>");
+        if ($(summaryId)) $(summaryId).empty();
+        return;
+    }
+    
+    validJobs.forEach(job => {
+        const roundTripDistance = getDistanceKm(homeCoords, job.coords) * 2;
+        totalDistance += roundTripDistance;
+
+        const travelCard = $(`
+            <div class="travel-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="card-place">${escape(job.place)}</div>
+                        <div class="card-date small">${new Date(job.entryTime).toLocaleDateString()}</div>
+                    </div>
+                    <div class="text-end">
+                        <h5 class="mb-0 text-accent">${roundTripDistance.toFixed(1)} km</h5>
+                        <small class="text-secondary">Round Trip</small>
+                    </div>
+                </div>
+            </div>
+        `);
+        $(detailsId).append(travelCard);
+    });
+
+    if ($(summaryId)) {
+        $(summaryId).html(`
+            <div class="row text-center g-3">
+                <div class="col-6"><div class="stat-box"><h4>${totalDistance.toFixed(1)} <small>km</small></h4><p>Total Distance</p></div></div>
+                <div class="col-6"><div class="stat-box"><h4>${validJobs.length}</h4><p>Total Trips</p></div></div>
+            </div>
+        `);
+    }
+}
+
+function updateStatsMap(jobs, profile) {
+    if (!statsMap) return;
+
+    statsMapMarkers.forEach(marker => marker.setMap(null));
+    statsMapMarkers = [];
+
+    const bounds = new google.maps.LatLngBounds();
+
+    if (profile && profile.homeLocation?.coords) {
+        const homePos = new google.maps.LatLng(profile.homeLocation.coords.lat, profile.homeLocation.coords.lng);
+        const homeMarker = new google.maps.Marker({
+            position: homePos,
+            map: statsMap,
+            title: 'Home',
+            icon: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png'
+        });
+        statsMapMarkers.push(homeMarker);
+        bounds.extend(homePos);
+    }
+
+    jobs.forEach(job => {
+        if (job.coords) {
+            const jobPos = new google.maps.LatLng(job.coords.lat, job.coords.lng);
+            const jobMarker = new google.maps.Marker({
+                position: jobPos,
+                map: statsMap,
+                title: job.place
+            });
+            statsMapMarkers.push(jobMarker);
+            bounds.extend(jobPos);
+        }
+    });
+
+    if (statsMapMarkers.length > 0) {
+        statsMap.fitBounds(bounds);
+        if (statsMap.getZoom() > 15) {
+            statsMap.setZoom(15);
+        }
+        if (statsMapMarkers.length === 1 && bounds.getNorthEast().equals(bounds.getSouthWest())) {
+            statsMap.setCenter(bounds.getCenter());
+            statsMap.setZoom(12);
+        }
+    } else {
+        statsMap.setCenter({ lat: 20.5937, lng: 78.9629 });
+        statsMap.setZoom(5);
+    }
+}
+
+
 async function handleHelpRequest(e) {
     e.preventDefault();
     const message = $("#help-message").val();
@@ -767,17 +1188,7 @@ async function handleHelpRequest(e) {
     showAlert('Your message has been sent. We will get back to you shortly.', 'success');
     $("#help-message").val('');
 }
-async function handleAdminExport(uid) {
-    if (!uid) return showAlert("Please select a user first.", 'warning');
-    const userProfile = await Firestore.getProfile(uid);
-    const jobs = await Firestore.getJobs(uid);
-    if (!jobs.length) return showAlert("User has no data to export.", 'info');
-    const dataToExport = jobs.map(job => ({ "Site Name": job.place, "Address": job.address, "Entry Time": job.entryTime ? new Date(job.entryTime).toLocaleString() : '', "Exit Time": job.exitTime ? new Date(job.exitTime).toLocaleString() : '', "Status": job.status, "Duration": job.exitTime ? calculateDuration(job.entryTime, job.exitTime) : '' }));
-    const ws = XLSX.utils.json_to_sheet(dataToExport);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Attendance");
-    XLSX.writeFile(wb, `Attendance_${(userProfile.fullname || userProfile.email).replace(/\s+/g, '_')}.xlsx`);
-}
+
 function openCamera(type) {
     $("#camera-overlay").css("display", "flex");
     const startCam = () => {
@@ -799,39 +1210,61 @@ function openCamera(type) {
     $("#flip-btn").off().click(() => { usingFront = !usingFront; startCam(); });
     $("#cancel-btn").off().click(() => { if (globalStream) globalStream.getTracks().forEach(t => t.stop()); $("#camera-overlay").hide(); });
 }
+
+// Full screen image viewer logic
+$(document).on('click', '.view-photo-btn', function(e) {
+    e.preventDefault();
+    const imgSrc = $(this).data('img-src');
+    $('#fullscreen-image').attr('src', imgSrc);
+    $('#image-viewer').fadeIn(200);
+});
+
+
 function getDistance(lat1, lon1, lat2, lon2) {
-    if (lat1 === null || lon1 === null) return Infinity;
-    const R = 6371e3; const toRad = val => val * Math.PI / 180;
-    const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
-    const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    if (lat1 === null || lon1 === null || !google?.maps?.geometry) return Infinity;
+    const from = new google.maps.LatLng(lat1, lon1);
+    const to = new google.maps.LatLng(lat2, lon2);
+    return google.maps.geometry.spherical.computeDistanceBetween(from, to);
 }
+
+function getDistanceKm(coords1, coords2) {
+    if (!coords1 || !coords2 || !google?.maps?.geometry) return 0;
+    const from = new google.maps.LatLng(coords1.lat, coords1.lng);
+    const to = new google.maps.LatLng(coords2.lat, coords2.lng);
+    return google.maps.geometry.spherical.computeDistanceBetween(from, to) / 1000;
+}
+
 function escape(t) { return t ? String(t).replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m])) : ""; }
 
-function filterJobs(jobs, filter) {
+function filterJobs(jobs, filter, type) {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    switch(filter) {
+    const startDateInput = `#${type}-start-date`;
+    const endDateInput = `#${type}-end-date`;
+    
+    switch (filter) {
         case 'yesterday':
             const yesterday = new Date(today);
             yesterday.setDate(today.getDate() - 1);
             return jobs.filter(j => {
-                if (!j.entryTime) return false;
-                const entryDate = new Date(j.entryTime);
-                return entryDate >= yesterday && entryDate < today;
+                if (!j || !j.entryTime) return false;
+                try {
+                    const entryDate = new Date(j.entryTime);
+                    return entryDate >= yesterday && entryDate < today;
+                } catch(e) { return false; }
             });
         case 'last7':
             const last7 = new Date(today);
             last7.setDate(today.getDate() - 6);
-            return jobs.filter(j => j.entryTime && new Date(j.entryTime) >= last7);
+            return jobs.filter(j => j && j.entryTime && new Date(j.entryTime) >= last7);
         case 'last30':
             const last30 = new Date(today);
             last30.setDate(today.getDate() - 29);
-            return jobs.filter(j => j.entryTime && new Date(j.entryTime) >= last30);
+            return jobs.filter(j => j && j.entryTime && new Date(j.entryTime) >= last30);
         case 'custom':
-            const startStr = $("#start-date").val();
-            const endStr = $("#end-date").val();
+            const startStr = $(startDateInput).val();
+            const endStr = $(endDateInput).val();
             if (!startStr || !endStr) return [];
 
             const sDate = new Date(startStr);
@@ -841,9 +1274,11 @@ function filterJobs(jobs, filter) {
             eDate.setHours(23, 59, 59, 999);
 
             return jobs.filter(j => {
-                if (!j.entryTime) return false;
-                const entryDate = new Date(j.entryTime);
-                return entryDate >= sDate && entryDate <= eDate;
+                if (!j || !j.entryTime) return false;
+                try {
+                    const entryDate = new Date(j.entryTime);
+                    return entryDate >= sDate && entryDate <= eDate;
+                } catch(e) { return false; }
             });
         default: // 'all'
             return jobs;
@@ -854,7 +1289,7 @@ function calculateDuration(startTime, endTime) {
     if (!startTime || !endTime) return 'N/A';
     const start = new Date(startTime);
     const end = new Date(endTime);
-    let diff = Math.abs(end.getTime() - start.getTime()) / 1000; 
+    let diff = Math.abs(end.getTime() - start.getTime()) / 1000;
     const hours = Math.floor(diff / 3600);
     diff %= 3600;
     const minutes = Math.floor(diff / 60);
@@ -867,16 +1302,176 @@ function showAlert(message, type = 'info') {
     if (type === 'success') alertClass = 'alert-success';
     if (type === 'error') alertClass = 'alert-danger';
     if (type === 'warning') alertClass = 'alert-warning';
-    
+
     const alertId = 'alert-' + Date.now();
     const newAlert = $(`<div id="${alertId}" class="alert ${alertClass} alert-dismissible fade show" role="alert" style="box-shadow: 0 5px 15px rgba(0,0,0,0.3);">${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`);
-    
+
     alertBox.append(newAlert);
 
     setTimeout(() => {
-        $(`#${alertId}`).fadeOut(500, function() { $(this).remove(); });
+        $(`#${alertId}`).fadeOut(500, function () { $(this).remove(); });
     }, 5000);
 }
+
+// --- Admin Multi-Select Functions ---
+function toggleAdminSelectMode() {
+    isAdminSelectMode = !isAdminSelectMode;
+    const btn = $('#admin-toggle-select-mode');
+    
+    $('#admin-user-selection-card').toggleClass('select-mode-active', isAdminSelectMode);
+    
+    if (isAdminSelectMode) {
+        btn.html('<i class="bi bi-x-lg me-2"></i>Cancel');
+        btn.removeClass('btn-primary').addClass('btn-secondary');
+        $('#admin-user-details-wrapper').slideUp(200);
+        $('#admin-users-list .admin-user-row').removeClass('active');
+    } else {
+        btn.html('<i class="bi bi-check2-square me-2"></i>Select Multiple');
+        btn.removeClass('btn-secondary').addClass('btn-primary');
+        $('#admin-users-list .admin-user-checkbox').prop('checked', false);
+        $('#admin-select-all-users').prop('checked', false);
+        $('#admin-actions-bar').slideUp(200);
+    }
+}
+
+function handleAdminUserRowClick(e) {
+    if (isAdminSelectMode) {
+        const checkbox = $(this).find('.admin-user-checkbox');
+        checkbox.prop('checked', !checkbox.prop('checked')).trigger('change');
+    } else {
+        // This is for single view mode
+        $('#admin-users-list .admin-user-row').removeClass('active');
+        $(this).addClass('active');
+        handleAdminSingleUserView($(this));
+    }
+}
+
+async function handleAdminSingleUserView(row) {
+    const detailsWrapper = $("#admin-user-details-wrapper");
+    gsap.to(detailsWrapper, {
+        opacity: 0, duration: 0.3,
+        onComplete: async () => {
+            const uid = row.data('uid');
+            const name = row.data('name');
+            const email = row.data('email');
+            const contact = row.data('contact');
+            
+            $("#admin-selected-user-name").text(`${name}'s Records`);
+            $("#admin-selected-user-contact").html(`<i class="bi bi-envelope-fill"></i> ${email} <span class="mx-2">|</span> <i class="bi bi-telephone-fill"></i> ${contact}`);
+            detailsWrapper.show();
+            $('#admin-view-container').html(getSpinnerHTML());
+            await setupAdminView(uid);
+            gsap.to(detailsWrapper, { opacity: 1, duration: 0.3 });
+        }
+    });
+}
+
+function toggleAdminActionsBar() {
+    const selectedCount = $('#admin-users-list .admin-user-checkbox:checked').length;
+    if (selectedCount > 0) {
+        $('#admin-actions-bar').slideDown(200);
+    } else {
+        $('#admin-actions-bar').slideUp(200);
+    }
+    const allChecked = $('#admin-users-list .admin-user-checkbox').length === selectedCount;
+    $('#admin-select-all-users').prop('checked', allChecked);
+}
+
+async function handleMultiExport() {
+    const selectedCheckboxes = $('#admin-users-list .admin-user-checkbox:checked');
+    if (selectedCheckboxes.length === 0) {
+        return showAlert('Please select at least one user to export.', 'warning');
+    }
+
+    showAlert('Preparing export... This may take a moment.', 'info');
+    
+    const wb = XLSX.utils.book_new();
+    
+    for (const checkbox of selectedCheckboxes) {
+        const uid = $(checkbox).data('uid');
+        const name = $(checkbox).data('name').replace(/[\\/*?:"<>|]/g, '');
+        
+        const [profile, allJobs] = await Promise.all([Firestore.getProfile(uid), Firestore.getJobs(uid)]);
+        const filter = $('#admin-filter-select').val();
+        const jobs = filterJobs(allJobs, filter, 'admin');
+
+        if(jobs.length > 0) {
+            const dataToExport = jobs.map(job => {
+                 let oneWayDist = 'N/A';
+                if (profile.homeLocation?.coords && job.coords) {
+                    oneWayDist = `${getDistanceKm(profile.homeLocation.coords, job.coords).toFixed(2)} km`;
+                }
+                return { 
+                    "Site Name": job.place, "Address": job.address, "Entry Time": job.entryTime ? new Date(job.entryTime).toLocaleString() : '', 
+                    "Exit Time": job.exitTime ? new Date(job.exitTime).toLocaleString() : '', "Status": job.status, 
+                    "Duration": job.exitTime ? calculateDuration(job.entryTime, job.exitTime) : '', "One-Way Distance": oneWayDist
+                };
+            });
+            const ws = XLSX.utils.json_to_sheet(dataToExport);
+            XLSX.utils.book_append_sheet(wb, ws, name.substring(0, 31));
+        }
+    }
+
+    if (wb.SheetNames.length > 0) {
+        XLSX.writeFile(wb, `Multi-User_Attendance_Export.xlsx`);
+    } else {
+        showAlert('No data found for the selected users in the given time frame.', 'info');
+    }
+}
+
+async function handleMultiDelete() {
+    const selectedCheckboxes = $('#admin-users-list .admin-user-checkbox:checked');
+    if (selectedCheckboxes.length === 0) {
+        return showAlert('Please select at least one user.', 'warning');
+    }
+    
+    const filter = $('#admin-filter-select').val();
+    if (filter === 'all' && !confirm(`WARNING: You are about to delete ALL records for ${selectedCheckboxes.length} selected user(s). This action cannot be undone. Are you sure?`)) {
+        return;
+    }
+    if (filter !== 'all' && !confirm(`Are you sure you want to delete records in the selected time frame for ${selectedCheckboxes.length} user(s)? This cannot be undone.`)) {
+        return;
+    }
+
+    showAlert('Deletion in progress...', 'info');
+    let deleteCount = 0;
+    for (const checkbox of selectedCheckboxes) {
+        const uid = $(checkbox).data('uid');
+        const allJobs = await Firestore.getJobs(uid);
+        const jobsToDelete = filterJobs(allJobs, filter, 'admin');
+        
+        const deletePromises = jobsToDelete.map(job => Firestore.deleteJob(job.id, uid));
+        await Promise.all(deletePromises);
+        deleteCount += jobsToDelete.length;
+    }
+    
+    showAlert(`${deleteCount} record(s) deleted successfully.`, 'success');
+}
+
+
+// --- Reply Modal Functions ---
+function handleReplyClick() {
+    const userEmail = $(this).data('email');
+    const userName = $(this).data('name');
+    
+    $('#reply-user-email').text(`${userName} (${userEmail})`);
+    $('#reply-message').val('');
+    
+    $('#send-reply-btn').off('click').on('click', function() {
+        const message = $('#reply-message').val();
+        if(message.trim()) {
+            const subject = "Re: Your Reported Issue";
+            const body = `Hi ${userName},\n\nRegarding your recent issue report:\n\n---\n\n${message}\n\nThanks,\nAdmin`;
+            window.location.href = `mailto:${userEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            replyModal.hide();
+        } else {
+            showAlert('Please enter a message to reply.', 'warning');
+        }
+    });
+    
+    replyModal.show();
+}
+
 </script>
 
 </body>
