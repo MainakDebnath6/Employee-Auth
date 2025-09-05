@@ -37,6 +37,30 @@
     min-height: 100vh;
     overflow-x: hidden;
   }
+  
+  /* --- App Loader --- */
+  #app-loader {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: var(--background-color);
+      z-index: 99999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.3s ease;
+  }
+  .spinner {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: radial-gradient(farthest-side,var(--glow-color-1) 94%,#0000) top/9px 9px no-repeat,
+                  conic-gradient(#0000 30%,var(--glow-color-1));
+      -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 9px),#000 0);
+      animation: spinner-c7wet2 1s infinite linear;
+  }
+  @keyframes spinner-c7wet2 { to { transform: rotate(1turn) } }
+  /* --- End App Loader --- */
+
 
   #particle-container {
     position: fixed; top: 0; left: 0;
@@ -109,22 +133,23 @@
   }
   #map, #stats-map { height: 100%; width: 100%; }
   
-  .pac-target-input {
-    background: rgba(255,255,255,0.9);
-    color: #333;
-    border-radius: 10px;
-    border: 1px solid var(--card-border);
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 0.75rem 1rem;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  /* Styling for the new gmp-autocomplete element */
+  gmp-autocomplete > input.form-control {
+    background: rgba(255,255,255,0.9) !important;
+    color: #333 !important;
+    border-radius: 10px !important;
+    border: 1px solid var(--card-border) !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1rem !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
   }
-  .pac-target-input::placeholder { color: #666; }
-  .pac-target-input:focus {
-    color: #000;
-    border-color: var(--glow-color-1);
-    box-shadow: 0 0 15px rgba(51, 75, 249, 0.4);
+   gmp-autocomplete > input.form-control::placeholder { color: #666 !important; }
+   gmp-autocomplete > input.form-control:focus {
+    color: #000 !important;
+    border-color: var(--glow-color-1) !important;
+    box-shadow: 0 0 15px rgba(51, 75, 249, 0.4) !important;
   }
 
   .form-control {
@@ -198,7 +223,6 @@
       font-size: 0.8rem;
       font-weight: 400;
       color: var(--text-secondary);
-      margin-left: 0.5rem;
   }
   
   .admin-user-row .form-check-input {
@@ -206,9 +230,6 @@
   }
   .select-mode-active .admin-user-row .form-check-input {
       display: inline-block;
-  }
-  .select-mode-active .admin-user-row {
-      cursor: pointer;
   }
 
 
@@ -283,6 +304,9 @@
 </style>
 </head>
 <body>
+<div id="app-loader">
+    <div class="spinner"></div>
+</div>
 <div id="particle-container"></div>
 
 <nav class="navbar navbar-expand-lg">
@@ -337,7 +361,9 @@
     <div class="section-card">
       <div class="section-title"><i class="bi bi-map"></i> Mark Your Attendance</div>
       <div class="mb-3">
-        <input id="pac-input" class="form-control pac-target-input" placeholder="Search for site or address..." />
+        <gmp-autocomplete placeholder="Search for site or address...">
+          <input type="text" class="form-control pac-target-input"/>
+        </gmp-autocomplete>
       </div>
       <div id="map-wrapper">
         <div id="map"></div>
@@ -411,7 +437,9 @@
             <div class="mb-3">
                 <label class="form-label">Your current home address</label>
                  <div class="input-group">
-                    <input id="home-pac-input" class="form-control pac-target-input" placeholder="Start typing your address..." />
+                    <gmp-autocomplete id="home-pac-input-element" placeholder="Start typing your address...">
+                      <input type="text" class="form-control pac-target-input" />
+                    </gmp-autocomplete>
                     <span class="input-group-text" id="home-valid-icon" style="display: none;"><i class="bi bi-check-circle-fill text-success"></i></span>
                 </div>
                 <div class="form-text">This is used to calculate travel distances.</div>
@@ -428,6 +456,10 @@
               <button class="btn btn-primary btn-sm" id="admin-toggle-select-mode"><i class="bi bi-check2-square me-2"></i>Select Multiple</button>
           </div>
           <hr style="border-color: var(--card-border);">
+          <div class="form-check mb-3" id="admin-select-all-container" style="display: none;">
+              <input class="form-check-input" type="checkbox" id="admin-select-all-users">
+              <label class="form-check-label" for="admin-select-all-users">Select All</label>
+          </div>
           <div id="admin-users-list" class="mb-4"></div>
           
           <div id="admin-actions-bar" style="display: none;">
@@ -453,8 +485,7 @@
               <h5 id="admin-selected-user-name" class="mb-1"></h5>
               <p id="admin-selected-user-contact" class="text-secondary small mb-3"></p>
               <div id="admin-view-container">
-                <!-- Admin content will be dynamically generated here -->
-              </div>
+                </div>
           </div>
       </div>
       <div class="section-card">
@@ -494,7 +525,11 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA97qnWyZu_Id_BCQhWvwOhm6qxn0TPty8&libraries=places,geometry&callback=initMap" async defer></script>
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA97qnWyZu_Id_BCQhWvwOhm6qxn0TPty8&loading=async&libraries=places,marker,geometry&callback=initMap"
+  async
+  defer
+></script>
 
 <script>
 // --- Global State & Config ---
@@ -514,8 +549,9 @@ const db = firebase.firestore();
 const allowedAdminEmails = ["mainakdebnath13@gmail.com", "mainakdebnatha@gmail.com"];
 
 let userName, userEmail, userUid;
-let map, marker, userLiveMarker, selectedPlace = null, homePlace = null;
+let map, siteMarker, userLiveMarker, selectedPlace = null, homePlace = null;
 let statsMap, statsMapMarkers = [];
+let AdvancedMarkerElement, PinElement;
 let currentSectionId = '#dashboard';
 let usingFront = false, globalStream;
 let userLat = null, userLng = null;
@@ -523,31 +559,33 @@ let replyModal;
 let isAdminSelectMode = false;
 
 // --- Authentication & Initialization ---
-auth.onAuthStateChanged(user => {
+auth.onAuthStateChanged(async (user) => {
+    const appLoader = document.getElementById('app-loader');
     if (user) {
         userName = user.displayName;
         userEmail = user.email;
         userUid = user.uid;
 
         const userProfileRef = db.collection("profiles").doc(user.uid);
-        userProfileRef.get().then(doc => {
-            if (!doc.exists || !doc.data().email) {
-                userProfileRef.set({
-                    email: user.email,
-                    fullname: user.displayName || user.email.split('@')[0]
-                }, { merge: true });
-            }
-        });
+        const doc = await userProfileRef.get();
+        if (!doc.exists) {
+            await userProfileRef.set({
+                email: user.email,
+                fullname: user.displayName || user.email.split('@')[0]
+            }, { merge: true });
+        }
 
-        initializeApp();
+        await initializeApp();
+        gsap.to(appLoader, { opacity: 0, duration: 0.3, onComplete: () => $(appLoader).hide() });
+
     } else {
-        console.log("No user found, redirecting to login.");
+        console.log("No user session found, redirecting to login page.");
         window.location.href = "index.html";
     }
 });
 
 
-function initializeApp() {
+async function initializeApp() {
     $("#user-name").text(`Welcome, ${userName.split(' ')[0]}`);
 
     if (!allowedAdminEmails.includes(userEmail)) $('.admin-only').hide();
@@ -559,11 +597,13 @@ function initializeApp() {
     });
 
     setupNavListeners();
-    initDashboard();
-    initProfile();
-    initAdmin();
-    initHelp();
-    renderStatistics();
+    await Promise.all([
+        initDashboard(),
+        initProfile(),
+        initAdmin(),
+        initHelp(),
+        renderStatistics()
+    ]);
     
     $('#image-viewer').on('click', function() { $(this).fadeOut(200); });
     replyModal = new bootstrap.Modal(document.getElementById('replyModal'));
@@ -592,7 +632,9 @@ function setupNavListeners() {
                 gsap.fromTo(newSection, { opacity: 0, y: 20 }, {
                     opacity: 1, y: 0, duration: 0.5, onComplete: () => {
                         if (map && currentSectionId === '#dashboard') google.maps.event.trigger(map, 'resize');
-                        if (statsMap && targetSectionId === '#statistics') google.maps.event.trigger(statsMap, 'resize');
+                        if (statsMap && targetSectionId === '#statistics') {
+                            setTimeout(() => google.maps.event.trigger(statsMap, 'resize'), 50);
+                        }
                     }
                 });
             }
@@ -655,7 +697,8 @@ async function renderStatistics() {
 
 async function initAndRenderStatsTravel() {
     if (!statsMap) {
-        statsMap = new google.maps.Map(document.getElementById('stats-map'), { center: { lat: 20.5937, lng: 78.9629 }, zoom: 5, mapId: 'STATS_MAP' });
+        const { Map } = await google.maps.importLibrary("maps");
+        statsMap = new Map(document.getElementById('stats-map'), { center: { lat: 20.5937, lng: 78.9629 }, zoom: 5, mapId: 'STATS_MAP' });
     }
     $("#stats-travel-filter-select, #stats-travel-start-date, #stats-travel-end-date").off('change').on('change', () => {
          renderTravelStats('stats');
@@ -671,26 +714,29 @@ async function initProfile() {
     $("#prof-contact").val(p.contact || "");
     $("#profile-form").off('submit').submit(handleProfileSave);
 
+    const homeInputElement = document.getElementById('home-pac-input-element').querySelector('input');
     if (p.homeLocation) {
-        $("#home-pac-input").val(p.homeLocation.address || p.homeLocation.name);
+        homeInputElement.value = p.homeLocation.address || p.homeLocation.name;
     } else {
-        $("#home-pac-input").val('');
+        homeInputElement.value = '';
     }
     $("#home-address-form").off('submit').submit(handleHomeAddressSave);
 }
 
 async function initAdmin() {
+    isAdminSelectMode = false;
+    toggleAdminSelectMode(true); 
+
     const users = await Firestore.getAllUsers();
     const userList = $("#admin-users-list").empty();
     users.forEach(user => {
         const displayName = escape(user.fullname || user.email || 'Unnamed User');
         const displayEmail = escape(user.email || 'No Email');
         const userRow = $(`
-            <div class="admin-user-row d-flex align-items-center" data-uid="${user.uid}" data-name="${escape(user.fullname || user.email)}" data-email="${displayEmail}" data-contact="${escape(user.contact || 'Not Provided')}">
+            <div class="admin-user-row d-flex align-items-center" data-uid="${user.uid}">
                 <input type="checkbox" class="form-check-input me-3 admin-user-checkbox">
-                <div>
-                    <div>${displayName}</div>
-                    <div class="email">${displayEmail}</div>
+                <div class="flex-grow-1">
+                    <div>${displayName} <span class="email">(${displayEmail})</span></div>
                 </div>
             </div>`);
         userList.append(userRow);
@@ -706,7 +752,10 @@ async function initAdmin() {
     
     $('#admin-export-selected').on('click', handleMultiExport);
     $('#admin-delete-selected').on('click', handleMultiDelete);
-
+    $('#admin-filter-select').on('change', () => {
+        $('#admin-start-date, #admin-end-date').toggle($('#admin-filter-select').val() === 'custom');
+    });
+    
     const issues = await Firestore.getIssues();
     const issuesHolder = $("#admin-issues-holder").empty();
     if (!issues.length) {
@@ -887,31 +936,40 @@ function renderAdminDetails(jobs, profile, uid) {
     });
 }
 
-function initMap() {
-    map = new google.maps.Map(document.getElementById('map'), { center: { lat: 20.5937, lng: 78.9629 }, zoom: 5 });
+async function initMap() {
+    const { Map } = await google.maps.importLibrary("maps");
+    const markerLib = await google.maps.importLibrary("marker");
+    const placesLib = await google.maps.importLibrary("places");
 
-    const siteSearchBox = new google.maps.places.SearchBox(document.getElementById('pac-input'));
-    siteSearchBox.addListener('places_changed', () => {
-        const places = siteSearchBox.getPlaces();
-        if (!places.length) return;
-        selectedPlace = places[0];
-        if (marker) marker.setMap(null);
-        marker = new google.maps.Marker({ map, position: selectedPlace.geometry.location });
-        map.panTo(selectedPlace.geometry.location);
+    AdvancedMarkerElement = markerLib.AdvancedMarkerElement;
+    PinElement = markerLib.PinElement;
+
+    map = new Map(document.getElementById('map'), { center: { lat: 20.5937, lng: 78.9629 }, zoom: 5, mapId: 'DASHBOARD_MAP' });
+    
+    const siteAutocompleteElement = document.querySelector('gmp-autocomplete');
+    siteAutocompleteElement.addEventListener('gmp-placeselect', (event) => {
+        const place = event.place;
+        if (!place.geometry || !place.geometry.location) return;
+
+        selectedPlace = place;
+        if (siteMarker) siteMarker.position = null;
+        siteMarker = new AdvancedMarkerElement({
+            map,
+            position: place.geometry.location.toJSON()
+        });
+        map.panTo(place.geometry.location);
         map.setZoom(16);
     });
 
-    const homeSearchInput = document.getElementById('home-pac-input');
-    const homeSearchBox = new google.maps.places.SearchBox(homeSearchInput);
-    homeSearchBox.addListener('places_changed', () => {
-        const places = homeSearchBox.getPlaces();
-        if (places.length > 0) {
-            homePlace = places[0];
-            $("#home-pac-input").val(homePlace.formatted_address);
-            $('#home-valid-icon').fadeIn();
+    const homeAutocompleteElement = document.getElementById('home-pac-input-element');
+    homeAutocompleteElement.addEventListener('gmp-placeselect', (event) => {
+        homePlace = event.place;
+        if (homePlace?.formattedAddress) {
+             homeAutocompleteElement.querySelector('input').value = homePlace.formattedAddress;
+             $('#home-valid-icon').fadeIn();
         }
     });
-    $(homeSearchInput).on('input', () => {
+    $(homeAutocompleteElement.querySelector('input')).on('input', () => {
         homePlace = null;
         $('#home-valid-icon').fadeOut();
     });
@@ -925,10 +983,11 @@ function initMap() {
                 const currentPos = { lat: userLat, lng: userLng };
                 if (gpsStatus) gpsStatus.html(`<i class="bi bi-geo-alt-fill text-success"></i> GPS Lock Acquired`);
                 if (!userLiveMarker) {
-                    userLiveMarker = new google.maps.Marker({ position: currentPos, map, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#4285F4", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 2 } });
+                    const pin = new PinElement({ background: '#4285F4', borderColor: '#FFFFFF', glyphColor: '#FFFFFF' });
+                    userLiveMarker = new AdvancedMarkerElement({ position: currentPos, map, content: pin.element });
                     map.setCenter(currentPos);
                     map.setZoom(15);
-                } else { userLiveMarker.setPosition(currentPos); }
+                } else { userLiveMarker.position = currentPos; }
             },
             (err) => {
                 let message = "Could not get your location.";
@@ -1001,8 +1060,8 @@ async function handleCheckout() {
 async function finishAttendance(type, photo) {
     const location = selectedPlace.geometry.location;
     const jobData = {
-        place: selectedPlace?.name || "Unknown Site",
-        address: selectedPlace?.formatted_address || "N/A",
+        place: selectedPlace.name || "Unknown Site",
+        address: selectedPlace.formattedAddress || "N/A",
         coords: { lat: location.lat(), lng: location.lng() }
     };
 
@@ -1045,7 +1104,7 @@ async function handleHomeAddressSave(e) {
     const homeData = {
         homeLocation: {
             name: homePlace.name,
-            address: homePlace.formatted_address,
+            address: homePlace.formattedAddress,
             coords: {
                 lat: homePlace.geometry.location.lat(),
                 lng: homePlace.geometry.location.lng()
@@ -1083,7 +1142,7 @@ async function renderTravelStats(type = 'profile') {
     }
 
     const homeCoords = userProfile.homeLocation.coords;
-    const filter = $(`#${type}-travel-filter-select`).val();
+    const filter = $(`#${type}-filter-select`).val();
     $(`#${type}-start-date, #${type}-end-date`).toggle(filter === 'custom');
     const filteredJobs = filterJobs(allJobs, filter, type);
 
@@ -1131,21 +1190,23 @@ async function renderTravelStats(type = 'profile') {
     }
 }
 
-function updateStatsMap(jobs, profile) {
+async function updateStatsMap(jobs, profile) {
     if (!statsMap) return;
 
-    statsMapMarkers.forEach(marker => marker.setMap(null));
+    statsMapMarkers.forEach(marker => marker.map = null);
     statsMapMarkers = [];
 
     const bounds = new google.maps.LatLngBounds();
+    const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
 
     if (profile && profile.homeLocation?.coords) {
-        const homePos = new google.maps.LatLng(profile.homeLocation.coords.lat, profile.homeLocation.coords.lng);
-        const homeMarker = new google.maps.Marker({
+        const homePos = profile.homeLocation.coords;
+        const homePin = new PinElement({ background: '#10B981', borderColor: '#fff', glyphColor: '#fff' });
+        const homeMarker = new AdvancedMarkerElement({
             position: homePos,
             map: statsMap,
             title: 'Home',
-            icon: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png'
+            content: homePin.element
         });
         statsMapMarkers.push(homeMarker);
         bounds.extend(homePos);
@@ -1153,8 +1214,8 @@ function updateStatsMap(jobs, profile) {
 
     jobs.forEach(job => {
         if (job.coords) {
-            const jobPos = new google.maps.LatLng(job.coords.lat, job.coords.lng);
-            const jobMarker = new google.maps.Marker({
+            const jobPos = job.coords;
+            const jobMarker = new AdvancedMarkerElement({
                 position: jobPos,
                 map: statsMap,
                 title: job.place
@@ -1314,50 +1375,56 @@ function showAlert(message, type = 'info') {
 }
 
 // --- Admin Multi-Select Functions ---
-function toggleAdminSelectMode() {
-    isAdminSelectMode = !isAdminSelectMode;
+function toggleAdminSelectMode(forceOff = false) {
+    if (forceOff) {
+        isAdminSelectMode = false;
+    } else {
+        isAdminSelectMode = !isAdminSelectMode;
+    }
+
     const btn = $('#admin-toggle-select-mode');
+    const userCard = $('#admin-user-selection-card');
     
-    $('#admin-user-selection-card').toggleClass('select-mode-active', isAdminSelectMode);
+    userCard.toggleClass('select-mode-active', isAdminSelectMode);
     
     if (isAdminSelectMode) {
         btn.html('<i class="bi bi-x-lg me-2"></i>Cancel');
         btn.removeClass('btn-primary').addClass('btn-secondary');
         $('#admin-user-details-wrapper').slideUp(200);
         $('#admin-users-list .admin-user-row').removeClass('active');
+        $('#admin-select-all-container').slideDown(200);
     } else {
         btn.html('<i class="bi bi-check2-square me-2"></i>Select Multiple');
         btn.removeClass('btn-secondary').addClass('btn-primary');
         $('#admin-users-list .admin-user-checkbox').prop('checked', false);
         $('#admin-select-all-users').prop('checked', false);
         $('#admin-actions-bar').slideUp(200);
+        $('#admin-select-all-container').slideUp(200);
     }
 }
 
-function handleAdminUserRowClick(e) {
+function handleAdminUserRowClick() {
     if (isAdminSelectMode) {
         const checkbox = $(this).find('.admin-user-checkbox');
         checkbox.prop('checked', !checkbox.prop('checked')).trigger('change');
     } else {
-        // This is for single view mode
         $('#admin-users-list .admin-user-row').removeClass('active');
         $(this).addClass('active');
-        handleAdminSingleUserView($(this));
+        const uid = $(this).data('uid');
+        handleAdminSingleUserView(uid);
     }
 }
 
-async function handleAdminSingleUserView(row) {
+$('#admin-users-list').on('change', '.admin-user-checkbox', toggleAdminActionsBar);
+
+async function handleAdminSingleUserView(uid) {
     const detailsWrapper = $("#admin-user-details-wrapper");
     gsap.to(detailsWrapper, {
         opacity: 0, duration: 0.3,
         onComplete: async () => {
-            const uid = row.data('uid');
-            const name = row.data('name');
-            const email = row.data('email');
-            const contact = row.data('contact');
-            
-            $("#admin-selected-user-name").text(`${name}'s Records`);
-            $("#admin-selected-user-contact").html(`<i class="bi bi-envelope-fill"></i> ${email} <span class="mx-2">|</span> <i class="bi bi-telephone-fill"></i> ${contact}`);
+            const profile = await Firestore.getProfile(uid);
+            $("#admin-selected-user-name").text(`${profile.fullname || profile.email}'s Records`);
+            $("#admin-selected-user-contact").html(`<i class="bi bi-envelope-fill"></i> ${profile.email} <span class="mx-2">|</span> <i class="bi bi-telephone-fill"></i> ${profile.contact || 'Not Provided'}`);
             detailsWrapper.show();
             $('#admin-view-container').html(getSpinnerHTML());
             await setupAdminView(uid);
@@ -1373,7 +1440,8 @@ function toggleAdminActionsBar() {
     } else {
         $('#admin-actions-bar').slideUp(200);
     }
-    const allChecked = $('#admin-users-list .admin-user-checkbox').length === selectedCount;
+    const allCheckboxes = $('#admin-users-list .admin-user-checkbox');
+    const allChecked = allCheckboxes.length > 0 && selectedCount === allCheckboxes.length;
     $('#admin-select-all-users').prop('checked', allChecked);
 }
 
@@ -1388,8 +1456,9 @@ async function handleMultiExport() {
     const wb = XLSX.utils.book_new();
     
     for (const checkbox of selectedCheckboxes) {
-        const uid = $(checkbox).data('uid');
-        const name = $(checkbox).data('name').replace(/[\\/*?:"<>|]/g, '');
+        const row = $(checkbox).closest('.admin-user-row');
+        const uid = row.data('uid');
+        const name = (row.data('name') || 'user').replace(/[\\/*?:"<>|]/g, '');
         
         const [profile, allJobs] = await Promise.all([Firestore.getProfile(uid), Firestore.getJobs(uid)]);
         const filter = $('#admin-filter-select').val();
@@ -1436,7 +1505,7 @@ async function handleMultiDelete() {
     showAlert('Deletion in progress...', 'info');
     let deleteCount = 0;
     for (const checkbox of selectedCheckboxes) {
-        const uid = $(checkbox).data('uid');
+        const uid = $(checkbox).closest('.admin-user-row').data('uid');
         const allJobs = await Firestore.getJobs(uid);
         const jobsToDelete = filterJobs(allJobs, filter, 'admin');
         
@@ -1446,6 +1515,7 @@ async function handleMultiDelete() {
     }
     
     showAlert(`${deleteCount} record(s) deleted successfully.`, 'success');
+    toggleAdminSelectMode(true);
 }
 
 
