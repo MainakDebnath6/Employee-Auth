@@ -82,9 +82,10 @@
         apiKey: "AIzaSyDiuVZqGwUFeN8hoMTd7iLOqMy3Yp8zT9Q",
         authDomain: "engineer-attendance-60374.firebaseapp.com",
         projectId: "engineer-attendance-60374",
-        storageBucket: "engineer-attendance-60374.appspot.com",
+        storageBucket: "engineer-attendance-60374.firebasestorage.app",
         messagingSenderId: "575411706871",
-        appId: "1:575411706871:web:839ed7b22530d3be93acf2"
+        appId: "1:575411706871:web:839ed7b22530d3be93acf2",
+        measurementId: "G-SC1JL1B8VC"   
     };
 
     const app = initializeApp(firebaseConfig);
@@ -103,19 +104,24 @@
     }
 
     signInBtn.addEventListener('click', () => {
-        setButtonState('loading');
-        signInWithPopup(auth, provider)
-            .then(() => {
-                setButtonState('success');
-                loginCard.classList.add('logged-in');
-                window.location.href = "dashboard.html";
-            })
-            .catch((error) => {
-                console.error("Auth Error:", error);
+    setButtonState('loading');
+    signInWithPopup(auth, provider)
+        .then(() => {
+            setButtonState('success');
+            loginCard.classList.add('logged-in');
+            window.location.href = "/dashboard.html";
+        })
+        .catch((error) => {
+            console.error("Auth Error:", error);
+            // Check for the specific popup-related error code
+            if (error.code === 'auth/popup-blocked') {
+                alertBox.textContent = 'Sign-in popup was blocked. Please enable popups for this site and try again.';
+            } else {
                 alertBox.textContent = 'Sign-in failed. Please try again.';
-                setButtonState('idle');
-            });
-    });
+            }
+            setButtonState('idle');
+        });
+});
 </script>
 </body>
 </html>
