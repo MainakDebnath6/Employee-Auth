@@ -1,5 +1,5 @@
 # Employee-Auth
-# Engineer Attendance Dashboard
+# Engineer Attendance Dashboard...
 
 ## 📌 Overview
 The **Engineer Attendance Dashboard** is a web-based application for engineers to **check-in/check-out** at job sites with **GPS location validation** and **photo verification**.  
