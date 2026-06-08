@@ -1,129 +1,386 @@
-# Employee-Auth
-# Engineer Attendance Dashboard...
+<div align="center">
 
-## 📌 Overview
-The **Engineer Attendance Dashboard** is a web-based application for engineers to **check-in/check-out** at job sites with **GPS location validation** and **photo verification**.  
-It uses **Google Maps API** for site location selection and **localStorage** for offline-capable attendance tracking.  
-Admin users get extended controls for monitoring, reporting, and exporting attendance data.
+# 📍 Employee Auth
 
----
+### GPS-Based Employee Attendance & Field Workforce Tracking System
 
-## 🚀 Features
+Secure employee check-in/check-out with GPS verification, live location validation, photo capture authentication, attendance analytics, and admin reporting.
 
-### 1️⃣ Dashboard
-- 📍 **Google Maps Integration** with place search (India-restricted).
-- 📏 **Proximity Check** — only allows marking attendance within **400 meters** of the site.
-- 📸 **Photo Capture Verification** — uses device camera to take entry/exit photos.
-- 🗂 **Attendance Cards** — expandable for details, includes entry/exit time and photos.
-- 📅 **Filtering Options** — All, Yesterday, Last 7 Days, Last 30 Days, or Custom Range.
+### 🌐 Live Demo
 
-### 2️⃣ Statistics
-- 📊 Displays attendance counts:
-  - Today
-  - Last 7 Days
-  - Last 30 Days
-  - Total Records
-- Updates dynamically when new entries are added.
+https://mainakdebnath6.github.io/Employee-Auth/
 
-### 3️⃣ Profile Management
-- ✏️ Update username, full name, and contact details.
-- 📧 Email shown but locked for editing (linked to login ID).
-- Profile data is stored in `localStorage`.
+![HTML](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
+![CSS](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?logo=bootstrap&logoColor=white)
+![Google Maps](https://img.shields.io/badge/Google_Maps-4285F4?logo=googlemaps&logoColor=white)
+![Responsive](https://img.shields.io/badge/Mobile-Friendly-success)
 
-### 4️⃣ Admin Panel *(Restricted Access)*
-- 🔒 Visible only to the **designated admin email**.
-- 👥 View all users and their attendance history.
-- 📄 Detailed records:
-  - Place & ZIP
-  - Entry/Exit time
-  - Duration
-  - Status
-- 📤 **Export to Excel** (via SheetJS).
-- 🛠 View and manage reported user issues.
-
-### 5️⃣ Help & Issues
-- 📝 Users can report issues through a form.
-- 📂 Saved locally, visible to admins in the panel.
+</div>
 
 ---
 
-## 🛠 Tech Stack
+# 🚀 Overview
 
-- **Frontend:** HTML5, CSS3, Bootstrap 5  
-- **JavaScript:** ES6+, jQuery, GSAP animations  
-- **APIs:** Google Maps JavaScript API (with Places Library)  
-- **Camera:** HTML5 Media API (supports flipping between front/rear cameras)  
-- **Data:** `localStorage` for offline-ready persistence  
-- **Export:** SheetJS (`xlsx`) for Excel file download  
+Employee Auth is a location-aware attendance management platform designed for field engineers and remote workforce tracking.
 
----
+The application ensures employees can mark attendance only when physically present at an assigned work location using:
 
-## 🎨 UI/UX Highlights
-- 🌙 Dark mode with custom CSS variables for easy theme tweaks.
-- 📱 Fully responsive & mobile-first design.
-- ✨ Smooth animations and custom scrollbars.
-- 🖱 Hover effects for better interaction feedback.
+- 📍 GPS Location Verification
+- 📸 Photo Authentication
+- 🗺 Google Maps Integration
+- 📊 Attendance Analytics
+- 📤 Excel Export Reports
+- 👨‍💼 Admin Monitoring Dashboard
+
+The solution eliminates manual attendance fraud and improves accountability for on-site engineering teams.
 
 ---
 
-## 📖 How It Works
+# ✨ Key Features
 
-1. **Login:**  
-   This app assumes login via Google OAuth (email and name stored in `sessionStorage`).
+## 📍 GPS-Based Attendance
 
-2. **Mark Attendance:**  
-   - Search & select a site on the map.  
-   - Be within **400m** of the site.  
-   - Click **Mark Entry** → capture photo.  
-   - Click **Mark Exit** → capture exit photo.  
-
-3. **View Records:**  
-   - Find your attendance in **cards format**.  
-   - Filter by timeframe.  
-   - Expand to see images and timestamps.  
-
-4. **Profile:**  
-   - Update personal details anytime.  
-
-5. **Report Issues:**  
-   - Submit from the **Help** section.  
-
-6. **Admin (if authorized):**  
-   - View all user data.  
-   - Export an Excel report.  
-   - See all reported issues.  
+- Live location tracking
+- Site location selection using Google Maps
+- Geofencing validation
+- Attendance allowed only within 400m radius
 
 ---
 
-## 🔐 Access Control
-- Admin features locked to one **hardcoded email** (`allowedAdminEmail` in code).
-- All data stored locally in user’s browser (`localStorage`).
+## 📸 Photo Verification
+
+- Camera integration
+- Entry photo capture
+- Exit photo capture
+- Front/Rear camera support
 
 ---
 
-## ⚡ Quick Start
+## 🗺 Interactive Map System
 
-1. Clone or download this repository.
-2. Open the `index.html` file in a modern browser **OR** host on a static server.
-3. Make sure you have internet access for:
-   - Google Maps API
-   - Bootstrap, jQuery, GSAP, SheetJS
-4. Allow **camera** and **location** permissions when prompted.
-5. Log in and start marking attendance.
+- Google Maps API integration
+- Location search
+- Place autocomplete
+- ZIP code extraction
 
 ---
 
-## 📂 Data Storage
-- **Attendance:** `attendance_jobs__<userEmail>` in `localStorage`
-- **Profile:** `prof__<userEmail>` in `localStorage`
-- **Issues:** `issues__` in `localStorage`
+## 📊 Attendance Dashboard
+
+Track:
+
+- Today's Attendance
+- Last 7 Days
+- Last 30 Days
+- Total Records
+
+Real-time updates without page refresh.
 
 ---
 
-## 📝 License
-This project is free to use for educational and internal organizational purposes.  
-Modify as needed for your team.
+## 👤 Profile Management
+
+Employees can:
+
+- Update Full Name
+- Contact Information
+- Personal Details
+
+Profile data is persisted locally.
 
 ---
 
-💡 *This tool is ideal for field engineering teams needing lightweight attendance tracking with GPS + photo verification, without heavy server infrastructure.*
+## 👨‍💼 Admin Dashboard
+
+Admin users can:
+
+- View All Employees
+- Monitor Attendance Records
+- Review Site Visits
+- Track Working Duration
+- Export Excel Reports
+- Manage User Issues
+
+---
+
+## 📤 Excel Export
+
+Generate attendance reports using:
+
+- SheetJS (XLSX)
+- One-click export
+- Ready for HR processing
+
+---
+
+# 🏗️ System Architecture
+
+```mermaid
+flowchart LR
+
+A[Employee]
+
+B[Dashboard]
+
+C[GPS Validation]
+
+D[Google Maps API]
+
+E[Camera Verification]
+
+F[Attendance Storage]
+
+G[Admin Panel]
+
+H[Excel Reports]
+
+A --> B
+
+B --> C
+B --> D
+B --> E
+
+C --> F
+E --> F
+
+F --> G
+
+G --> H
+```
+
+---
+
+# 🔄 Attendance Workflow
+
+```mermaid
+sequenceDiagram
+
+participant Employee
+participant Dashboard
+participant GPS
+participant Camera
+participant Storage
+
+Employee->>Dashboard: Select Site
+
+Dashboard->>GPS: Verify Location
+
+GPS-->>Dashboard: Location Valid
+
+Employee->>Camera: Capture Entry Photo
+
+Camera-->>Dashboard: Photo Verified
+
+Dashboard->>Storage: Save Attendance
+
+Storage-->>Dashboard: Record Stored
+
+Employee->>Dashboard: Mark Exit
+
+Dashboard->>Camera: Capture Exit Photo
+
+Camera-->>Dashboard: Photo Verified
+
+Dashboard->>Storage: Update Record
+```
+
+---
+
+# 📈 Attendance Lifecycle
+
+```mermaid
+graph LR
+
+A[Login]
+
+A --> B[Select Job Site]
+
+B --> C[GPS Verification]
+
+C --> D[Capture Entry Photo]
+
+D --> E[Mark Attendance]
+
+E --> F[Work Session]
+
+F --> G[Capture Exit Photo]
+
+G --> H[Check Out]
+
+H --> I[Attendance Record Generated]
+```
+
+---
+
+# 🛠 Tech Stack
+
+## Frontend
+
+- HTML5
+- CSS3
+- Bootstrap 5
+- JavaScript (ES6)
+
+## APIs
+
+- Google Maps JavaScript API
+- Places API
+- Geolocation API
+
+## Libraries
+
+- jQuery
+- GSAP
+- SheetJS (XLSX)
+
+## Browser APIs
+
+- Camera API
+- Geolocation API
+- Local Storage API
+
+---
+
+# 📊 Feature Breakdown
+
+| Module | Functionality |
+|----------|-------------|
+| Authentication | Session-based login |
+| Attendance | Entry & Exit Tracking |
+| Maps | Site Selection |
+| GPS | Geofencing Validation |
+| Camera | Identity Verification |
+| Reports | Excel Export |
+| Admin | User Monitoring |
+| Help Desk | Issue Reporting |
+
+---
+
+# 📁 Project Structure
+
+```bash
+Employee-Auth
+│
+├── index.html
+├── dashboard.html
+│
+├── assets/
+│   ├── css/
+│   ├── js/
+│   └── images/
+│
+├── README.md
+│
+└── Bureau_Veritas.svg.png
+```
+
+---
+
+# 🔒 Security Measures
+
+### Geofencing Protection
+
+Only allows attendance within:
+
+```text
+400 Meter Radius
+```
+
+### Identity Verification
+
+- Mandatory photo capture
+- Entry image
+- Exit image
+
+### Role-Based Access
+
+- Employee Access
+- Admin Access
+
+### Data Integrity
+
+- Attendance timestamps
+- Location validation
+- Session-based control
+
+---
+
+# 📱 Responsive Design
+
+Optimized for:
+
+- 📱 Mobile Devices
+- 💻 Laptops
+- 🖥 Desktop Screens
+- 📟 Tablets
+
+---
+
+# 🚀 Future Enhancements
+
+- Cloud Database Integration
+- Employee Live Tracking
+- Face Recognition Attendance
+- QR Code Site Verification
+- Attendance Notifications
+- Multi-Admin Support
+- Analytics Dashboard
+- REST API Backend
+
+---
+
+# 🎯 Real-World Use Cases
+
+### Engineering Teams
+
+Track field engineers across multiple project sites.
+
+### Construction Industry
+
+Verify worker presence at designated locations.
+
+### Service & Maintenance Teams
+
+Monitor technician visits and service duration.
+
+### Logistics Workforce
+
+Attendance verification for distributed teams.
+
+---
+
+# 👨‍💻 Developer
+
+### Mainak Debnath
+
+B.Tech CSE Student
+
+Full Stack Developer | MERN Stack | AI/ML Enthusiast
+
+GitHub: https://github.com/MainakDebnath6
+
+---
+
+# ⭐ Support
+
+If you found this project useful:
+
+```bash
+⭐ Star the Repository
+
+🍴 Fork the Project
+
+🚀 Contribute
+```
+
+---
+
+<div align="center">
+
+### Secure Attendance. Verified Presence. Better Workforce Management.
+
+⭐ Don't forget to star this repository.
+
+</div>
